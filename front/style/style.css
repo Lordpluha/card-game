@@ -1,0 +1,108 @@
+body {
+  font-family: "Nunito", sans-serif;
+  font-weight: 400;
+  color: var(--color-dark-2);
+}
+
+/** blank */
+
+:root {
+  --color-blueviolet: #5e17eb;
+  --color-violet: #ab33e3;
+  --color-darkviolet: #762860;
+}
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative;
+  background-color: var(--color-blueviolet);
+  position: relative;
+  overflow: hidden;
+}
+.main {
+  flex: auto;
+}
+.container {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.preloader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10000;
+}
+.logo img {
+  width: 300px;
+  height: auto;
+}
+
+.bar {
+  flex: 1;
+  background-color: var(--color-violet);
+  transform: translateY(0);
+}
+
+@keyframes swingLeft {
+  0% {
+    transform: translateX(0) rotate(0deg);
+  }
+  50% {
+    transform: translateX(-20px) rotate(-10deg);
+  }
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+}
+
+@keyframes swingRight {
+  0% {
+    transform: translateX(0) rotate(0deg);
+  }
+  50% {
+    transform: translateX(20px) rotate(10deg);
+  }
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.swing-left {
+  animation: swingLeft 7s infinite ease-in-out;
+}
+
+.swing-right {
+  animation: swingRight 7s infinite ease-in-out;
+}
+
+.pulse {
+  animation: pulse 3s infinite ease-in-out;
+}
