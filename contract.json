@@ -33,7 +33,8 @@
       "400": "Validation error",
       "409": "Username already exists",
       "500": "Internal server error"
-    }
+    },
+    "response": "Ok"
   },
   "logout": {
     "endpoint": "/logout",
