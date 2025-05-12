@@ -1,17 +1,33 @@
 import { Router } from 'express'
-// Api Routes
+import AuthService from './Auth.service.js'
+
 const router = Router()
 
-router.get('/login', (req, res) => {
-  res.send('Completed')
+router.post('/login', (req, res) => {
+  try {
+    AuthService.login(req, res)
+  } catch (err) {
+    console.error(err)
+    return res.status(500).json({ message: err.message })
+  }
 })
 
-router.get('/register', (req, res) => {
-  res.send('Completed')
+router.post('/register', (req, res) => {
+  try {
+    AuthService.register(req, res)
+  } catch (err) {
+    console.error(err)
+    return res.status(500).json({ message: err.message })
+  }
 })
 
-router.get('/logout', (req, res) => {
-  res.send('Completed')
+router.post('/logout', (req, res) => {
+  try {
+    AuthService.register(req, res)
+  } catch (err) {
+    console.error(err)
+    return res.status(500).json({ message: err.message })
+  }
 })
 
 export default router
