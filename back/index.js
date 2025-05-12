@@ -10,11 +10,11 @@ console.log('Hello from the back-end!');
 app.use(express.static('public'))
 
 app.use(express.json());
-app.use('/api', router);
-
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
   res.send('Welcome to card-game Api!')
 })
+app.use('/api', router);
+
 
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`)
