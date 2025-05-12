@@ -1,0 +1,248 @@
+{
+  "login": {
+    "endpoint": "/login",
+    "method": "POST",
+    "body": {
+      "username": "string",
+      "password": "string"
+    }
+  },
+  "register": {
+    "endpoint": "/register",
+    "authorization": false,
+    "method": "POST",
+    "body": {
+      "username": "string",
+      "password": "string"
+    }
+  },
+  "logout": {
+    "endpoint": "/logout",
+    "method": "POST",
+    "authorization": true,
+    "body": {},
+    "response": {
+      "message": "string"
+    }
+  },
+
+  "getUser": {
+    "endpoint": "/user",
+    "method": "GET",
+    "authorization": true,
+    "body": {},
+    "response": {
+      "username": "string",
+      "email": "string",
+      "avatar": "string",
+      "history": [{
+        "gameId": "string",
+        "score": "number",
+        "date": "string"
+      }],
+      "games_played": "number",
+      "games_lost": "number",
+      "games_tied": "number",
+      "games_won": "number"
+    }
+  },
+  "getUserById": {
+    "endpoint": "/user/:userId",
+    "method": "GET",
+    "authorization": true,
+    "body": {},
+    "response": {
+      "username": "string",
+      "email": "string",
+      "history": [{
+        "gameId": "string",
+        "score": "number",
+        "date": "string"
+      }],
+      "games_played": "number",
+      "games_lost": "number",
+      "games_tied": "number",
+      "games_won": "number"
+    }
+  },
+  "changePassword": {
+    "endpoint": "/user/password",
+    "method": "POST",
+    "authorization": true,
+    "body": {
+      "oldPassword": "string",
+      "newPassword": "string"
+    },
+    "response": {
+      "message": "string"
+    }
+  },
+  "uploadAvatar": {
+    "endpoint": "/user/avatar",
+    "method": "POST",
+    "authorization": true,
+    "body": {
+      "avatar": "string"
+    },
+    "response": {
+      "message": "string"
+    }
+  },
+
+  "getGame": {
+    "endpoint": "/game/:gameId",
+    "method": "GET",
+    "authorization": true,
+    "body": {},
+    "response": {
+      "gameId": "string",
+      "players": [
+        {
+          "username": "string",
+          "score": "number"
+        }
+      ],
+      "status": "string",
+      "deck": [
+        {
+          "suit": "string",
+          "rank": "string"
+        }
+      ]
+    }
+  },
+  "getGames": {
+    "endpoint": "/games",
+    "method": "GET",
+    "authorization": true,
+    "body": {},
+    "response": {
+      "games": [
+        {
+          "gameId": "string",
+          "status": "string",
+          "players": [
+            {
+              "username": "string"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "createGame": {
+    "endpoint": "/game",
+    "method": "POST",
+    "authorization": true,
+    "body": {
+      "players":
+        {
+          "game_code": "string"
+        }
+    },
+    "response": {
+      "gameId": "string",
+      "status": "string"
+    }
+  },
+  "joinGame": {
+    "endpoint": "/game/:gameId/join",
+    "method": "POST",
+    "authorization": true,
+    "body": {
+      "username": "string"
+    },
+    "response": {
+      "message": "string"
+    }
+  },
+  "startGame": {
+    "endpoint": "/game/:gameId/start",
+    "method": "POST",
+    "authorization": true,
+    "body": {},
+    "response": {
+      "message": "string"
+    }
+  },
+  "playCard": {
+    "endpoint": "/game/:gameId/play",
+    "method": "POST",
+    "authorization": true,
+    "body": {
+      "card": {
+        "suit": "string",
+        "rank": "string"
+      }
+    },
+    "response": {
+      "message": "string",
+      "gameState": {
+        "deck": [
+          {
+            "suit": "string",
+            "rank": "string"
+          }
+        ],
+        "players": [
+          {
+            "username": "string",
+            "score": "number"
+          }
+        ],
+        "status": "string"
+      }
+    }
+  },
+  "endGame": {
+    "endpoint": "/game/:gameId/end",
+    "method": "POST",
+    "authorization": true,
+    "body": {},
+    "response": {
+      "message": "string",
+      "gameState": {
+        "deck": [
+          {
+            "suit": "string",
+            "rank": "string"
+          }
+        ],
+        "players": [
+          {
+            "username": "string",
+            "score": "number"
+          }
+        ],
+        "status": "string"
+      }
+    }
+  },
+
+  "sendMessage": {
+    "endpoint": "/game/:gameId/message",
+    "method": "POST",
+    "authorization": true,
+    "body": {
+      "message": "string"
+    },
+    "response": {
+      "message": "string"
+    }
+  },
+  "getMessages": {
+    "endpoint": "/game/:gameId/messages",
+    "method": "GET",
+    "authorization": true,
+    "body": {},
+    "response": {
+      "messages": [
+        {
+          "username": "string",
+          "message": "string",
+          "timestamp": "string"
+        }
+      ]
+    }
+  }
+}
