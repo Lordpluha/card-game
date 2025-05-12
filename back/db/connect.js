@@ -1,11 +1,15 @@
-// Connect to DB
-const pgp = require('pg-promise')(/* options */)
-const db = pgp('postgres://username:password@host:port/database')
+import mysql from 'mysql2/promise';
+import { DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER } from '../config.js';
 
-db.one('SELECT $1 AS value', 123)
-  .then((data) => {
-    console.log('DATA:', data.value)
-  })
-  .catch((error) => {
-    console.log('ERROR:', error)
-  })
+const pool = mysql.createPool({
+  host:     DB_HOST     || 'localhost',
+  port:     DB_PORT     || 3306,
+  user:     DB_USER     || 'username',
+  password: DB_PASSWORD || 'password',
+  database: DB_NAME     || 'database',
+  waitForConnections: true,
+  connectionLimit:    10,
+  queueLimit:         0
+});
+
+export default pool;
