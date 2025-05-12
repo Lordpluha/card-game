@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./back/index.js && node ./front/index.js"
+    "start:back": "node ./back/index.js",
+    "start:front": "node ./front/index.js"
   },
   "repository": {
     "type": "git",
