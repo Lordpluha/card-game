@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Playpen+Sans:wght@100..800&display=swap"
+      rel="stylesheet" />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"
+      defer></script>
+    <link rel="stylesheet" href="/style/style.css" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="wrap">
+      <img
+        src="/assets/img/spider-man-1.png"
+        alt="Spider-Man Left"
+        class="absolute left-0 bottom-0 w-1/4 max-w-xs pulse"
+        data-aos="fade-up"
+        data-aos-delay="400" />
+      <img
+        src="/assets/img/spider-man-2.png"
+        alt="Spider-Man Right"
+        class="absolute right-0 top-0 w-1/4 max-w-xs swing-right"
+        data-aos="fade-left"
+        data-aos-delay="600" />
+      <div class="container">
+        <div
+          class="main__content flex items-center justify-center min-h-screen"
+          data-aos="zoom-out"
+          data-aos-delay="200">
+          <div class="flex flex-col">
+            <h1 class="title">Подключение к игре</h1>
+            <input
+              placeholder="Введите код комнаты"
+              class="w-full p-2 bg-transparent text-white focus:outline-none border-2 border-green-300 rounded focus:border-green-500 pr-10 transition-colors duration-300 mb-8" />
+            <button
+              class="button px-10 py-5 text-2xl bg-gradient-to-r from-red-500 to-orange-500 text-yellow-400 border-none rounded-[15px] cursor-pointer transition-all duration-300 shadow-[0_5px_15px_rgba(255,64,64,0.5)] hover:scale-[1.03] hover:shadow-[0_10px_25px_rgba(255,64,64,0.7)]"
+              onclick="window.location.href='game.html'">
+              Начать игру
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init();
+  </script>
+
+  <script src="/src/main.js"></script>
+</html>

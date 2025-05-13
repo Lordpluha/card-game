@@ -1,0 +1,365 @@
+{
+  "version": "1.0.0",
+  "basePath": "/api",
+  "login": {
+    "endpoint": "/login",
+    "method": "POST",
+    "body": {
+      "username": "string",
+      "password": "string"
+    },
+    "response": {
+      "access": "string",
+      "refresh": "string"
+    },
+    "description": "Authenticate user and return JWT token",
+    "statusCodes": {
+      "200": "OK",
+      "400": "Invalid username or password",
+      "500": "Internal server error"
+    }
+  },
+  "register": {
+    "endpoint": "/register",
+    "authorization": false,
+    "method": "POST",
+    "body": {
+      "username": "string",
+      "password": "string"
+    },
+    "description": "Create a new user account",
+    "statusCodes": {
+      "201": "User created",
+      "400": "Validation error",
+      "409": "Username already exists",
+      "500": "Internal server error"
+    },
+    "response": "Ok"
+  },
+  "logout": {
+    "endpoint": "/logout",
+    "method": "POST",
+    "authorization": true,
+    "body": {},
+    "response": {},
+    "description": "Invalidate current user session",
+    "statusCodes": {
+      "200": "Logged out",
+      "401": "Unauthorized",
+      "500": "Internal server error"
+    }
+  },
+  "getUser": {
+    "endpoint": "/user",
+    "method": "GET",
+    "authorization": true,
+    "body": {},
+    "response": {
+      "username": "string",
+      "email": "string",
+      "avatar": "string",
+      "history": [{
+        "gameId": "string",
+        "score": "number",
+        "date": "string"
+      }],
+      "games_played": "number",
+      "games_lost": "number",
+      "games_tied": "number",
+      "games_won": "number"
+    },
+    "description": "Retrieve current user information",
+    "statusCodes": {
+      "200": "User information retrieved",
+      "401": "Unauthorized",
+      "500": "Internal server error"
+    }
+  },
+  "getUserById": {
+    "endpoint": "/user/:userId",
+    "method": "GET",
+    "authorization": true,
+    "body": {},
+    "response": {
+      "username": "string",
+      "email": "string",
+      "history": [{
+        "gameId": "string",
+        "score": "number",
+        "date": "string"
+      }],
+      "games_played": "number",
+      "games_lost": "number",
+      "games_tied": "number",
+      "games_won": "number"
+    },
+    "description": "Retrieve user information by user ID",
+    "statusCodes": {
+      "200": "User information retrieved",
+      "401": "Unauthorized",
+      "404": "User not found",
+      "500": "Internal server error"
+    }
+  },
+  "changePassword": {
+    "endpoint": "/user/password",
+    "method": "POST",
+    "authorization": true,
+    "body": {
+      "oldPassword": "string",
+      "newPassword": "string"
+    },
+    "response": {
+      "message": "string"
+    },
+    "description": "Change user password",
+    "statusCodes": {
+      "200": "Password changed",
+      "400": "Invalid password",
+      "401": "Unauthorized",
+      "500": "Internal server error"
+    }
+  },
+  "uploadAvatar": {
+    "endpoint": "/user/avatar",
+    "method": "POST",
+    "authorization": true,
+    "body": {
+      "avatar": "string"
+    },
+    "response": {
+      "message": "string"
+    },
+    "description": "Upload user avatar",
+    "statusCodes": {
+      "200": "Avatar uploaded",
+      "400": "Invalid avatar",
+      "401": "Unauthorized",
+      "500": "Internal server error"
+    }
+  },
+  "getGame": {
+    "endpoint": "/game/:gameId",
+    "method": "GET",
+    "authorization": true,
+    "body": {},
+    "response": {
+      "gameId": "string",
+      "players": [
+        {
+          "username": "string",
+          "score": "number"
+        }
+      ],
+      "status": "string",
+      "deck": [
+        {
+          "suit": "string",
+          "rank": "string"
+        }
+      ]
+    },
+    "description": "Retrieve game information by game ID",
+    "statusCodes": {
+      "200": "Game information retrieved",
+      "401": "Unauthorized",
+      "404": "Game not found",
+      "500": "Internal server error"
+    }
+  },
+  "getGames": {
+    "endpoint": "/games",
+    "method": "GET",
+    "authorization": true,
+    "body": {},
+    "response": {
+      "games": [
+        {
+          "gameId": "string",
+          "status": "string",
+          "players": [
+            {
+              "username": "string"
+            }
+          ]
+        }
+      ]
+    },
+    "description": "Retrieve list of games with optional pagination and filtering",
+    "queryParams": {
+      "page": { "type": "number", "description": "Page number, default 1" },
+      "limit": { "type": "number", "description": "Items per page, default 10" },
+      "status": { "type": "string", "description": "Filter by game status" }
+    },
+    "statusCodes": {
+      "200": "List returned",
+      "401": "Unauthorized",
+      "500": "Internal server error"
+    }
+  },
+  "createGame": {
+    "endpoint": "/game",
+    "method": "POST",
+    "authorization": true,
+    "body": {
+      "game_code": "string"
+    },
+    "response": {
+      "gameId": "string",
+      "status": "string"
+    },
+    "description": "Create a new game",
+    "statusCodes": {
+      "201": "Game created",
+      "400": "Invalid game data",
+      "401": "Unauthorized",
+      "500": "Internal server error"
+    }
+  },
+  "joinGame": {
+    "endpoint": "/game/:gameId/join",
+    "method": "POST",
+    "authorization": true,
+    "body": {
+      "username": "string"
+    },
+    "response": {
+      "message": "string"
+    },
+    "description": "Join an existing game",
+    "statusCodes": {
+      "200": "Joined game",
+      "400": "Invalid game data",
+      "401": "Unauthorized",
+      "404": "Game not found",
+      "500": "Internal server error"
+    }
+  },
+  "startGame": {
+    "endpoint": "/game/:gameId/start",
+    "method": "POST",
+    "authorization": true,
+    "body": {},
+    "response": {
+      "message": "string"
+    },
+    "description": "Start a game",
+    "statusCodes": {
+      "200": "Game started",
+      "400": "Invalid game data",
+      "401": "Unauthorized",
+      "404": "Game not found",
+      "500": "Internal server error"
+    }
+  },
+  "playCard": {
+    "endpoint": "/game/:gameId/play",
+    "method": "POST",
+    "authorization": true,
+    "body": {
+      "card": {
+        "suit": "string",
+        "rank": "string"
+      }
+    },
+    "response": {
+      "message": "string",
+      "gameState": {
+        "deck": [
+          {
+            "suit": "string",
+            "rank": "string"
+          }
+        ],
+        "players": [
+          {
+            "username": "string",
+            "score": "number"
+          }
+        ],
+        "status": "string"
+      }
+    },
+    "description": "Play a card in the game",
+    "statusCodes": {
+      "200": "Card played",
+      "400": "Invalid card data",
+      "401": "Unauthorized",
+      "404": "Game not found",
+      "500": "Internal server error"
+    }
+  },
+  "endGame": {
+    "endpoint": "/game/:gameId/end",
+    "method": "POST",
+    "authorization": true,
+    "body": {},
+    "response": {
+      "message": "string",
+      "gameState": {
+        "deck": [
+          {
+            "suit": "string",
+            "rank": "string"
+          }
+        ],
+        "players": [
+          {
+            "username": "string",
+            "score": "number"
+          }
+        ],
+        "status": "string"
+      }
+    },
+    "description": "End the game",
+    "statusCodes": {
+      "200": "Game ended",
+      "400": "Invalid game data",
+      "401": "Unauthorized",
+      "404": "Game not found",
+      "500": "Internal server error"
+    }
+  },
+  "sendMessage": {
+    "endpoint": "/game/:gameId/message",
+    "method": "POST",
+    "authorization": true,
+    "body": {
+      "message": "string"
+    },
+    "response": {
+      "message": "string"
+    },
+    "description": "Send a message in the game",
+    "statusCodes": {
+      "200": "Message sent",
+      "400": "Invalid message data",
+      "401": "Unauthorized",
+      "404": "Game not found",
+      "500": "Internal server error"
+    }
+  },
+  "getMessages": {
+    "endpoint": "/game/:gameId/messages",
+    "method": "GET",
+    "authorization": true,
+    "body": {},
+    "response": {
+      "messages": [
+        {
+          "username": "string",
+          "message": "string",
+          "timestamp": "string"
+        }
+      ]
+    },
+    "description": "Retrieve messages in the game",
+    "statusCodes": {
+      "200": "Messages retrieved",
+      "401": "Unauthorized",
+      "404": "Game not found",
+      "500": "Internal server error"
+    }
+  }
+}

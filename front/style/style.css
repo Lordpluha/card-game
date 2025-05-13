@@ -106,3 +106,10 @@ body {
 .pulse {
   animation: pulse 3s infinite ease-in-out;
 }
+
+.title {
+  font-size: 48px;
+  color: #ffd700;
+  text-shadow: 2px 2px 4px #ff4040;
+  margin-bottom: 20px;
+}
