@@ -1,7 +1,10 @@
 import pool from '../../db/connect.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET, JWT_LIFETIME } from '../../config.js';
+import {
+  JWT_SECRET, ACCESS_TOKEN_LIFETIME,
+   REFRESH_TOKEN_LIFETIME
+} from '../../config.js';
 
 class AuthService {
   async register({ username, password }) {
@@ -19,12 +22,6 @@ class AuthService {
       'INSERT INTO users (username, password_hash) VALUES (?, ?)',
       [username, hash]
     );
-    const token = jwt.sign(
-      { userId: res.insertId, username },
-      JWT_SECRET,
-      { expiresIn: JWT_LIFETIME }
-    );
-    return { access: token };
   };
 
   async login({ username, password }) {
@@ -47,14 +44,42 @@ class AuthService {
     const token = jwt.sign(
       { userId: user.id, username },
       JWT_SECRET,
-      { expiresIn: JWT_LIFETIME }
+      { expiresIn: ACCESS_TOKEN_LIFETIME }
     );
-    return { access: token };
+    const refresh = jwt.sign(
+      { userId: user.id, username },
+      JWT_SECRET,
+      { expiresIn: REFRESH_TOKEN_LIFETIME }
+    );
+    return { access: token, refresh };
   };
+
   async logout() {
-    // JWT стейтлесс — клиент просто удаляет токен
     return { message: 'Logged out successfully' };
   };
+
+  async refresh({ refresh: refreshToken }) {
+    let payload;
+    try {
+      payload = jwt.verify(refreshToken, JWT_SECRET);
+    } catch (err) {
+      const e = new Error('Invalid refresh token');
+      e.status = 401;
+      throw e;
+    }
+    const { userId, username } = payload;
+    const access = jwt.sign(
+      { userId, username },
+      JWT_SECRET,
+      { expiresIn: ACCESS_LIFETIME }
+    );
+    const refresh = jwt.sign(
+      { userId, username },
+      JWT_SECRET,
+      { expiresIn: REFRESH_TOKEN_LIFETIME }
+    );
+    return { access, refresh };
+  }
 }
 
 export default new AuthService();

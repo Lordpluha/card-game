@@ -21,6 +21,15 @@ router.post('/login', async (req, res) => {
   }
 });
 
+router.post('/refresh', async (req, res) => {
+  try {
+    const data = await AuthService.refresh(req.body);
+    return res.json(data);
+  } catch (err) {
+    return res.status(err.status || 401).json({ message: err.message });
+  }
+});
+
 router.post('/logout', async (req, res) => {
   try {
     const data = await AuthService.logout();
