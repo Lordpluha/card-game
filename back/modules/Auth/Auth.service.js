@@ -1,10 +1,14 @@
 import pool from '../../db/connect.js';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import {
   JWT_SECRET, ACCESS_TOKEN_LIFETIME,
    REFRESH_TOKEN_LIFETIME
 } from '../../config.js';
+import { PasswordUtils, JWTUtils } from '../../utils/index.js';
+import {
+	USER_REGISTERED,
+	USER_LOGGED_OUT,
+	INVALID_USERNAME_OR_PASSWORD
+} from '../../models/errors/auth.errors.js';
 
 class AuthService {
   async register({ username, password }) {
@@ -13,11 +17,11 @@ class AuthService {
       [username]
     );
     if (exists.length) {
-      const err = new Error('Username already exists');
+      const err = new Error(USER_REGISTERED);
       err.status = 409;
       throw err;
     }
-    const hash = await bcrypt.hash(password, 10);
+    const hash = await PasswordUtils.hashPassword(password);
     const [res] = await pool.execute(
       'INSERT INTO users (username, password_hash) VALUES (?, ?)',
       [username, hash]
@@ -30,54 +34,32 @@ class AuthService {
       [username]
     );
     if (!rows.length) {
-      const err = new Error('Invalid username or password');
+      const err = new Error(INVALID_USERNAME_OR_PASSWORD);
       err.status = 401;
       throw err;
     }
     const user = rows[0];
-    const valid = await bcrypt.compare(password, user.password_hash);
-    if (!valid) {
-      const err = new Error('Invalid username or password');
-      err.status = 401;
-      throw err;
-    }
-    const token = jwt.sign(
-      { userId: user.id, username },
-      JWT_SECRET,
-      { expiresIn: ACCESS_TOKEN_LIFETIME }
-    );
-    const refresh = jwt.sign(
-      { userId: user.id, username },
-      JWT_SECRET,
-      { expiresIn: REFRESH_TOKEN_LIFETIME }
-    );
-    return { access: token, refresh };
+		try {
+			await PasswordUtils.comparePasswords(password, user.password_hash);
+		} catch (e) {
+			const err = new Error(INVALID_USERNAME_OR_PASSWORD);
+			err.status = 401;
+			throw err;
+		}
+		const access = JWTUtils.generateAccessToken(user.id, username);
+		const refresh = JWTUtils.generateRefreshToken(user.id, username);
+
+    return { access, refresh };
   };
 
   async logout() {
-    return { message: 'Logged out successfully' };
+    return { message: USER_LOGGED_OUT };
   };
 
   async refresh({ refresh: refreshToken }) {
-    let payload;
-    try {
-      payload = jwt.verify(refreshToken, JWT_SECRET);
-    } catch (err) {
-      const e = new Error('Invalid refresh token');
-      e.status = 401;
-      throw e;
-    }
-    const { userId, username } = payload;
-    const access = jwt.sign(
-      { userId, username },
-      JWT_SECRET,
-      { expiresIn: ACCESS_LIFETIME }
-    );
-    const refresh = jwt.sign(
-      { userId, username },
-      JWT_SECRET,
-      { expiresIn: REFRESH_TOKEN_LIFETIME }
-    );
+		const { userId, username } = JWTUtils.verifyTokens(refreshToken);
+    const access = JWTUtils.generateAccessToken(userId, username);
+    const refresh = JWTUtils.generateRefreshToken(userId, username);
     return { access, refresh };
   }
 }
