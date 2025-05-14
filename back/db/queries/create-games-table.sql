@@ -2,8 +2,6 @@ CREATE TABLE IF NOT EXISTS games (
         id            INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         game_code     VARCHAR(50)  NOT NULL UNIQUE,
         host_user_id  INT UNSIGNED,
-        status        ENUM('created','in_progress','ended') DEFAULT 'created',
-        created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        status        ENUM('CREATED','IN_PROGRESS','ENDED') DEFAULT 'CREATED',
         FOREIGN KEY (host_user_id) REFERENCES users(id) ON DELETE SET NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -1,24 +1,60 @@
+import pool from '../../db/connect.js';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { JWT_SECRET, JWT_LIFETIME } from '../../config.js';
+
 class AuthService {
-  login(req, res) {
-    const { username, password } = req.body ?? {}
-    if (username === 'admin' && password === 'admin') {
-      return res.send({
-        access: 'access_token',
-        refresh: 'refresh_token'
-      })
+  async register({ username, password }) {
+    const [exists] = await pool.execute(
+      'SELECT id FROM users WHERE username = ?',
+      [username]
+    );
+    if (exists.length) {
+      const err = new Error('Username already exists');
+      err.status = 409;
+      throw err;
     }
-    return res.status(401).json({ message: 'Invalid username or password' })
-  }
+    const hash = await bcrypt.hash(password, 10);
+    const [res] = await pool.execute(
+      'INSERT INTO users (username, password_hash) VALUES (?, ?)',
+      [username, hash]
+    );
+    const token = jwt.sign(
+      { userId: res.insertId, username },
+      JWT_SECRET,
+      { expiresIn: JWT_LIFETIME }
+    );
+    return { access: token };
+  };
 
-  register(req, res) {
-    const { username, password } = req.body ?? {}
-    return res.status(401).json({ message: 'Invalid username or password' })
-  }
-
-  logout(req, res) {
-    const token = ''
-    return res.status(500)
-  }
+  async login({ username, password }) {
+    const [rows] = await pool.execute(
+      'SELECT id, password_hash FROM users WHERE username = ?',
+      [username]
+    );
+    if (!rows.length) {
+      const err = new Error('Invalid username or password');
+      err.status = 401;
+      throw err;
+    }
+    const user = rows[0];
+    const valid = await bcrypt.compare(password, user.password_hash);
+    if (!valid) {
+      const err = new Error('Invalid username or password');
+      err.status = 401;
+      throw err;
+    }
+    const token = jwt.sign(
+      { userId: user.id, username },
+      JWT_SECRET,
+      { expiresIn: JWT_LIFETIME }
+    );
+    return { access: token };
+  };
+  async logout() {
+    // JWT стейтлесс — клиент просто удаляет токен
+    return { message: 'Logged out successfully' };
+  };
 }
 
-export default new AuthService()
+export default new AuthService();

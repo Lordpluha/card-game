@@ -1,33 +1,45 @@
 import fs from 'fs/promises';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
-import pool from './connect.js';
+import mysql from 'mysql2/promise';
+import {
+  DB_HOST, DB_PORT,
+  DB_USER, DB_PASSWORD,
+  DB_NAME
+} from '../config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = dirname(__filename);
 
 async function init() {
-  const conn = await pool.getConnection();
+  // используем учётку с правами на CREATE DATABASE
+  const conn = await mysql.createConnection({
+    host:     DB_HOST,
+    port:     DB_PORT,
+    user:     DB_USER,
+    password: DB_PASSWORD,
+    multipleStatements: true
+  });
+
   try {
     await conn.beginTransaction();
 
-    const initSQl = await fs.readFile(join(__dirname, 'queries/init.sql'), 'utf-8');
-    await conn.query(initSQl);
+    // 2) создаём БД, юзера, права
+    const initSql = await fs.readFile(join(__dirname, 'queries/init.sql'), 'utf-8');
+    await conn.query(initSql);
 
-    /* ---------- USERS ---------- */
-    const usersSql = await fs.readFile(join(__dirname, 'queries/create-users-table.sql'), 'utf-8');
-    await conn.query(usersSql);
+    // 3) переключаемся на созданную БД
+    await conn.query(`USE \`${DB_NAME}\``);
 
-    /* ---------- GAMES ---------- */
-    const gamesSql = await fs.readFile(join(__dirname, 'queries/create-games-table.sql'), 'utf-8');
-    await conn.query(gamesSql);
-
-    /* ---------- GAME ↔ PLAYERS (many-to-many) ---------- */
-    const playersSql = await fs.readFile(join(__dirname, 'queries/create-game-playes-relation.sql'), 'utf-8');
-    await conn.query(playersSql);
-
-    /* ---------- CHAT MESSAGES ---------- */
+    // 4) создаём таблицы
+    const usersSql    = await fs.readFile(join(__dirname, 'queries/create-users-table.sql'),    'utf-8');
+    const gamesSql    = await fs.readFile(join(__dirname, 'queries/create-games-table.sql'),    'utf-8');
+    const playersSql  = await fs.readFile(join(__dirname, 'queries/create-game-playes-relation.sql'), 'utf-8');
     const messagesSql = await fs.readFile(join(__dirname, 'queries/create-messages-table.sql'), 'utf-8');
+
+    await conn.query(usersSql);
+    await conn.query(gamesSql);
+    await conn.query(playersSql);
     await conn.query(messagesSql);
 
     await conn.commit();
@@ -37,8 +49,7 @@ async function init() {
     console.error('❌  DB init failed:', err);
     process.exitCode = 1;
   } finally {
-    conn.release();
-    await pool.end();             // init – одноразовый скрипт, закрываем пул
+    await conn.end();
   }
 }
 
