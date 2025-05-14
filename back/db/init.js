@@ -12,11 +12,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname  = dirname(__filename);
 
 async function init() {
-  // используем учётку с правами на CREATE DATABASE
   const conn = await mysql.createConnection({
-    host:     DB_HOST,
-    port:     DB_PORT,
-    user:     DB_USER,
+    host: DB_HOST,
+    port: DB_PORT,
+    user: DB_USER,
     password: DB_PASSWORD,
     multipleStatements: true
   });
@@ -34,13 +33,9 @@ async function init() {
     // 4) создаём таблицы
     const usersSql    = await fs.readFile(join(__dirname, 'queries/create-users-table.sql'),    'utf-8');
     const gamesSql    = await fs.readFile(join(__dirname, 'queries/create-games-table.sql'),    'utf-8');
-    const playersSql  = await fs.readFile(join(__dirname, 'queries/create-game-playes-relation.sql'), 'utf-8');
-    const messagesSql = await fs.readFile(join(__dirname, 'queries/create-messages-table.sql'), 'utf-8');
 
     await conn.query(usersSql);
     await conn.query(gamesSql);
-    await conn.query(playersSql);
-    await conn.query(messagesSql);
 
     await conn.commit();
     console.info('✅  Database schema is up to date');
