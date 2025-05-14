@@ -1,13 +1,9 @@
 import pool from '../../db/connect.js';
-import {
-  JWT_SECRET, ACCESS_TOKEN_LIFETIME,
-   REFRESH_TOKEN_LIFETIME
-} from '../../config.js';
 import { PasswordUtils, JWTUtils } from '../../utils/index.js';
 import {
-	USER_REGISTERED,
-	USER_LOGGED_OUT,
-	INVALID_USERNAME_OR_PASSWORD
+  USER_REGISTERED,
+  INVALID_USERNAME_OR_PASSWORD,
+  REFRESH_TOKEN_MISSING
 } from '../../models/errors/auth.errors.js';
 
 class AuthService {
@@ -22,7 +18,7 @@ class AuthService {
       throw err;
     }
     const hash = await PasswordUtils.hashPassword(password);
-    const [res] = await pool.execute(
+    await pool.execute(
       'INSERT INTO users (username, password_hash) VALUES (?, ?)',
       [username, hash]
     );
@@ -39,25 +35,30 @@ class AuthService {
       throw err;
     }
     const user = rows[0];
-		try {
-			await PasswordUtils.comparePasswords(password, user.password_hash);
-		} catch (e) {
-			const err = new Error(INVALID_USERNAME_OR_PASSWORD);
-			err.status = 401;
-			throw err;
-		}
-		const access = JWTUtils.generateAccessToken(user.id, username);
-		const refresh = JWTUtils.generateRefreshToken(user.id, username);
+    try {
+      await PasswordUtils.comparePasswords(password, user.password_hash);
+    } catch (e) {
+      const err = new Error(INVALID_USERNAME_OR_PASSWORD);
+      err.status = 401;
+      throw err;
+    }
+    const access = JWTUtils.generateAccessToken(user.id, username);
+    const refresh = JWTUtils.generateRefreshToken(user.id, username);
 
     return { access, refresh };
   };
 
   async logout() {
-    return { message: USER_LOGGED_OUT };
+
   };
 
-  async refresh({ refresh: refreshToken }) {
-		const { userId, username } = JWTUtils.verifyTokens(refreshToken);
+  async refresh(oldRefresh) {
+    if (!oldRefresh) {
+      const err = new Error(REFRESH_TOKEN_MISSING);
+      err.status = 401;
+      throw err;
+    }
+    const { userId, username } = JWTUtils.verifyTokens(oldRefresh);
     const access = JWTUtils.generateAccessToken(userId, username);
     const refresh = JWTUtils.generateRefreshToken(userId, username);
     return { access, refresh };
