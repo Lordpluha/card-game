@@ -5,6 +5,7 @@ dotenv.config({
 });
 
 export const PORT = process.env.BACK_PORT;
+export const HOST = process.env.BACK_HOST
 
 export const DB_HOST = process.env.DB_HOST;
 export const DB_PORT = process.env.DB_PORT;

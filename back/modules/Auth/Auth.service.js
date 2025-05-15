@@ -48,7 +48,7 @@ class AuthService {
     return { access, refresh };
   };
 
-  async logout() {
+  async logout(access) {
 
   };
 

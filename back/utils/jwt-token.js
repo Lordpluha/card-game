@@ -17,12 +17,12 @@ class JWTUtils {
 			{ expiresIn: REFRESH_TOKEN_LIFETIME }
 		);
 
-	static verifyTokens = (refreshToken) => {
+	static verifyToken = (token) => {
 		let payload;
 		try {
-			payload = jwt.verify(refreshToken, JWT_SECRET);
+			payload = jwt.verify(token, JWT_SECRET);
 		} catch (err) {
-			const e = new Error('Invalid refresh token');
+			const e = new Error('Invalid token');
 			e.status = 401;
 			throw e;
 		}

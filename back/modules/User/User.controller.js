@@ -1,32 +1,32 @@
 import { Router } from 'express';
-import ProfileService from './Profile.service.js';
+import UserService from './User.service.js';
 import { ACCESS_TOKEN_NAME } from '../../config.js';
-import { JWTUtils } from '../../utils/index.js';
+import JWTUtils from '../../utils/jwt-token.js';
 import { requireAccessToken } from '../../middleware/index.js';
 
 const router = Router();
 
-router.patch(
-  '/profile',
+router.get(
+  '/user/:id',
   requireAccessToken,
   async (req, res) => {
     try {
-      const userProfile = await ProfileService.getProfileById(req.userId);
-      return res.json(userProfile);
+      const userId = req.params.id
+      const resp = await UserService.getUserById(userId);
+      return res.json(resp);
     } catch (err) {
       return res.status(err.status || 500).json({ message: err.message });
     }
   }
 );
 
-router.patch(
-  '/profile',
+router.get(
+  '/user',
   requireAccessToken,
   async (req, res) => {
     try {
-      const settings = req.body
-      const resp = await ProfileService.changeSettings(req.userId, settings);
-      return res.json(resp);
+      const user = await UserService.getUserById(req.userId);
+      return res.json(user);
     } catch (err) {
       return res.status(err.status || 500).json({ message: err.message });
     }
