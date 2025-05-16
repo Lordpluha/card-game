@@ -2,7 +2,7 @@ import AuthService from "./Auth.service.js";
 
 document
   .getElementById("registerForm")
-  .addEventListener("submit", async (e) => {
+  .addEventListener("submit", (e) => {
     e.preventDefault();
 
     const username = document.getElementById("username").value.trim();
@@ -32,14 +32,11 @@ document
     }
 
 
-    await AuthService.register(username, password)
-			.then((res) => {
+    AuthService.register(username, password)
+      .then((res) => {
         if (res.ok) {
           document.getElementById("modal").classList.remove("hidden");
-          this.reset();
-          setTimeout(() => {
-            window.location.href = "/pages/main-menu.html";
-          }, 1000);
+					window.location.href = "/pages/login.html";
         } else {
           return res.json().then((data) => {
             errorMessage.textContent = data.message || "Registration failed.";
@@ -47,8 +44,8 @@ document
           });
         }
       })
-      .catch(() => {
-        errorMessage.textContent = "Network error.";
+      .catch((e) => {
+        errorMessage.textContent = JSON.stringify(e);
         errorMessage.classList.remove("hidden");
       });
   });

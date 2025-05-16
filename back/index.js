@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { PORT, HOST } from "./config.js";
+import { PORT, HOST, NODE_ENV, FRONT_HOST } from "./config.js";
 import router from "./modules/index.js";
 import cookieParser from "cookie-parser";
 
@@ -32,6 +32,6 @@ app.get("/api", (req, res) => {
 app.use("/api", router);
 
 app.listen(PORT, () => {
-  console.log(`Using: ${process.env.NODE_ENV} environment`)
+  console.log(`Using: ${NODE_ENV} environment`)
   console.log(`Server started: http://${HOST}:${PORT}/api`);
 });

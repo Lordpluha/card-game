@@ -1,7 +1,6 @@
-import { API_URL } from "../config.js";
 import AuthService from "./Auth.service.js";
 
-document.getElementById("loginForm").addEventListener("submit", async (e) => {
+document.getElementById("loginForm").addEventListener("submit", (e) => {
   e.preventDefault();
 
   const username = document.getElementById("username").value.trim();
@@ -23,14 +22,11 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     return;
   }
 
-  await AuthService.login(username, password)
+  AuthService.login(username, password)
     .then((res) => {
       if (res.ok) {
         document.getElementById("modal").classList.remove("hidden");
-        this.reset();
-        setTimeout(() => {
-          window.location.href = "/pages/main-menu.html";
-        }, 1000);
+				window.location.href = "/pages/main-menu.html";
       } else {
         return res.json().then((data) => {
           errorMessage.textContent = data.message || "Login failed.";
@@ -38,8 +34,8 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
         });
       }
     })
-    .catch(() => {
-      errorMessage.textContent = "Network error.";
+    .catch((e) => {
+      errorMessage.textContent = JSON.stringify(e);
       errorMessage.classList.remove("hidden");
     });
 });

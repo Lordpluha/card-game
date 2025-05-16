@@ -2,6 +2,7 @@ export const NODE_ENV = process.env.NODE_ENV;
 
 export const PORT = process.env.BACK_PORT;
 export const HOST = process.env.BACK_HOST
+export const FRONT_HOST = process.env.FRONT_HOST;
 
 export const DB_HOST = process.env.DB_HOST;
 export const DB_PORT = process.env.DB_PORT;

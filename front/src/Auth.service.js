@@ -2,7 +2,7 @@ class AuthService {
 	params
 	url
 	constructor() {
-		this.url = `${API_URL}/api/auth`
+		this.url = `http://localhost:8080/api/auth`
 		this.params = {
 			credentials: "include",
 			headers: {
@@ -10,34 +10,35 @@ class AuthService {
 			},
 		}
 	}
+
 	async login(username, password) {
-		return fetch(`${url}/login`, {
+		return await fetch(`${this.url}/login`, {
 			method: "POST",
 			body: JSON.stringify({ username, password }),
-			...params
+			...this.params
 		})
 	}
 
 	async refresh() {
-		return fetch(`${url}/refresh`, {
-			method: "GET",
-			...params
+		return await fetch(`${this.url}/refresh`, {
+			method: "POST",
+			...this.params
 		})
 	}
 
 	async logout() {
-		return fetch(`${url}/logout`, {
+		return await fetch(`${this.url}/logout`, {
 			method: "POST",
-			...params
+			...this.params
 		})
 	}
 
 	async register(username, password) {
-		return fetch(`${url}/register`, {
-      method: "POST",
-      body: JSON.stringify({ username, password }),
-      ...params
-    })
+		return await fetch(`${this.url}/register`, {
+			method: "POST",
+			body: JSON.stringify({ username, password }),
+			...this.params
+		})
 	}
 }
 

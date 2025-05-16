@@ -1,4 +1,4 @@
-import { API_URL } from "../config.js";
+import AuthService from "./Auth.service.js";
 
 // Проверка авторизации
 AuthService.refresh().then((res) => {
@@ -9,10 +9,10 @@ AuthService.refresh().then((res) => {
 
 // Logout
 document.getElementById("logoutBtn").addEventListener("click", () => {
-  AuthService.logout().then(() => {
-    document.cookie = "refresh=; Max-Age=0; path=/;";
-    window.location.href = "/pages/login.html";
-  });
+  AuthService.logout()
+		.then(() => {
+			window.location.href = "/pages/login.html";
+		});
 });
 
 console.log("⚡ main-menu loaded");
