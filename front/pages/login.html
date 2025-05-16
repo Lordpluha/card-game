@@ -13,19 +13,19 @@
     <script
       src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"
       defer></script>
-    <link rel="stylesheet" href="/style/style.css" />
+    <link rel="stylesheet" href="../style/style.css" />
     <title>Document</title>
   </head>
   <body>
     <div class="wrap">
       <img
-        src="/assets/img/spider-man-1.png"
+        src="../assets/img/spider-man-1.png"
         alt="Spider-Man Left"
         class="absolute left-0 bottom-0 w-1/4 max-w-xs pulse"
         data-aos="fade-up"
         data-aos-delay="400" />
       <img
-        src="/assets/img/spider-man-2.png"
+        src="../assets/img/spider-man-2.png"
         alt="Spider-Man Right"
         class="absolute right-0 top-0 w-1/4 max-w-xs swing-right"
         data-aos="fade-left"
@@ -51,11 +51,12 @@
                 placeholder="Password"
                 class="w-full p-2 bg-transparent text-white focus:outline-none border-2 border-green-300 rounded focus:border-green-500 pr-10 transition-colors duration-300" />
               <img
-                src="/assets/img/icons8-show-password-96 1.svg"
+                src="../assets/img/icons8-show-password-96 1.svg"
                 alt="Show Password"
-                class="absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 cursor-pointer"
-                onclick="togglePassword('password')" />
+                data-toggle-password="password"
+                class="absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 cursor-pointer" />
             </div>
+
             <div
               id="errorMessage"
               class="text-red-500 text-sm mb-4 hidden"></div>
@@ -64,6 +65,12 @@
               class="bg-purple-500 text-white px-6 py-2 rounded hover:bg-purple-600 cursor-pointer duration-300">
               Login
             </button>
+            <p class="text-white text-sm mt-4">
+              Don’t have an account?
+              <a href="/index.html" class="text-cyan-400 hover:underline ml-1"
+                >Register here</a
+              >
+            </p>
           </form>
         </div>
       </div>
@@ -87,6 +94,6 @@
   <script>
     AOS.init();
   </script>
-  <script src="/src/log.js"></script>
-  <script src="/src/main.js"></script>
+  <script type="module" src="../src/log.js"></script>
+  <script src="../src/main.js"></script>
 </html>

@@ -1,3 +1,3 @@
-console.log('Hello from the front-end!');
+console.log("Hello from the front-end!");
 
-require('dotenv').config({path: '../.env.dev'});
+require("dotenv").config({ path: "../.env.dev" });

@@ -1,15 +1,15 @@
-import pool from '../../db/connect.js';
-import { PasswordUtils, JWTUtils } from '../../utils/index.js';
+import pool from "../../db/connect.js";
+import { PasswordUtils, JWTUtils } from "../../utils/index.js";
 import {
   USER_REGISTERED,
   INVALID_USERNAME_OR_PASSWORD,
-  REFRESH_TOKEN_MISSING
-} from '../../models/errors/auth.errors.js';
+  REFRESH_TOKEN_MISSING,
+} from "../../models/errors/auth.errors.js";
 
 class AuthService {
   async register({ username, password }) {
     const [exists] = await pool.execute(
-      'SELECT id FROM users WHERE username = ?',
+      "SELECT id FROM users WHERE username = ?",
       [username]
     );
     if (exists.length) {
@@ -19,14 +19,14 @@ class AuthService {
     }
     const hash = await PasswordUtils.hashPassword(password);
     await pool.execute(
-      'INSERT INTO users (username, password_hash) VALUES (?, ?)',
+      "INSERT INTO users (username, password_hash) VALUES (?, ?)",
       [username, hash]
     );
-  };
+  }
 
   async login({ username, password }) {
     const [rows] = await pool.execute(
-      'SELECT id, password_hash FROM users WHERE username = ?',
+      "SELECT id, password_hash FROM users WHERE username = ?",
       [username]
     );
     if (!rows.length) {
@@ -46,19 +46,22 @@ class AuthService {
     const refresh = JWTUtils.generateRefreshToken(user.id, username);
 
     return { access, refresh };
-  };
+  }
 
   async logout(access) {
-
-  };
+    await tokenBlacklistService.add(access);
+  }
 
   async refresh(oldRefresh) {
+    console.log("🌀 TRYING TO REFRESH:", oldRefresh);
+
     if (!oldRefresh) {
       const err = new Error(REFRESH_TOKEN_MISSING);
       err.status = 401;
       throw err;
     }
-    const { userId, username } = JWTUtils.verifyTokens(oldRefresh);
+
+    const { userId, username } = JWTUtils.verifyToken(oldRefresh);
     const access = JWTUtils.generateAccessToken(userId, username);
     const refresh = JWTUtils.generateRefreshToken(userId, username);
     return { access, refresh };

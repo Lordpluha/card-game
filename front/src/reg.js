@@ -1,9 +1,4 @@
-function togglePassword(id) {
-  const passwordInput = document.getElementById(id);
-  const type =
-    passwordInput.getAttribute("type") === "password" ? "text" : "password";
-  passwordInput.setAttribute("type", type);
-}
+import { API_URL } from "./config.js";
 
 document
   .getElementById("registerForm")
@@ -23,21 +18,59 @@ document
       errorMessage.classList.remove("hidden");
       return;
     }
+
     if (password.length < 6) {
       errorMessage.textContent = "Password must be at least 6 characters long.";
       errorMessage.classList.remove("hidden");
       return;
     }
+
     if (password !== passwordAgain) {
       errorMessage.textContent = "Passwords do not match.";
       errorMessage.classList.remove("hidden");
       return;
     }
 
-    document.getElementById("modal").classList.remove("hidden");
-
-    this.reset();
+    fetch(`${API_URL}/register`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+    })
+      .then((res) => {
+        if (res.ok) {
+          document.getElementById("modal").classList.remove("hidden");
+          this.reset();
+          setTimeout(() => {
+            window.location.href = "/pages/main-menu.html";
+          }, 1000);
+        } else {
+          return res.json().then((data) => {
+            errorMessage.textContent = data.message || "Registration failed.";
+            errorMessage.classList.remove("hidden");
+          });
+        }
+      })
+      .catch(() => {
+        errorMessage.textContent = "Network error.";
+        errorMessage.classList.remove("hidden");
+      });
   });
+
+// 👁 Подключение клик-событий на иконки
+document.querySelectorAll("[data-toggle-password]").forEach((el) => {
+  el.addEventListener("click", () => {
+    const id = el.getAttribute("data-toggle-password");
+    const input = document.getElementById(id);
+    if (input) {
+      const type =
+        input.getAttribute("type") === "password" ? "text" : "password";
+      input.setAttribute("type", type);
+    }
+  });
+});
 
 document.getElementById("closeModal").addEventListener("click", () => {
   document.getElementById("modal").classList.add("hidden");
