@@ -1,8 +1,8 @@
-import { API_URL } from "./config.js";
+import AuthService from "./Auth.service.js";
 
 document
   .getElementById("registerForm")
-  .addEventListener("submit", function (e) {
+  .addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const username = document.getElementById("username").value.trim();
@@ -31,15 +31,9 @@ document
       return;
     }
 
-    fetch(`${API_URL}/register`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-    })
-      .then((res) => {
+
+    await AuthService.register(username, password)
+			.then((res) => {
         if (res.ok) {
           document.getElementById("modal").classList.remove("hidden");
           this.reset();

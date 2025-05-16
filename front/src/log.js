@@ -1,6 +1,7 @@
-import { API_URL } from "./config.js";
+import { API_URL } from "../config.js";
+import AuthService from "./Auth.service.js";
 
-document.getElementById("loginForm").addEventListener("submit", function (e) {
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const username = document.getElementById("username").value.trim();
@@ -22,14 +23,7 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
     return;
   }
 
-  fetch(`${API_URL}/login`, {
-    method: "POST",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ username, password }),
-  })
+  await AuthService.login(username, password)
     .then((res) => {
       if (res.ok) {
         document.getElementById("modal").classList.remove("hidden");

@@ -1,3 +1,11 @@
-console.log("Hello from the front-end!");
+import liveServer from "live-server";
+import {HOST, PORT} from "./config.js"
 
-require("dotenv").config({ path: "../.env.dev" });
+var params = {
+	port: PORT,
+	host: HOST,
+	open: true,
+	logLevel: 2,
+};
+
+liveServer.start(params);
