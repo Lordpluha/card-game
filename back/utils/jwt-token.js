@@ -22,7 +22,6 @@ class JWTUtils {
     try {
       payload = jwt.verify(token, JWT_SECRET);
     } catch (err) {
-      console.error("❌ Token verification failed:", err.message);
       const e = new Error("Invalid token");
       e.status = 401;
       throw e;
