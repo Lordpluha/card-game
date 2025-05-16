@@ -6,9 +6,9 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --env-file=../.env.local index.js",
-    "start:dev": "node --env-file=../.env.dev index.js",
-    "start:prod": "node --env-file=../.env.prod index.js"
+    "start": "node --env-file=../.env.local src/index.js",
+    "start:dev": "node --env-file=../.env.dev src/index.js",
+    "start:prod": "node --env-file=../.env.prod src/index.js"
   },
   "keywords": [],
   "author": "",

@@ -1,4 +1,4 @@
-import AuthService from "./Auth.service.js";
+import AuthService from "../api/Auth.service.js";
 
 document
   .getElementById("registerForm")
