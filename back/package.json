@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
+    "start": "node --env-file=../.env.local index.js",
+    "start:dev": "node --env-file=../.env.dev index.js",
+    "start:prod": "node --env-file=../.env.prod index.js",
     "db:init": "sudo node db/init.js",
     "db:init-win": "node db/init.js"
   },
@@ -17,7 +19,6 @@
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.0",
     "mysql2": "^3.14.1",

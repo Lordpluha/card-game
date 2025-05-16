@@ -1,8 +1,4 @@
-import dotenv from 'dotenv';
-
-dotenv.config({
-  path: '../.env.dev'
-});
+export const NODE_ENV = process.env.NODE_ENV;
 
 export const PORT = process.env.BACK_PORT;
 export const HOST = process.env.BACK_HOST

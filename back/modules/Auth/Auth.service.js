@@ -49,12 +49,10 @@ class AuthService {
   }
 
   async logout(access) {
-    await tokenBlacklistService.add(access);
+
   }
 
   async refresh(oldRefresh) {
-    console.log("🌀 TRYING TO REFRESH:", oldRefresh);
-
     if (!oldRefresh) {
       const err = new Error(REFRESH_TOKEN_MISSING);
       err.status = 401;

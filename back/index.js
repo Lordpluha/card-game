@@ -7,17 +7,12 @@ import cookieParser from "cookie-parser";
 const app = express();
 
 // allow front-end to receive httpOnly cookies
-// app.use(cors({
-//   origin: true,
-//   credentials: true
-// }));
 app.use(
   cors({
     origin: (origin, callback) => {
       if (
         !origin ||
-        origin.startsWith("http://localhost") ||
-        origin.startsWith("http://127.0.0.1")
+        origin.startsWith(`http://${FRONT_HOST}`)
       ) {
         return callback(null, true);
       }
@@ -37,5 +32,6 @@ app.get("/api", (req, res) => {
 app.use("/api", router);
 
 app.listen(PORT, () => {
+  console.log(`Using: ${process.env.NODE_ENV} environment`)
   console.log(`Server started: http://${HOST}:${PORT}/api`);
 });

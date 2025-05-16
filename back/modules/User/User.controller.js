@@ -1,7 +1,5 @@
 import { Router } from 'express';
 import UserService from './User.service.js';
-import { ACCESS_TOKEN_NAME } from '../../config.js';
-import JWTUtils from '../../utils/jwt-token.js';
 import { requireAccessToken } from '../../middleware/index.js';
 
 const router = Router();
