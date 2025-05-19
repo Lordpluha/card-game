@@ -1,8 +1,23 @@
 import { Router } from 'express';
 import GameService from './Game.service.js';
 import { requireAccessToken } from '../../middleware/index.js';
+import WebSocket from 'ws';
+import { wss } from '../../index.js';
+
 
 const router = Router();
+
+const broadcast = (gameId, payload) => {
+  const msg = JSON.stringify(payload);
+  wss.clients.forEach((client) => {
+    if (
+      client.readyState === WebSocket.OPEN &&
+      client.gameId === String(gameId)
+    ) {
+      client.send(msg);
+    }
+  });
+};
 
 router.post(
   '/game/create',
@@ -10,6 +25,7 @@ router.post(
   async (req, res) => {
     try {
       const game = await GameService.createGame(req.userId);
+      broadcast(game.id, { event: 'gameCreated', game });
       return res.json(game);
     } catch (err) {
       return res.status(err.status || 500).json({ message: err.message });
@@ -24,6 +40,7 @@ router.put(
     try {
       const gameId = req.params.id;
       const game = await GameService.joinGame(req.userId, gameId);
+      broadcast(game.id, { event: 'playerJoined', game });
       return res.json(game);
     } catch (err) {
       return res.status(err.status || 500).json({ message: err.message });
@@ -44,6 +61,7 @@ router.get(
     }
   }
 );
+
 
 
 export default router;

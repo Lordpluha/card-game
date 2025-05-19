@@ -9,8 +9,8 @@
     "start": "node --env-file=../.env.local index.js",
     "start:dev": "node --env-file=../.env.dev index.js",
     "start:prod": "node --env-file=../.env.prod index.js",
-    "db:init": "sudo node db/init.js",
-    "db:init-win": "node db/init.js"
+    "db:init": "sudo node --env-file=../.env.local db/init.js",
+    "db:init-win": "node --env-file=../.env.local db/init.js"
   },
   "keywords": [],
   "author": "",

@@ -9,9 +9,9 @@
     "start:front": "cd front && npm run start",
     "start": "npm-run-all --parallel start:back start:front",
 
-		"install:back": "cd back && npm install",
-		"install:front": "cd front && npm install",
-		"install": "npm-run-all --parallel install:back install:front"
+    "install:back": "cd back && npm install",
+    "install:front": "cd front && npm install",
+    "install": "npm-run-all --parallel install:back install:front && cd back && npm run db:init"
   },
   "repository": {
     "type": "git",

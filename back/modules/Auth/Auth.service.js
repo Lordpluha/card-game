@@ -1,4 +1,4 @@
-import pool from "../../db/connect.js";
+import {pool} from "../../db/connect.js";
 import { PasswordUtils, JWTUtils } from "../../utils/index.js";
 import {
   USER_REGISTERED,
