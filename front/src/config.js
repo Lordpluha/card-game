@@ -1,6 +1,5 @@
-const env = typeof process !== 'undefined'
-  ? process.env
-  : window.process?.env || {};
+const env =
+  typeof process !== "undefined" ? process.env : window.process?.env || {};
 
 export const NODE_ENV = env.NODE_ENV;
 export const PORT = env.FRONT_PORT;

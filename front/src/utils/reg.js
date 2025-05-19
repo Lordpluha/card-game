@@ -1,54 +1,60 @@
 import AuthService from "../api/Auth.service.js";
 
-document
-  .getElementById("registerForm")
-  .addEventListener("submit", (e) => {
-    e.preventDefault();
-
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value;
-    const passwordAgain = document.getElementById("passwordAgain").value;
-    const errorMessage = document.getElementById("errorMessage");
-
-    errorMessage.classList.add("hidden");
-    errorMessage.textContent = "";
-
-    if (!username || username.length < 3) {
-      errorMessage.textContent = "Username must be at least 3 characters long.";
-      errorMessage.classList.remove("hidden");
-      return;
-    }
-
-    if (password.length < 6) {
-      errorMessage.textContent = "Password must be at least 6 characters long.";
-      errorMessage.classList.remove("hidden");
-      return;
-    }
-
-    if (password !== passwordAgain) {
-      errorMessage.textContent = "Passwords do not match.";
-      errorMessage.classList.remove("hidden");
-      return;
-    }
-
-
-    AuthService.register(username, password)
-      .then((res) => {
-        if (res.ok) {
-          document.getElementById("modal").classList.remove("hidden");
-					window.location.href = "/pages/login.html";
-        } else {
-          return res.json().then((data) => {
-            errorMessage.textContent = data.message || "Registration failed.";
-            errorMessage.classList.remove("hidden");
-          });
-        }
-      })
-      .catch((e) => {
-        errorMessage.textContent = JSON.stringify(e);
-        errorMessage.classList.remove("hidden");
-      });
+AuthService.refresh()
+  .then(() => {
+    console.log("✅ Уже авторизован — редирект на меню");
+    window.location.replace("/pages/main-menu.html"); // ⬅ замена href
+  })
+  .catch(() => {
+    console.log("🔓 Не авторизован — остался на регистрации");
   });
+
+document.getElementById("registerForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value;
+  const passwordAgain = document.getElementById("passwordAgain").value;
+  const errorMessage = document.getElementById("errorMessage");
+
+  errorMessage.classList.add("hidden");
+  errorMessage.textContent = "";
+
+  if (!username || username.length < 3) {
+    errorMessage.textContent = "Username must be at least 3 characters long.";
+    errorMessage.classList.remove("hidden");
+    return;
+  }
+
+  if (password.length < 6) {
+    errorMessage.textContent = "Password must be at least 6 characters long.";
+    errorMessage.classList.remove("hidden");
+    return;
+  }
+
+  if (password !== passwordAgain) {
+    errorMessage.textContent = "Passwords do not match.";
+    errorMessage.classList.remove("hidden");
+    return;
+  }
+
+  AuthService.register(username, password)
+    .then((res) => {
+      if (res.ok) {
+        document.getElementById("modal").classList.remove("hidden");
+        window.location.href = "/pages/login.html";
+      } else {
+        return res.json().then((data) => {
+          errorMessage.textContent = data.message || "Registration failed.";
+          errorMessage.classList.remove("hidden");
+        });
+      }
+    })
+    .catch((e) => {
+      errorMessage.textContent = JSON.stringify(e);
+      errorMessage.classList.remove("hidden");
+    });
+});
 
 // 👁 Подключение клик-событий на иконки
 document.querySelectorAll("[data-toggle-password]").forEach((el) => {

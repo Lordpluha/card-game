@@ -4,14 +4,43 @@ body {
   color: var(--color-dark-2);
 }
 
+.main-menu-body {
+  font-family: "Roboto", sans-serif;
+  background: radial-gradient(
+    circle at center,
+    var(--color-bg-gradient-start) 0%,
+    var(--color-bg-gradient-end) 90%
+  );
+  overflow-x: hidden;
+  color: var(--color-text-light);
+  user-select: none;
+  position: relative;
+  min-height: 100vh;
+}
+
+.collection-body {
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+  color: #e0e0e0;
+  min-height: 100vh;
+}
+
 /** blank */
 
 :root {
   --color-blueviolet: #5e17eb;
   --color-violet: #ab33e3;
   --color-darkviolet: #762860;
+  --color-bg-dark: #1e0f2f;
+  --color-bg-gradient-start: #2a0a47;
+  --color-bg-gradient-end: #3c0e5e;
+  --color-accent: #b762f2;
+  --color-accent-light: #da95ff;
+  --color-accent-dark: #7d34a0;
+  --color-crimson: #a83279;
+  --color-text-light: #f3e8ff;
+  --color-text-muted: #bfa3d1;
+  --color-shadow: rgba(183, 98, 242, 0.5);
 }
-
 .wrap {
   display: flex;
   flex-direction: column;
@@ -112,4 +141,726 @@ body {
   color: #ffd700;
   text-shadow: 2px 2px 4px #ff4040;
   margin-bottom: 20px;
+}
+
+/* Neon/golden button style */
+.btn-neon {
+  position: relative;
+  color: var(--color-accent);
+  border: 2px solid var(--color-accent);
+  background: rgba(26, 26, 26, 0.7);
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+  font-weight: 700;
+  box-shadow: 0 0 6px var(--color-accent), 0 0 12px var(--color-accent),
+    0 0 18px var(--color-accent);
+  user-select: none;
+  overflow: hidden;
+  z-index: 0;
+  border-radius: 0.5rem;
+}
+.btn-neon::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    var(--color-accent-dark),
+    var(--color-accent-light),
+    var(--color-accent-dark),
+    var(--color-accent-light),
+    var(--color-accent-dark)
+  );
+  background-size: 400% 400%;
+  animation: neon-shimmer 4s linear infinite;
+  filter: blur(10px);
+  opacity: 0.6;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+  border-radius: 0.5rem;
+}
+.btn-neon:hover::before {
+  opacity: 1;
+}
+.btn-neon:hover {
+  color: var(--color-text-light);
+  border-color: var(--color-accent-light);
+  box-shadow: 0 0 12px var(--color-accent-light),
+    0 0 24px var(--color-accent-light), 0 0 36px var(--color-accent-light);
+  background: rgba(212, 175, 55, 0.3);
+  backdrop-filter: blur(12px);
+}
+@keyframes neon-shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 400% 50%;
+  }
+}
+/* Card hover effect */
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  border-radius: 1rem;
+  box-shadow: 0 0 10px var(--color-accent), 0 0 20px rgba(212, 175, 55, 0.4);
+  background: rgba(26, 26, 26, 0.75);
+  backdrop-filter: blur(6px);
+}
+.card-hover:hover {
+  transform: translateY(-8px) scale(1.07) rotateX(8deg);
+  box-shadow: 0 0 20px var(--color-accent), 0 0 40px var(--color-accent-light),
+    0 10px 30px rgba(212, 175, 55, 0.6);
+  background: rgba(212, 175, 55, 0.15);
+  backdrop-filter: blur(12px);
+}
+/* Floating cards container */
+#floating-cards {
+  position: fixed;
+  top: 10%;
+  right: 2%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  z-index: 40;
+  pointer-events: none;
+  user-select: none;
+  transform-style: preserve-3d;
+}
+#floating-cards img {
+  width: 90px;
+  height: 135px;
+  border-radius: 1rem;
+  box-shadow: 0 0 15px var(--color-accent), 0 0 30px var(--color-accent-light);
+  transform-style: preserve-3d;
+  pointer-events: auto;
+  cursor: grab;
+  transition: transform 0.3s ease;
+  filter: drop-shadow(0 0 6px var(--color-accent-light));
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-gradient-start) 0%,
+    var(--color-bg-gradient-end) 100%
+  );
+}
+#floating-cards img:active {
+  cursor: grabbing;
+  transform: scale(1.15);
+  box-shadow: 0 0 30px var(--color-accent), 0 0 60px var(--color-accent-light);
+}
+/* Animated background shapes */
+.bg-shape {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.3;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+}
+.bg-shape1 {
+  width: 320px;
+  height: 320px;
+  background: var(--color-accent);
+  top: 10%;
+  left: -100px;
+  animation-name: float1;
+  animation-duration: 12s;
+}
+.bg-shape2 {
+  width: 280px;
+  height: 280px;
+  background: var(--color-crimson);
+  bottom: 15%;
+  right: -120px;
+  animation-name: float2;
+  animation-duration: 15s;
+}
+.bg-shape3 {
+  width: 200px;
+  height: 200px;
+  background: var(--color-accent-light);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation-name: float3;
+  animation-duration: 18s;
+}
+@keyframes float1 {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(30px) translateX(20px);
+    opacity: 0.5;
+  }
+}
+@keyframes float2 {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-25px) translateX(-15px);
+    opacity: 0.5;
+  }
+}
+@keyframes float3 {
+  0% {
+    transform: translate(-50%, -50%) translateY(0);
+    opacity: 0.25;
+  }
+  100% {
+    transform: translate(-50%, -50%) translateY(40px);
+    opacity: 0.45;
+  }
+}
+/* Scrollbar styling for tables */
+::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-accent);
+  border-radius: 4px;
+}
+/* Responsive text sizes */
+@media (max-width: 640px) {
+  h2 {
+    font-size: 2rem;
+  }
+  .btn-neon {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+  }
+  #floating-cards img {
+    width: 70px;
+    height: 105px;
+  }
+}
+/* Particle canvas styling */
+#particle-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 1;
+  user-select: none;
+}
+
+/* collection */
+
+.card {
+  transition: all 0.3s ease;
+  transform-style: preserve-3d;
+  position: relative;
+  background: linear-gradient(
+    145deg,
+    var(--color-bg-gradient-start),
+    var(--color-bg-gradient-end)
+  );
+  box-shadow: 0 4px 15px var(--color-shadow);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 10px 25px var(--color-accent-dark);
+}
+
+.locked-card {
+  position: relative;
+  background: linear-gradient(135deg, var(--color-bg-dark), #12091d);
+  border: 1px solid var(--color-darkviolet);
+  border-radius: 0.75rem;
+}
+
+.locked-card::before {
+  content: "?";
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--color-accent-dark);
+  opacity: 0.08;
+}
+
+.card-image,
+.locked-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+.locked-image {
+  filter: grayscale(1) opacity(0.2);
+}
+
+/* -----------------------------------------------------
+   Progress Bars
+----------------------------------------------------- */
+
+.progress-bar {
+  height: 0.5rem;
+  border-radius: 0.25rem;
+  background-color: var(--color-darkviolet);
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 0.25rem;
+  background: linear-gradient(
+    90deg,
+    var(--color-accent),
+    var(--color-accent-light)
+  );
+  transition: width 0.5s ease;
+}
+
+/* -----------------------------------------------------
+   Inventory & Crafting Items
+----------------------------------------------------- */
+
+.inventory-item,
+.crafting-item {
+  transition: 0.2s ease;
+  background: rgba(46, 24, 74, 0.75);
+  border: 1px solid var(--color-violet);
+  border-radius: 0.75rem;
+}
+
+.inventory-item:hover,
+.crafting-item:hover {
+  background: rgba(66, 34, 104, 0.9);
+  transform: translateY(-2px);
+}
+
+/* -----------------------------------------------------
+   Rarities
+----------------------------------------------------- */
+
+.rarity-common {
+  border-bottom: 3px solid var(--color-text-muted);
+}
+.rarity-uncommon {
+  border-bottom: 3px solid #6fe3b5;
+}
+.rarity-rare {
+  border-bottom: 3px solid #6d90ff;
+}
+.rarity-epic {
+  border-bottom: 3px solid var(--color-accent-light);
+}
+.rarity-legendary {
+  border-bottom: 3px solid #ffc107;
+  animation: glow 2s infinite alternate;
+}
+.rarity-mythic {
+  border-bottom: 3px solid #ff3860;
+  animation: mythic-glow 1.5s infinite alternate;
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 5px -5px #ffc107;
+  }
+  100% {
+    box-shadow: 0 0 20px 5px rgba(255, 193, 7, 0.6);
+  }
+}
+@keyframes mythic-glow {
+  0% {
+    box-shadow: 0 0 10px -5px #ff3860;
+  }
+  100% {
+    box-shadow: 0 0 25px 8px rgba(255, 56, 96, 0.7);
+  }
+}
+
+/* -----------------------------------------------------
+   Avatars & Logo
+----------------------------------------------------- */
+
+.avatar-ring {
+  border: 3px solid;
+  border-image: linear-gradient(
+      45deg,
+      var(--color-accent),
+      var(--color-accent-light)
+    )
+    1;
+}
+
+.logo-text {
+  font-family: "Poppins", sans-serif;
+  font-weight: 900;
+  background: linear-gradient(
+    90deg,
+    var(--color-accent-light),
+    var(--color-accent)
+  );
+  -webkit-background-clip: text;
+  color: transparent;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* -----------------------------------------------------
+   Header / Navigation
+----------------------------------------------------- */
+
+.game-header {
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-gradient-start),
+    var(--color-bg-gradient-end)
+  );
+  box-shadow: 0 4px 6px var(--color-shadow);
+  border-bottom: 1px solid var(--color-darkviolet);
+  position: relative;
+  overflow: hidden;
+}
+
+.game-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("https://www.transparenttextures.com/patterns/dark-geometric.png");
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.nav-link {
+  position: relative;
+  padding-bottom: 5px;
+}
+
+.nav-link::after,
+.active-nav::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--color-accent),
+    var(--color-accent-light)
+  );
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after,
+.active-nav::after {
+  width: 100%;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: var(--color-crimson);
+  color: #fff;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* -----------------------------------------------------
+   Buttons
+----------------------------------------------------- */
+
+.header-button,
+.btn-mystic,
+#filterModal .btn-mystic {
+  background: linear-gradient(
+    90deg,
+    var(--color-accent),
+    var(--color-accent-light)
+  );
+  color: #fff;
+  transition: 0.3s;
+  box-shadow: 0 2px 4px var(--color-shadow);
+}
+
+.header-button:hover,
+.btn-mystic:hover,
+#filterModal .btn-mystic:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px var(--color-shadow);
+}
+
+.header-button-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: 0.3s;
+}
+.header-button-secondary:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* -----------------------------------------------------
+   Scrollbar & Stars
+----------------------------------------------------- */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-accent);
+  border-radius: 4px;
+}
+
+.stars {
+  position: fixed;
+  inset: 0;
+  background: url("https://www.transparenttextures.com/patterns/stardust.png")
+    repeat;
+  animation: animatedBackground 100s linear infinite;
+  z-index: -1;
+}
+@keyframes animatedBackground {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -10000px 5000px;
+  }
+}
+
+/* -----------------------------------------------------
+   Packs & Shards
+----------------------------------------------------- */
+
+.pack,
+.shard {
+  position: relative;
+  transition: 0.3s;
+  background: linear-gradient(
+    145deg,
+    var(--color-bg-gradient-start),
+    var(--color-bg-gradient-end)
+  );
+  box-shadow: 0 4px 15px var(--color-shadow);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.pack:hover,
+.shard:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 10px 25px var(--color-shadow);
+}
+
+.pack::before,
+.shard::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to bottom right,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  transform: rotate(30deg);
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  0% {
+    left: -50%;
+    top: -50%;
+  }
+  100% {
+    left: 150%;
+    top: 150%;
+  }
+}
+
+.pack-common {
+  border-bottom: 3px solid var(--color-text-muted);
+}
+.pack-rare {
+  border-bottom: 3px solid #6d90ff;
+}
+.pack-epic {
+  border-bottom: 3px solid var(--color-accent-light);
+}
+.pack-legendary {
+  border-bottom: 3px solid #ffc107;
+}
+.pack-mythic {
+  border-bottom: 3px solid #ff3860;
+}
+
+/* -----------------------------------------------------
+   Modals & Section boxes
+----------------------------------------------------- */
+
+.card-modal,
+#filterModal .card-modal {
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-gradient-start),
+    var(--color-bg-gradient-end)
+  );
+  border: 1px solid var(--color-darkviolet);
+  box-shadow: 0 10px 25px var(--color-shadow);
+  border-radius: 0.75rem;
+}
+
+.section-box {
+  background: rgba(46, 24, 74, 0.8);
+  border: 1px solid var(--color-darkviolet);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 8px 32px var(--color-shadow);
+  border-radius: 0.75rem;
+}
+
+/* -----------------------------------------------------
+   Stat bars
+----------------------------------------------------- */
+
+.stat-bar {
+  height: 0.5rem;
+  border-radius: 0.25rem;
+  background: var(--color-darkviolet);
+}
+
+.stat-fill {
+  height: 100%;
+  border-radius: 0.25rem;
+  background: var(--color-accent-light);
+}
+
+.health-fill {
+  background: linear-gradient(90deg, #ef4444, #f87171);
+}
+.attack-fill {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+.defense-fill {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+/* -----------------------------------------------------
+   Mini-cards & Deck container
+----------------------------------------------------- */
+
+.mini-card {
+  transform: scale(0.85);
+  transform-origin: top center;
+  margin-bottom: -10px;
+}
+
+.deck-cards-container {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+/* -----------------------------------------------------
+   Filter Modal
+----------------------------------------------------- */
+#filterModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 1000;
+}
+
+#filterModal h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-accent-light);
+  text-align: center;
+  padding: 1rem 0;
+}
+
+#filterModal label {
+  color: var(--color-text-light);
+}
+
+#filterModal .filter-rarity {
+  accent-color: var(--color-accent);
+}
+
+#filterModal input[type="range"] {
+  width: 100%;
+  height: 0.25rem;
+  background: var(--color-darkviolet);
+  border-radius: 0.125rem;
+  appearance: none;
+}
+#filterModal input[type="range"]::-webkit-slider-thumb,
+#filterModal input[type="range"]::-moz-range-thumb {
+  width: 1rem;
+  height: 1rem;
+  background: var(--color-accent);
+  border-radius: 50%;
+  cursor: pointer;
+  appearance: none;
+}
+
+#filterModal .reset-filters {
+  background: var(--color-crimson);
+  color: #fff;
+  transition: 0.3s;
+}
+#filterModal .reset-filters:hover {
+  background: #831843;
+}
+
+.shard-common {
+  background: linear-gradient(135deg, #3b3b4d, #2a2a3a);
+  border: 1px solid #a0aec0;
+}
+
+.shard-rare {
+  background: linear-gradient(135deg, #2a3b5d, #1a2a4a);
+  border: 1px solid #4299e1;
+}
+
+.shard-epic {
+  background: linear-gradient(135deg, #4a2a5d, #3a1a4a);
+  border: 1px solid #9f7aea;
+}
+
+.shard-legendary {
+  background: linear-gradient(135deg, #5d4a2a, #4a3a1a);
+  border: 1px solid #f6ad55;
+}
+
+.shard-mythic {
+  background: linear-gradient(135deg, #5d2a3b, #4a1a2a);
+  border: 1px solid #ff3860;
 }

@@ -1,15 +1,613 @@
-<!-- front/pages/main-menu.html -->
-<!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Main Menu</title>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <title>CardMaster - Живе Креативне Лобі карткової гри</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto&display=swap"
+      rel="stylesheet" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+      rel="stylesheet" />
+    <link rel="stylesheet" href="../style/style.css" />
   </head>
-  <body>
-    <h1>🎮 Welcome to the Card Game!</h1>
-    <button id="logoutBtn">Logout</button>
+  <body class="main-menu-body">
+    <!-- <div class="preloader">
+      <div class="logo">
+        <img src="../assets/img/avengers-logo 1.png" alt="Avengers Logo" />
+      </div>
+      <div class="bar bar1"></div>
+      <div class="bar bar2"></div>
+      <div class="bar bar3"></div>
+    </div> -->
+    <!-- Background animated shapes -->
+    <div aria-hidden="true" class="bg-shape bg-shape1"></div>
+    <div aria-hidden="true" class="bg-shape bg-shape2"></div>
+    <div aria-hidden="true" class="bg-shape bg-shape3"></div>
 
-    <script type="module" src="../utils/main-menu.js"></script>
+    <!-- Particle canvas -->
+    <canvas id="particle-canvas" aria-hidden="true"></canvas>
+
+    <header
+      class="flex flex-col md:flex-row items-center justify-between bg-[rgba(26,26,26,0.85)] px-6 py-4 shadow-lg sticky top-0 z-50 backdrop-blur-md">
+      <div
+        class="relative select-none flex items-center gap-3 text-[var(--color-text-light)] font-semibold">
+        <!-- Аватарка -->
+        <button
+          id="avatar-btn"
+          class="w-10 h-10 rounded-full border-2 border-[var(--color-accent)] shadow-md ring-2 ring-[var(--color-accent-light)] focus:outline-none focus:ring-4 focus:ring-[var(--color-accent)]">
+          <img
+            id="avatar-img"
+            src="https://api.dicebear.com/6.x/bottts/svg?seed=Hydra"
+            data-avatar-url="https://api.dicebear.com/6.x/bottts/svg?seed=Hydra"
+            class="rounded-full object-cover w-full h-full" />
+        </button>
+
+        <!-- Никнейм -->
+        <div
+          id="nickname"
+          class="px-3 py-1 border-2 border-[var(--color-accent)] rounded-md text-sm">
+          <!-- TungTungTungTungSahur -->
+        </div>
+
+        <!-- Модалка с авами -->
+        <div
+          id="avatar-modal"
+          class="absolute left-0 top-14 w-56 bg-[rgba(26,26,26,0.95)] rounded-lg shadow-lg text-[var(--color-text-light)] text-sm font-semibold ring-1 ring-[var(--color-accent)] ring-opacity-50 p-4 hidden z-50 backdrop-blur-md">
+          <p class="mb-3 text-center text-base">Оберіть аватар:</p>
+          <div class="grid grid-cols-4 gap-2 mb-4">
+            <img
+              src="https://api.dicebear.com/6.x/bottts/svg?seed=Hydra"
+              data-avatar-url="https://api.dicebear.com/6.x/bottts/svg?seed=Hydra"
+              class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
+            <img
+              src="https://api.dicebear.com/6.x/bottts/svg?seed=Zorg"
+              data-avatar-url="https://api.dicebear.com/6.x/bottts/svg?seed=Zorg"
+              class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
+            <img
+              src="https://api.dicebear.com/6.x/bottts/svg?seed=Grax"
+              data-avatar-url="https://api.dicebear.com/6.x/bottts/svg?seed=Grax"
+              class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
+            <img
+              src="https://api.dicebear.com/6.x/bottts/svg?seed=Turbo"
+              data-avatar-url="https://api.dicebear.com/6.x/bottts/svg?seed=Turbo"
+              class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
+
+            <img
+              src="https://api.dicebear.com/6.x/big-ears/svg?seed=Blorb"
+              data-avatar-url="https://api.dicebear.com/6.x/big-ears/svg?seed=Blorb"
+              class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
+            <img
+              src="https://api.dicebear.com/6.x/big-ears/svg?seed=Globbo"
+              data-avatar-url="https://api.dicebear.com/6.x/big-ears/svg?seed=Globbo"
+              class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
+            <img
+              src="https://api.dicebear.com/6.x/big-ears/svg?seed=Flurp"
+              data-avatar-url="https://api.dicebear.com/6.x/big-ears/svg?seed=Flurp"
+              class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
+            <img
+              src="https://api.dicebear.com/6.x/big-ears/svg?seed=Krunk"
+              data-avatar-url="https://api.dicebear.com/6.x/big-ears/svg?seed=Krunk"
+              class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
+
+            <img
+              src="https://api.dicebear.com/6.x/bottts/svg?seed=Zap"
+              data-avatar-url="https://api.dicebear.com/6.x/bottts/svg?seed=Zap"
+              class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
+            <img
+              src="https://api.dicebear.com/6.x/bottts/svg?seed=Chomp"
+              data-avatar-url="https://api.dicebear.com/6.x/bottts/svg?seed=Chomp"
+              class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
+            <img
+              src="https://api.dicebear.com/6.x/big-ears/svg?seed=Fuzz"
+              data-avatar-url="https://api.dicebear.com/6.x/big-ears/svg?seed=Fuzz"
+              class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
+            <img
+              src="https://api.dicebear.com/6.x/big-ears/svg?seed=Snorf"
+              data-avatar-url="https://api.dicebear.com/6.x/big-ears/svg?seed=Snorf"
+              class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
+          </div>
+        </div>
+      </div>
+
+      <nav
+        aria-label="Головна навігація"
+        class="hidden md:flex space-x-8 font-semibold text-[var(--color-accent)]">
+        <!-- <a
+          class="btn-neon px-3 py-1.5 rounded-lg flex items-center gap-2 hover:text-[var(--color-text-light)] transition text-sm"
+          href="./collection.html">
+          <i class="fas fa-th-large"></i> Колекція</a
+        > -->
+
+        <a
+          class="btn-neon px-3 py-1.5 rounded-lg flex items-center gap-2 hover:text-[var(--color-text-light)] transition text-sm"
+          href="#shop">
+          <i class="fas fa-store"></i> Магазин</a
+        >
+
+        <button
+          id="settingsBtn"
+          class="btn-neon px-3 py-1.5 rounded-lg flex items-center gap-2 hover:text-[var(--color-text-light)] transition text-sm">
+          <i class="fas fa-cog"></i> Налаштування
+        </button>
+
+        <button
+          class="btn-neon px-3 py-1.5 rounded-lg flex items-center gap-2 hover:text-[var(--color-text-light)] transition text-sm"
+          id="logoutBtn">
+          <i class="fas fa-sign-in-alt"></i> <span>Logout</span>
+        </button>
+      </nav>
+      <!-- Settings modal -->
+      <div
+        id="settingsModal"
+        class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 text-black w-72">
+          <h2 class="text-xl font-bold mb-4">Налаштування</h2>
+          <label class="flex items-center gap-2 mb-4">
+            <input
+              type="checkbox"
+              id="toggleParticles"
+              class="accent-purple-500" />
+            Анімований фон (частинки)
+          </label>
+          <div class="flex justify-end gap-2">
+            <button
+              id="settingsCloseBtn"
+              class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">
+              Закрити
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3 mb-3 md:mb-0 select-none">
+        <img
+          alt="Логотип карткової гри з символом піки чорного кольору на білому фоні"
+          class="w-12 h-12"
+          height="48"
+          src="https://storage.googleapis.com/a1aa/image/97d87c37-88ef-44c7-e275-49ec93d426d4.jpg"
+          width="48" />
+        <h1
+          class="text-[var(--color-text-light)] text-3xl font-bold tracking-wide">
+          CardGame
+        </h1>
+      </div>
+
+      <button
+        aria-label="Відкрити меню"
+        class="md:hidden text-[var(--color-accent)] hover:text-[var(--color-text-light)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] ml-4"
+        id="menu-btn">
+        <i class="fas fa-bars fa-lg"></i>
+      </button>
+    </header>
+
+    <nav
+      class="md:hidden bg-[rgba(26,26,26,0.85)] text-[var(--color-accent)] space-y-4 px-6 py-6 hidden select-none backdrop-blur-md"
+      id="mobile-menu">
+      <a
+        class="block btn-neon px-3 py-1.5 rounded-lg flex items-center gap-2 hover:text-[var(--color-text-light)] transition text-sm"
+        href="./collection.html"
+        ><i class="fas fa-th-large"></i> Колекція</a
+      >
+      <a
+        class="block btn-neon px-3 py-1.5 rounded-lg flex items-center gap-2 hover:text-[var(--color-text-light)] transition text-sm"
+        href="#start-game"
+        ><i class="fas fa-play"></i> Почати гру</a
+      >
+      <a
+        class="block btn-neon px-3 py-1.5 rounded-lg flex items-center gap-2 hover:text-[var(--color-text-light)] transition text-sm"
+        href="#create-game"
+        ><i class="fas fa-plus-circle"></i> Створити гру</a
+      >
+      <a
+        class="block btn-neon px-3 py-1.5 rounded-lg flex items-center gap-2 hover:text-[var(--color-text-light)] transition text-sm"
+        href="#join-game"
+        ><i class="fas fa-sign-in-alt"></i> Приєднатись до гри</a
+      >
+      <hr class="border-[var(--color-accent-dark)] my-4" />
+      <div>
+        <p class="mb-2 font-semibold text-[var(--color-accent-dark)]">
+          Обрати мову:
+        </p>
+        <ul class="space-y-2 text-[var(--color-accent)] font-semibold text-sm">
+          <li
+            class="cursor-pointer px-4 py-2 rounded-lg hover:bg-[var(--color-accent-dark)] focus:bg-[var(--color-accent-dark)]"
+            data-lang="uk">
+            Українська
+          </li>
+          <li
+            class="cursor-pointer px-4 py-2 rounded-lg hover:bg-[var(--color-accent-dark)] focus:bg-[var(--color-accent-dark)]"
+            data-lang="en">
+            English
+          </li>
+          <li
+            class="cursor-pointer px-4 py-2 rounded-lg hover:bg-[var(--color-accent-dark)] focus:bg-[var(--color-accent-dark)]"
+            data-lang="de">
+            Deutsch
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <main
+      class="flex-grow container mx-auto px-6 py-10 flex flex-col items-center text-center relative z-10">
+      <h2
+        class="text-[var(--color-text-light)] text-5xl font-bold mb-6 drop-shadow-lg">
+        Welocome to 3 ОШБ
+      </h2>
+      <p
+        class="text-[var(--color-text-muted)] max-w-3xl mb-12 text-lg md:text-xl leading-relaxed drop-shadow-md">
+        Choose your deck, find opponents and prove that you are the best in this
+        card game!
+      </p>
+
+      <section
+        aria-label="Головні дії"
+        class="w-full max-w-3xl grid grid-cols-2 sm:grid-cols-4 gap-6">
+        <a
+          class="btn-neon flex flex-col items-center justify-center gap-2 rounded-lg p-4 card-hover text-sm"
+          href="./collection.html"
+          title="Перейти до колекції карток">
+          <i class="fas fa-th-large fa-2x text-[var(--color-accent)]"></i>
+          <span class="text-[var(--color-text-light)] font-semibold"
+            >Колекція</span
+          >
+        </a>
+        <a
+          class="btn-neon flex flex-col items-center justify-center gap-2 rounded-lg p-4 card-hover text-sm"
+          href="#start-game"
+          title="Почати нову гру">
+          <i class="fas fa-play fa-2x text-[var(--color-accent)]"></i>
+          <span class="text-[var(--color-text-light)] font-semibold"
+            >Почати гру</span
+          >
+        </a>
+        <a
+          class="btn-neon flex flex-col items-center justify-center gap-2 rounded-lg p-4 card-hover text-sm"
+          href="./сreate-room.html"
+          title="Створити нову гру">
+          <i class="fas fa-plus-circle fa-2x text-[var(--color-accent)]"></i>
+          <span class="text-[var(--color-text-light)] font-semibold"
+            >Створити гру</span
+          >
+        </a>
+        <a
+          class="btn-neon flex flex-col items-center justify-center gap-2 rounded-lg p-4 card-hover text-sm"
+          href="./connect-room.html"
+          title="Приєднатись до існуючої гри">
+          <i class="fas fa-sign-in-alt fa-2x text-[var(--color-accent)]"></i>
+          <span class="text-[var(--color-text-light)] font-semibold"
+            >Приєднатись до гри</span
+          >
+        </a>
+      </section>
+
+      <section class="w-full max-w-5xl mt-16">
+        <h3
+          class="text-[var(--color-text-light)] text-3xl font-bold mb-8 drop-shadow-lg">
+          Останні матчі
+        </h3>
+        <div class="overflow-x-auto rounded-xl shadow-lg">
+          <table
+            class="min-w-full bg-[rgba(26,26,26,0.75)] rounded-xl text-[var(--color-text-muted)]">
+            <thead>
+              <tr class="border-b border-[var(--color-accent-dark)]">
+                <th class="py-3 px-6 text-left font-semibold">Гравець 1</th>
+                <th class="py-3 px-6 text-left font-semibold">Гравець 2</th>
+                <th class="py-3 px-6 text-left font-semibold">Результат</th>
+                <th class="py-3 px-6 text-left font-semibold">Дата</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                class="border-b border-[var(--color-accent-dark)] hover:bg-[rgba(212,175,55,0.15)] transition">
+                <td class="py-3 px-6 text-[var(--color-text-light)]">Андрій</td>
+                <td class="py-3 px-6 text-[var(--color-text-light)]">Олена</td>
+                <td class="py-3 px-6 font-semibold text-[#4ade80]">
+                  Перемога Андрія
+                </td>
+                <td class="py-3 px-6 text-[var(--color-text-light)]">
+                  2024-06-10
+                </td>
+              </tr>
+              <tr
+                class="border-b border-[var(--color-accent-dark)] hover:bg-[rgba(178,34,34,0.15)] transition">
+                <td class="py-3 px-6 text-[var(--color-text-light)]">Марія</td>
+                <td class="py-3 px-6 text-[var(--color-text-light)]">Іван</td>
+                <td class="py-3 px-6 font-semibold text-[#ef4444]">
+                  Перемога Івана
+                </td>
+                <td class="py-3 px-6 text-[var(--color-text-light)]">
+                  2024-06-09
+                </td>
+              </tr>
+              <tr
+                class="border-b border-[var(--color-accent-dark)] hover:bg-[rgba(234,179,8,0.15)] transition">
+                <td class="py-3 px-6 text-[var(--color-text-light)]">Сергій</td>
+                <td class="py-3 px-6 text-[var(--color-text-light)]">
+                  Катерина
+                </td>
+                <td class="py-3 px-6 font-semibold text-[#facc15]">Нічия</td>
+                <td class="py-3 px-6 text-[var(--color-text-light)]">
+                  2024-06-08
+                </td>
+              </tr>
+              <tr
+                class="border-b border-[var(--color-accent-dark)] hover:bg-[rgba(212,175,55,0.15)] transition">
+                <td class="py-3 px-6 text-[var(--color-text-light)]">
+                  Олександр
+                </td>
+                <td class="py-3 px-6 text-[var(--color-text-light)]">Ірина</td>
+                <td class="py-3 px-6 font-semibold text-[#4ade80]">
+                  Перемога Олександра
+                </td>
+                <td class="py-3 px-6 text-[var(--color-text-light)]">
+                  2024-06-07
+                </td>
+              </tr>
+              <tr
+                class="border-b border-[var(--color-accent-dark)] hover:bg-[rgba(178,34,34,0.15)] transition">
+                <td class="py-3 px-6 text-[var(--color-text-light)]">Наталя</td>
+                <td class="py-3 px-6 text-[var(--color-text-light)]">Дмитро</td>
+                <td class="py-3 px-6 font-semibold text-[#ef4444]">
+                  Перемога Дмитра
+                </td>
+                <td class="py-3 px-6 text-[var(--color-text-light)]">
+                  2024-06-06
+                </td>
+              </tr>
+              <tr
+                class="border-b border-[var(--color-accent-dark)] hover:bg-[rgba(212,175,55,0.15)] transition">
+                <td class="py-3 px-6 text-[var(--color-text-light)]">Віктор</td>
+                <td class="py-3 px-6 text-[var(--color-text-light)]">Оксана</td>
+                <td class="py-3 px-6 font-semibold text-[#4ade80]">
+                  Перемога Віктора
+                </td>
+                <td class="py-3 px-6 text-[var(--color-text-light)]">
+                  2024-06-05
+                </td>
+              </tr>
+              <tr
+                class="border-b border-[var(--color-accent-dark)] hover:bg-[rgba(234,179,8,0.15)] transition">
+                <td class="py-3 px-6 text-[var(--color-text-light)]">
+                  Людмила
+                </td>
+                <td class="py-3 px-6 text-[var(--color-text-light)]">Євген</td>
+                <td class="py-3 px-6 font-semibold text-[#facc15]">Нічия</td>
+                <td class="py-3 px-6 text-[var(--color-text-light)]">
+                  2024-06-04
+                </td>
+              </tr>
+              <tr
+                class="border-b border-[var(--color-accent-dark)] hover:bg-[rgba(212,175,55,0.15)] transition">
+                <td class="py-3 px-6 text-[var(--color-text-light)]">Тарас</td>
+                <td class="py-3 px-6 text-[var(--color-text-light)]">
+                  Світлана
+                </td>
+                <td class="py-3 px-6 font-semibold text-[#4ade80]">
+                  Перемога Тараса
+                </td>
+                <td class="py-3 px-6 text-[var(--color-text-light)]">
+                  2024-06-03
+                </td>
+              </tr>
+              <tr
+                class="border-b border-[var(--color-accent-dark)] hover:bg-[rgba(178,34,34,0.15)] transition">
+                <td class="py-3 px-6 text-[var(--color-text-light)]">Ігор</td>
+                <td class="py-3 px-6 text-[var(--color-text-light)]">Аліна</td>
+                <td class="py-3 px-6 font-semibold text-[#ef4444]">
+                  Перемога Аліни
+                </td>
+                <td class="py-3 px-6 text-[var(--color-text-light)]">
+                  2024-06-02
+                </td>
+              </tr>
+              <tr
+                class="border-b border-[var(--color-accent-dark)] hover:bg-[rgba(212,175,55,0.15)] transition">
+                <td class="py-3 px-6 text-[var(--color-text-light)]">Олег</td>
+                <td class="py-3 px-6 text-[var(--color-text-light)]">Лариса</td>
+                <td class="py-3 px-6 font-semibold text-[#4ade80]">
+                  Перемога Олега
+                </td>
+                <td class="py-3 px-6 text-[var(--color-text-light)]">
+                  2024-06-01
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="w-full max-w-5xl mt-16">
+        <h3
+          class="text-[var(--color-text-light)] text-3xl font-bold mb-8 drop-shadow-lg">
+          Топ гравців
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6">
+          <div
+            class="bg-[rgba(26,26,26,0.75)] rounded-xl shadow-lg p-4 flex flex-col items-center card-hover"
+            title="Андрій - Рейтинг 2450">
+            <img
+              alt="Портрет гравця Андрій, чоловік 30 років, усміхнений, на темно-золотистому фоні"
+              class="rounded-full mb-3 shadow-md"
+              height="96"
+              src="https://storage.googleapis.com/a1aa/image/e2445a7b-66f4-4114-c271-452054efa6a4.jpg"
+              width="96" />
+            <h4 class="text-[var(--color-text-light)] font-semibold text-lg">
+              Андрій
+            </h4>
+            <p class="text-[var(--color-text-muted)]">Рейтинг: 2450</p>
+          </div>
+          <div
+            class="bg-[rgba(26,26,26,0.75)] rounded-xl shadow-lg p-4 flex flex-col items-center card-hover"
+            title="Олена - Рейтинг 2380">
+            <img
+              alt="Портрет гравчині Олена, жінка 28 років, усміхнена, на темно-золотистому фоні"
+              class="rounded-full mb-3 shadow-md"
+              height="96"
+              src="https://storage.googleapis.com/a1aa/image/605606f6-40ef-474a-548e-7b8122852c5b.jpg"
+              width="96" />
+            <h4 class="text-[var(--color-text-light)] font-semibold text-lg">
+              Олена
+            </h4>
+            <p class="text-[var(--color-text-muted)]">Рейтинг: 2380</p>
+          </div>
+          <div
+            class="bg-[rgba(26,26,26,0.75)] rounded-xl shadow-lg p-4 flex flex-col items-center card-hover"
+            title="Іван - Рейтинг 2300">
+            <img
+              alt="Портрет гравця Іван, чоловік 35 років, серйозний вираз обличчя, на темно-золотистому фоні"
+              class="rounded-full mb-3 shadow-md"
+              height="96"
+              src="https://storage.googleapis.com/a1aa/image/d18fd198-8851-4ea9-b433-71b53b9ae827.jpg"
+              width="96" />
+            <h4 class="text-[var(--color-text-light)] font-semibold text-lg">
+              Іван
+            </h4>
+            <p class="text-[var(--color-text-muted)]">Рейтинг: 2300</p>
+          </div>
+          <div
+            class="bg-[rgba(26,26,26,0.75)] rounded-xl shadow-lg p-4 flex flex-col items-center card-hover"
+            title="Марія - Рейтинг 2250">
+            <img
+              alt="Портрет гравчині Марія, жінка 26 років, усміхнена, на темно-золотистому фоні"
+              class="rounded-full mb-3 shadow-md"
+              height="96"
+              src="https://storage.googleapis.com/a1aa/image/9a34c472-eecc-454f-bb47-d452b11ff814.jpg"
+              width="96" />
+            <h4 class="text-[var(--color-text-light)] font-semibold text-lg">
+              Марія
+            </h4>
+            <p class="text-[var(--color-text-muted)]">Рейтинг: 2250</p>
+          </div>
+          <div
+            class="bg-[rgba(26,26,26,0.75)] rounded-xl shadow-lg p-4 flex flex-col items-center card-hover"
+            title="Сергій - Рейтинг 2200">
+            <img
+              alt="Портрет гравця Сергій, чоловік 32 роки, усміхнений, на темно-золотистому фоні"
+              class="rounded-full mb-3 shadow-md"
+              height="96"
+              src="https://storage.googleapis.com/a1aa/image/5e972707-30c4-4c22-b739-be9bb74a4601.jpg"
+              width="96" />
+            <h4 class="text-[var(--color-text-light)] font-semibold text-lg">
+              Сергій
+            </h4>
+            <p class="text-[var(--color-text-muted)]">Рейтинг: 2200</p>
+          </div>
+        </div>
+      </section>
+      <section class="w-full max-w-5xl mt-16">
+        <h3
+          class="text-[var(--color-text-light)] text-3xl font-bold mb-8 drop-shadow-lg">
+          Друзья
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6">
+          <div
+            class="bg-[rgba(26,26,26,0.75)] rounded-xl shadow-lg p-4 flex flex-col items-center card-hover"
+            title="Андрій - Рейтинг 2450">
+            <img
+              alt="Портрет гравця Андрій, чоловік 30 років, усміхнений, на темно-золотистому фоні"
+              class="rounded-full mb-3 shadow-md"
+              height="96"
+              src="https://storage.googleapis.com/a1aa/image/e2445a7b-66f4-4114-c271-452054efa6a4.jpg"
+              width="96" />
+            <h4 class="text-[var(--color-text-light)] font-semibold text-lg">
+              Андрій
+            </h4>
+            <p class="text-[var(--color-text-muted)]">Рейтинг: 2450</p>
+          </div>
+          <div
+            class="bg-[rgba(26,26,26,0.75)] rounded-xl shadow-lg p-4 flex flex-col items-center card-hover"
+            title="Олена - Рейтинг 2380">
+            <img
+              alt="Портрет гравчині Олена, жінка 28 років, усміхнена, на темно-золотистому фоні"
+              class="rounded-full mb-3 shadow-md"
+              height="96"
+              src="https://storage.googleapis.com/a1aa/image/605606f6-40ef-474a-548e-7b8122852c5b.jpg"
+              width="96" />
+            <h4 class="text-[var(--color-text-light)] font-semibold text-lg">
+              Олена
+            </h4>
+            <p class="text-[var(--color-text-muted)]">Рейтинг: 2380</p>
+          </div>
+          <div
+            class="bg-[rgba(26,26,26,0.75)] rounded-xl shadow-lg p-4 flex flex-col items-center card-hover"
+            title="Іван - Рейтинг 2300">
+            <img
+              alt="Портрет гравця Іван, чоловік 35 років, серйозний вираз обличчя, на темно-золотистому фоні"
+              class="rounded-full mb-3 shadow-md"
+              height="96"
+              src="https://storage.googleapis.com/a1aa/image/d18fd198-8851-4ea9-b433-71b53b9ae827.jpg"
+              width="96" />
+            <h4 class="text-[var(--color-text-light)] font-semibold text-lg">
+              Іван
+            </h4>
+            <p class="text-[var(--color-text-muted)]">Рейтинг: 2300</p>
+          </div>
+          <div
+            class="bg-[rgba(26,26,26,0.75)] rounded-xl shadow-lg p-4 flex flex-col items-center card-hover"
+            title="Марія - Рейтинг 2250">
+            <img
+              alt="Портрет гравчині Марія, жінка 26 років, усміхнена, на темно-золотистому фоні"
+              class="rounded-full mb-3 shadow-md"
+              height="96"
+              src="https://storage.googleapis.com/a1aa/image/9a34c472-eecc-454f-bb47-d452b11ff814.jpg"
+              width="96" />
+            <h4 class="text-[var(--color-text-light)] font-semibold text-lg">
+              Марія
+            </h4>
+            <p class="text-[var(--color-text-muted)]">Рейтинг: 2250</p>
+          </div>
+          <div
+            class="bg-[rgba(26,26,26,0.75)] rounded-xl shadow-lg p-4 flex flex-col items-center card-hover"
+            title="Сергій - Рейтинг 2200">
+            <img
+              alt="Портрет гравця Сергій, чоловік 32 роки, усміхнений, на темно-золотистому фоні"
+              class="rounded-full mb-3 shadow-md"
+              height="96"
+              src="https://storage.googleapis.com/a1aa/image/5e972707-30c4-4c22-b739-be9bb74a4601.jpg"
+              width="96" />
+            <h4 class="text-[var(--color-text-light)] font-semibold text-lg">
+              Сергій
+            </h4>
+            <p class="text-[var(--color-text-muted)]">Рейтинг: 2200</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer
+      class="bg-[rgba(26,26,26,0.85)] text-[var(--color-text-muted)] text-center py-6 mt-16 select-none backdrop-blur-md">
+      <p>© 2024 CardMaster. Всі права захищені.</p>
+    </footer>
+
+    <div aria-hidden="true" id="floating-cards">
+      <img
+        alt="Плаваюча карта: туз піки з золотистим світлом на темному фоні"
+        draggable="true"
+        height="135"
+        src="https://storage.googleapis.com/a1aa/image/3466a0c3-ec17-4943-2593-12d6612d08c5.jpg"
+        style="transform: rotate(-12deg)"
+        width="90" />
+      <img
+        alt="Плаваюча карта: король червів з золотистим світлом на темному фоні"
+        draggable="true"
+        height="135"
+        src="https://storage.googleapis.com/a1aa/image/907bea78-08bf-4127-fd47-d2572d5a4a6c.jpg"
+        style="transform: rotate(10deg)"
+        width="90" />
+      <img
+        alt="Плаваюча карта: дама бубон з золотистим світлом на темному фоні"
+        draggable="true"
+        height="135"
+        src="https://storage.googleapis.com/a1aa/image/f43b2bf3-85f4-4c19-ca00-adfd39d424f1.jpg"
+        style="transform: rotate(-8deg)"
+        width="90" />
+    </div>
   </body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="../utils/preloader.js"></script>
+  <script type="module" src="../utils/main-menu-animate.js"></script>
+  <script type="module" src="../utils/main-menu.js"></script>
 </html>

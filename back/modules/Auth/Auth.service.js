@@ -48,9 +48,7 @@ class AuthService {
     return { access, refresh };
   }
 
-  async logout(access) {
-
-  }
+  async logout(access) {}
 
   async refresh(oldRefresh) {
     if (!oldRefresh) {
@@ -62,7 +60,15 @@ class AuthService {
     const { userId, username } = JWTUtils.verifyToken(oldRefresh);
     const access = JWTUtils.generateAccessToken(userId, username);
     const refresh = JWTUtils.generateRefreshToken(userId, username);
-    return { access, refresh };
+
+    return {
+      access,
+      refresh,
+      user: {
+        username,
+        avatarUrl: null, // если нет, то хотя бы null
+      },
+    };
   }
 }
 

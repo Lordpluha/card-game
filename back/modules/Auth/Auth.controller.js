@@ -10,7 +10,7 @@ import {
   USER_LOGGED_IN,
   TOKEN_REFRESHED,
 } from "../../models/errors/auth.errors.js";
-import {Router} from "express";
+import { Router } from "express";
 
 const router = Router();
 
@@ -22,9 +22,9 @@ router.post("/auth/register", async (req, res) => {
     res = JWTUtils.clearHttpOnlyCookie(res);
     return res.status(err.status || 400).json({ message: err.message });
   }
-})
+});
 
-router.post('/auth/login', async (req, res) => {
+router.post("/auth/login", async (req, res) => {
   try {
     const { access, refresh } = await AuthService.login(req.body);
     res = JWTUtils.generateHttpOnlyCookie(res, access, refresh);
@@ -33,20 +33,28 @@ router.post('/auth/login', async (req, res) => {
     res = JWTUtils.clearHttpOnlyCookie(res);
     return res.status(err.status || 401).json({ message: err.message });
   }
-})
+});
 
-router.post('/auth/refresh', requireRefreshToken, async (req, res) => {
+router.post("/auth/refresh", requireRefreshToken, async (req, res) => {
   try {
-    const { access, refresh } = await AuthService.refresh(req.refreshCookie);
+    const { access, refresh, user } = await AuthService.refresh(
+      req.refreshCookie
+    );
     res = JWTUtils.generateHttpOnlyCookie(res, access, refresh);
-    return res.json({ message: TOKEN_REFRESHED });
+
+    // console.log("🔁 /auth/refresh -> user:", user);
+
+    return res.json({
+      message: TOKEN_REFRESHED,
+      user,
+    });
   } catch (err) {
     res = JWTUtils.clearHttpOnlyCookie(res);
     return res.status(err.status || 401).json({ message: err.message });
   }
-})
+});
 
-router.post('/auth/logout', requireAccessToken, async (req, res) => {
+router.post("/auth/logout", requireAccessToken, async (req, res) => {
   try {
     await AuthService.logout(req.accessCookie);
     res = JWTUtils.clearHttpOnlyCookie(res);
@@ -55,6 +63,6 @@ router.post('/auth/logout', requireAccessToken, async (req, res) => {
     res = JWTUtils.clearHttpOnlyCookie(res);
     return res.status(500).json({ message: err.message });
   }
-})
+});
 
-export default router
+export default router;
