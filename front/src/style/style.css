@@ -24,6 +24,23 @@ body {
   min-height: 100vh;
 }
 
+.prelobby-body {
+  background: var(--primary-bg);
+  background-image: radial-gradient(
+      circle at 20% 35%,
+      rgba(37, 99, 235, 0.15) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 75% 65%,
+      rgba(22, 213, 255, 0.1) 0%,
+      transparent 40%
+    );
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
 /** blank */
 
 :root {
@@ -40,6 +57,24 @@ body {
   --color-text-light: #f3e8ff;
   --color-text-muted: #bfa3d1;
   --color-shadow: rgba(183, 98, 242, 0.5);
+  --primary-bg: #1e0f2f;
+  --secondary-bg: #2a0a47;
+  --game-card-bg: #3c0e5e;
+
+  --accent-color: #b762f2;
+  --accent-glow: rgba(183, 98, 242, 0.35);
+  --secondary-accent: #da95ff;
+
+  --text-primary: #f3e8ff;
+  --text-secondary: #bfa3d1;
+
+  --ready-color: #5e17eb;
+  --waiting-color: #a83279;
+  --attack-color: #ab33e3;
+  --defense-color: #7d34a0;
+
+  --card-glow: 0 0 15px rgba(171, 51, 227, 0.3);
+  --card-selected-glow: 0 0 20px rgba(183, 98, 242, 0.5);
 }
 .wrap {
   display: flex;
@@ -524,22 +559,19 @@ body {
 ----------------------------------------------------- */
 
 .game-header {
-  background: linear-gradient(
-    135deg,
-    var(--color-bg-gradient-start),
-    var(--color-bg-gradient-end)
-  );
-  box-shadow: 0 4px 6px var(--color-shadow);
-  border-bottom: 1px solid var(--color-darkviolet);
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 30px;
 }
 
 .game-header::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: url("https://www.transparenttextures.com/patterns/dark-geometric.png");
   opacity: 0.12;
   pointer-events: none;
 }
@@ -863,4 +895,1023 @@ body {
 .shard-mythic {
   background: linear-gradient(135deg, #5d2a3b, #4a1a2a);
   border: 1px solid #ff3860;
+}
+
+#lobby img {
+  width: 50px;
+  height: 50px;
+}
+
+.game-container {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto auto auto;
+  grid-template-areas:
+    "header"
+    "players"
+    "decks"
+    "action";
+  gap: 1.5rem;
+  min-height: 100vh;
+  position: relative;
+}
+
+@media (min-width: 1024px) {
+  .game-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas:
+      "header"
+      "players"
+      "decks"
+      "action";
+    gap: 2rem;
+  }
+}
+
+/* Заголовок */
+.game-header {
+  grid-area: header;
+  text-align: center;
+  position: relative;
+  margin-bottom: 2rem;
+  overflow: visible;
+}
+
+.game-title {
+  font-family: "Orbitron", sans-serif;
+  font-size: 2.75rem;
+  font-weight: 800;
+  background: linear-gradient(
+    to right,
+    var(--accent-color),
+    var(--secondary-accent)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: relative;
+  display: inline-block;
+  margin-bottom: 1.5rem;
+}
+
+.game-title::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -10px;
+  width: 150px;
+  height: 3px;
+  background: linear-gradient(
+    to right,
+    var(--accent-color),
+    var(--secondary-accent)
+  );
+  transform: translateX(-50%);
+}
+
+.game-subtitle {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+/* Секція гравців - центральне розміщення */
+.players-section {
+  grid-area: players;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding: 2rem 0;
+  position: relative;
+  background: linear-gradient(
+    to right,
+    rgba(10, 13, 21, 0.7),
+    rgba(37, 99, 235, 0.1),
+    rgba(37, 99, 235, 0.1),
+    rgba(10, 13, 21, 0.7)
+  );
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .players-section {
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+  }
+}
+
+.player-card {
+  background: var(--game-card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  transform-style: preserve-3d;
+  min-width: 150px;
+}
+
+.player-card::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--accent-color),
+    var(--secondary-accent),
+    transparent
+  );
+  transform: translateZ(-1px);
+  animation: animate-border 3s linear infinite;
+}
+
+@keyframes animate-border {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.player-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  width: 100%;
+}
+
+.avatar-wrapper {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  margin-bottom: 0.5rem;
+}
+
+.avatar-border {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: linear-gradient(
+      45deg,
+      var(--accent-color),
+      var(--secondary-accent)
+    )
+    border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+  animation: rotate 4s linear infinite;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.player-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 2;
+}
+
+.player-avatar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 15px var(--accent-glow);
+  z-index: -1;
+}
+
+.player-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.player-name {
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.25rem;
+}
+
+.player-stats {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.player-stat {
+  display: flex;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.player-stat i {
+  color: var(--secondary-accent);
+  margin-right: 0.3rem;
+}
+
+.player-status {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 0.25rem 0.65rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  z-index: 5;
+}
+
+.status-ready {
+  color: var(--ready-color);
+  border-left: 2px solid var(--ready-color);
+}
+
+.status-waiting {
+  color: var(--waiting-color);
+  border-left: 2px solid var(--waiting-color);
+}
+
+.player-status i {
+  margin-right: 0.35rem;
+  font-size: 0.7rem;
+}
+
+/* Вдосконалений анімований VS індикатор */
+.vs-indicator {
+  font-family: "Orbitron", sans-serif;
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: transparent;
+  background: linear-gradient(
+    45deg,
+    var(--accent-color),
+    var(--secondary-accent),
+    var(--accent-color)
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  margin: 0 2.5rem;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  animation: vs-pulse 2s infinite alternate, gradient-flow 6s linear infinite;
+  text-shadow: 0 0 20px var(--secondary-accent);
+  transform: perspective(500px) rotateY(0deg);
+  transform-style: preserve-3d;
+  transition: all 0.3s ease;
+}
+
+.vs-indicator:hover {
+  animation-play-state: paused;
+  transform: perspective(500px) rotateY(15deg) scale(1.1);
+  cursor: default;
+}
+
+@keyframes vs-pulse {
+  0% {
+    text-shadow: 0 0 10px var(--accent-glow);
+    transform: perspective(500px) rotateY(-5deg) scale(1);
+  }
+  50% {
+    text-shadow: 0 0 20px var(--accent-glow), 0 0 30px var(--secondary-accent);
+    transform: perspective(500px) rotateY(0deg) scale(1.05);
+  }
+  100% {
+    text-shadow: 0 0 15px var(--accent-glow);
+    transform: perspective(500px) rotateY(5deg) scale(1);
+  }
+}
+
+@keyframes gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Покращений ефект пульсації для VS */
+.vs-indicator::before {
+  content: "";
+  position: absolute;
+  width: 6rem;
+  height: 6rem;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(95, 39, 205, 0.2),
+    rgba(0, 219, 222, 0.1)
+  );
+  z-index: -1;
+  animation: vs-orb-pulse 3s infinite ease-in-out;
+  filter: blur(5px);
+}
+
+/* Додатковий елемент для більш складної анімації */
+.vs-indicator::after {
+  content: "";
+  position: absolute;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 50%;
+  background: radial-gradient(
+      circle,
+      transparent 30%,
+      rgba(0, 219, 222, 0.05) 70%
+    ),
+    linear-gradient(
+      45deg,
+      transparent 40%,
+      rgba(95, 39, 205, 0.1) 60%,
+      transparent 80%
+    );
+  z-index: -2;
+  animation: vs-outer-pulse 4s infinite alternate, vs-rotate 10s linear infinite;
+  filter: blur(2px);
+}
+
+/* Додаємо світлові частинки навколо VS */
+.vs-indicator:before,
+.vs-indicator:after {
+  box-shadow: 0 0 15px 5px rgba(0, 219, 222, 0.1),
+    inset 0 0 15px 5px rgba(95, 39, 205, 0.1);
+}
+
+@keyframes vs-orb-pulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.7;
+    box-shadow: 0 0 10px rgba(0, 219, 222, 0.3);
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+    box-shadow: 0 0 20px rgba(95, 39, 205, 0.4);
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0.7;
+    box-shadow: 0 0 10px rgba(0, 219, 222, 0.3);
+  }
+}
+
+@keyframes vs-outer-pulse {
+  0% {
+    opacity: 0.4;
+    transform: scale(0.95) rotate(0deg);
+  }
+  100% {
+    opacity: 0.8;
+    transform: scale(1.05) rotate(180deg);
+  }
+}
+
+@keyframes vs-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Секція колод - чітко нижче гравців */
+.decks-section {
+  grid-area: decks;
+  position: relative;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  justify-content: center;
+}
+
+/* Індикатор секції колод */
+.decks-section::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 4px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--secondary-accent),
+    transparent
+  );
+  border-radius: 4px;
+}
+
+.decks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1rem;
+  max-width: 1200px;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .decks-grid {
+    grid-template-columns: repeat(3, minmax(180px, 220px));
+    justify-content: center;
+  }
+}
+
+@media (min-width: 1200px) {
+  .decks-grid {
+    grid-template-columns: repeat(6, minmax(180px, 200px));
+  }
+}
+
+.deck-card {
+  background: var(--game-card-bg);
+  border: 2px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.deck-card::before {
+  content: "";
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: all 0.6s ease;
+  z-index: 2;
+}
+
+.deck-card:hover::before {
+  top: 100%;
+  left: 100%;
+}
+
+.deck-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--card-glow);
+}
+
+.deck-card.selected {
+  border-color: var(--accent-color);
+  box-shadow: var(--card-selected-glow);
+}
+
+.deck-card input[type="radio"] {
+  display: none;
+}
+
+.deck-image-wrapper {
+  position: relative;
+  padding-top: 140%;
+  margin-bottom: 0.75rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.deck-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+.deck-info {
+  position: relative;
+  z-index: 3;
+}
+
+.deck-name {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+  text-align: center;
+  letter-spacing: 0.5px;
+  color: var(--text-primary);
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.deck-icon {
+  display: inline-block;
+  margin-right: 0.3rem;
+  font-size: 0.9rem;
+  color: var(--secondary-accent);
+  vertical-align: middle;
+  text-shadow: 0 0 10px var(--secondary-accent);
+}
+
+.deck-stats {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.35rem 0.5rem;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+}
+
+.deck-stat {
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  font-family: "Orbitron", sans-serif;
+}
+
+.stat-attack {
+  color: var(--attack-color);
+}
+
+.stat-defense {
+  color: var(--defense-color);
+}
+
+.deck-stat i {
+  margin-right: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.deck-check {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  background: var(--accent-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 10;
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.deck-card.selected .deck-check {
+  opacity: 1;
+}
+
+.deck-check i {
+  color: white;
+  font-size: 0.85rem;
+}
+
+/* Секція дій */
+.action-section {
+  grid-area: action;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.countdown-container {
+  background: var(--game-card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  position: relative;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(5px);
+  overflow: hidden;
+}
+
+.countdown-container::before {
+  content: "";
+  position: absolute;
+  width: 150%;
+  height: 150%;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    var(--accent-color),
+    var(--secondary-accent),
+    transparent
+  );
+  animation: rotate-background 5s linear infinite;
+  top: -25%;
+  left: -25%;
+  z-index: -1;
+}
+
+@keyframes rotate-background {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.countdown-container::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  background: var(--game-card-bg);
+  border-radius: 1rem;
+  z-index: -1;
+}
+
+.countdown-title {
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-align: center;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.countdown-timer {
+  font-family: "Orbitron", sans-serif;
+  font-size: 5rem;
+  font-weight: 800;
+  color: var(--secondary-accent);
+  text-align: center;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 10px var(--secondary-accent);
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  line-height: 1;
+}
+
+.progress-container {
+  width: 100%;
+  height: 0.5rem;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 9999px;
+  margin: 0.75rem 0 2rem 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    var(--accent-color),
+    var(--secondary-accent)
+  );
+  box-shadow: 0 0 8px var(--accent-glow);
+  width: 100%;
+  transition: width 1s linear;
+}
+
+.ready-button {
+  width: 100%;
+  padding: 1rem 2rem;
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #141724;
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+}
+
+.ready-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: none;
+}
+
+.ready-button:hover::before {
+  left: 100%;
+  transition: left 0.7s ease-in-out;
+}
+
+.ready-button.active {
+  background: linear-gradient(
+    to right,
+    var(--accent-color),
+    var(--secondary-accent)
+  );
+  color: white;
+  box-shadow: 0 4px 15px var(--accent-glow);
+  border-color: transparent;
+}
+
+.ready-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Модальні вікна */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fade-in 0.3s ease-out forwards;
+  backdrop-filter: blur(3px);
+}
+
+.modal-content {
+  background: var(--game-card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  position: relative;
+  animation: scale-in 0.3s ease-out forwards;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.modal-content::before {
+  content: "";
+  position: absolute;
+  width: 150%;
+  height: 150%;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    var(--accent-color),
+    var(--secondary-accent),
+    transparent
+  );
+  animation: rotate-background 8s linear infinite;
+  top: -25%;
+  left: -25%;
+  z-index: -1;
+}
+
+.modal-content::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  background: var(--game-card-bg);
+  border-radius: 1rem;
+  z-index: -1;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Таймер у правому куті екрану */
+.corner-countdown {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  background: var(--game-card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  padding: 1rem;
+  width: 280px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(5px);
+  overflow: hidden;
+}
+
+.corner-countdown::before {
+  content: "";
+  position: absolute;
+  width: 150%;
+  height: 150%;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    var(--accent-color),
+    var(--secondary-accent),
+    transparent
+  );
+  animation: rotate-background 5s linear infinite;
+  top: -25%;
+  left: -25%;
+  z-index: -1;
+}
+
+.corner-countdown::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  background: var(--game-card-bg);
+  border-radius: 1rem;
+  z-index: -1;
+}
+
+.countdown-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 0.75rem;
+}
+
+.corner-countdown-title {
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.corner-countdown-timer {
+  font-family: "Orbitron", sans-serif;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--secondary-accent);
+  text-align: center;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 10px var(--secondary-accent);
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  line-height: 1;
+}
+
+.corner-progress-container {
+  width: 100%;
+  height: 0.4rem;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 9999px;
+  margin: 0.25rem 0 0.5rem 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.corner-progress-bar {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    var(--accent-color),
+    var(--secondary-accent)
+  );
+  box-shadow: 0 0 8px var(--accent-glow);
+  width: 100%;
+  transition: width 1s linear;
+}
+
+/* Адаптувати стилі для мобільних пристроїв */
+@media (max-width: 768px) {
+  .corner-countdown {
+    position: relative;
+    top: 0;
+    right: 0;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+}
+
+/* Приховати основний таймер при показі кутового на великих екранах */
+@media (min-width: 769px) {
+  .action-section {
+    display: none;
+  }
+}
+
+.game-code-box {
+  background: linear-gradient(135deg, #5e17eb, #ab33e3);
+  padding: 12px 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 18px rgba(171, 51, 227, 0.5);
+  display: flex;
+  font-family: "Orbitron", sans-serif;
+  text-align: center;
+  align-items: center;
+}
+
+.game-code-label {
+  font-size: 1rem;
+  color: var(--color-text-light);
+  margin-right: 10px;
+  text-shadow: 0 0 5px var(--color-accent-dark);
+}
+
+.game-code-value {
+  font-size: 1.75rem;
+  color: var(--color-accent-light);
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px var(--color-accent);
 }

@@ -1,5 +1,5 @@
 // надо будет в отдельный модуль вынести
-
+// ок
 /*************** 1. DATA ************************************************/
 // Master list of all cards (keep aspect 300×420 for base images)
 const allCards = [

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Pre-lobby</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet" />
+    <link rel="stylesheet" href="../style/style.css" />
+  </head>
+
+  <body class="prelobby-body">
+    <div class="game-container">
+      <header class="game-header">
+        <div class="corner-countdown">
+          <div class="countdown-info">
+            <span class="corner-countdown-title">Гра почнеться через</span>
+            <div class="corner-countdown-timer" id="countdown">10</div>
+            <div class="corner-progress-container">
+              <div class="corner-progress-bar" id="progress-bar"></div>
+            </div>
+          </div>
+          <button class="ready-button" id="readyBtn" disabled>
+            <i class="fas fa-gamepad"></i>
+            <span>Готовий до бою</span>
+          </button>
+        </div>
+        <div class="game-code-box mb-6">
+          <span class="game-code-label">Код для друга:</span>
+          <span id="game-code" class="game-code-value">X7K9P2</span>
+        </div>
+      </header>
+
+      <!-- Секція гравців з оновленим дизайном -->
+      <section class="players-section">
+        <div class="player-card">
+          <div id="p1-status" class="player-status status-ready">
+            <i class="fas fa-check-circle"></i>
+            <span>ГОТОВИЙ</span>
+          </div>
+
+          <div class="avatar-wrapper">
+            <div class="avatar-border"></div>
+            <img id="p1-avatar" src="" alt="Avatar 1" class="player-avatar" />
+          </div>
+
+          <div class="player-info">
+            <h3 id="p1-name" class="player-name">Гравець 1</h3>
+            <div class="player-stats">
+              <div class="player-stat">
+                <i class="fas fa-star"></i>
+                <span>1850</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vs-indicator">VS</div>
+
+        <div class="player-card">
+          <div id="p2-status" class="player-status status-waiting">
+            <i class="fas fa-clock"></i>
+            <span>ОЧІКУЄ</span>
+          </div>
+
+          <div class="avatar-wrapper">
+            <div class="avatar-border"></div>
+            <img id="p2-avatar" src="" alt="Avatar 2" class="player-avatar" />
+          </div>
+
+          <div class="player-info">
+            <h3 id="p2-name" class="player-name">Гравець 2</h3>
+            <div class="player-stats">
+              <div class="player-stat">
+                <i class="fas fa-star"></i>
+                <span>1720</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Секція колод з новим дизайном -->
+      <section class="decks-section">
+        <div class="decks-grid">
+          <label class="deck-card selected" id="deck-card-1">
+            <input
+              type="radio"
+              name="deck"
+              id="deck1"
+              value="classic"
+              checked />
+            <div class="deck-check">
+              <i class="fas fa-check"></i>
+            </div>
+            <div class="deck-image-wrapper">
+              <img
+                src="https://via.placeholder.com/300x420/2a1a4a/ffffff?text=Paladin"
+                alt=" "
+                class="deck-image" />
+            </div>
+            <div class="deck-info">
+              <div class="deck-name">Класична колода</div>
+              <div class="deck-stats">
+                <span class="deck-stat"
+                  ><i class="fas fa-fist-raised stat-attack"></i>55</span
+                >
+                <span class="deck-stat"
+                  ><i class="fas fa-shield-alt stat-defense"></i>80</span
+                >
+              </div>
+            </div>
+          </label>
+
+          <label class="deck-card" id="deck-card-2">
+            <input type="radio" name="deck" id="deck2" value="fantasy" />
+            <div class="deck-check">
+              <i class="fas fa-check"></i>
+            </div>
+            <div class="deck-image-wrapper">
+              <img
+                src="https://via.placeholder.com/300x420/5D2A3B/ffffff?text=Titan"
+                alt=" "
+                class="deck-image" />
+            </div>
+            <div class="deck-info">
+              <div class="deck-name">Фентезі колода</div>
+              <div class="deck-stats">
+                <span class="deck-stat"
+                  ><i class="fas fa-fist-raised stat-attack"></i>120</span
+                >
+                <span class="deck-stat"
+                  ><i class="fas fa-shield-alt stat-defense"></i>110</span
+                >
+              </div>
+            </div>
+          </label>
+
+          <label class="deck-card" id="deck-card-3">
+            <input type="radio" name="deck" id="deck3" value="sci-fi" />
+            <div class="deck-check">
+              <i class="fas fa-check"></i>
+            </div>
+            <div class="deck-image-wrapper">
+              <img
+                src="https://via.placeholder.com/300x420/16213e/ffffff?text=Mage"
+                alt=" "
+                class="deck-image" />
+            </div>
+            <div class="deck-info">
+              <div class="deck-name">Sci-Fi колода</div>
+              <div class="deck-stats">
+                <span class="deck-stat"
+                  ><i class="fas fa-fist-raised stat-attack"></i>80</span
+                >
+                <span class="deck-stat"
+                  ><i class="fas fa-shield-alt stat-defense"></i>25</span
+                >
+              </div>
+            </div>
+          </label>
+
+          <label class="deck-card" id="deck-card-4">
+            <input type="radio" name="deck" id="deck4" value="historical" />
+            <div class="deck-check">
+              <i class="fas fa-check"></i>
+            </div>
+            <div class="deck-image-wrapper">
+              <img
+                src="https://via.placeholder.com/300x420/1a1a2e/ffffff?text=Warrior"
+                alt=" "
+                class="deck-image" />
+            </div>
+            <div class="deck-info">
+              <div class="deck-name">Історична колода</div>
+              <div class="deck-stats">
+                <span class="deck-stat"
+                  ><i class="fas fa-fist-raised stat-attack"></i>45</span
+                >
+                <span class="deck-stat"
+                  ><i class="fas fa-shield-alt stat-defense"></i>60</span
+                >
+              </div>
+            </div>
+          </label>
+
+          <label class="deck-card" id="deck-card-5">
+            <input type="radio" name="deck" id="deck5" value="anime" />
+            <div class="deck-check">
+              <i class="fas fa-check"></i>
+            </div>
+            <div class="deck-image-wrapper">
+              <img
+                src="https://via.placeholder.com/300x420/4a2a1a/ffffff?text=Dragon"
+                alt=" "
+                class="deck-image" />
+            </div>
+            <div class="deck-info">
+              <div class="deck-name">Аніме колода</div>
+              <div class="deck-stats">
+                <span class="deck-stat"
+                  ><i class="fas fa-fist-raised stat-attack"></i>90</span
+                >
+                <span class="deck-stat"
+                  ><i class="fas fa-shield-alt stat-defense"></i>75</span
+                >
+              </div>
+            </div>
+          </label>
+
+          <label class="deck-card" id="deck-card-6">
+            <input type="radio" name="deck" id="deck6" value="minimal" />
+            <div class="deck-check">
+              <i class="fas fa-check"></i>
+            </div>
+            <div class="deck-image-wrapper">
+              <img
+                src="https://via.placeholder.com/300x420/1a2e4a/ffffff?text=Archer"
+                alt=" "
+                class="deck-image" />
+            </div>
+            <div class="deck-info">
+              <div class="deck-name">Мінімалістична колода</div>
+              <div class="deck-stats">
+                <span class="deck-stat"
+                  ><i class="fas fa-fist-raised stat-attack"></i>65</span
+                >
+                <span class="deck-stat"
+                  ><i class="fas fa-shield-alt stat-defense"></i>35</span
+                >
+              </div>
+            </div>
+          </label>
+        </div>
+      </section>
+
+      <!-- Секція дій і таймера -->
+      <section class="action-section">
+        <div class="countdown-container">
+          <h3 class="countdown-title">Гра почнеться через</h3>
+          <div class="countdown-timer" id="countdown">10</div>
+          <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+          </div>
+          <button class="ready-button" id="readyBtn" disabled>
+            <i class="fas fa-gamepad"></i>
+            <span>Готовий до бою</span>
+          </button>
+        </div>
+      </section>
+    </div>
+  </body>
+  <script></script>
+  <script type="module" src="../utils/ws-game-client.js"></script>
+  <script type="module" src="../utils/prelobby.js"></script>
+</html>
