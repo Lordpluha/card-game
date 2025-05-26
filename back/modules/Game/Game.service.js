@@ -216,6 +216,30 @@ class GameService {
     );
     return this.getGameById(gameId);
   }
+
+  async getGamesByUser(userId) {
+    const [rows] = await pool.execute(
+      'SELECT * FROM games WHERE JSON_CONTAINS(user_ids, JSON_ARRAY(?))',
+      [userId]
+    );
+    return rows.map(row => {
+      const user_ids = Array.isArray(row.user_ids)
+        ? row.user_ids
+        : JSON.parse(row.user_ids);
+      const game_state = typeof row.game_state === 'object'
+        ? row.game_state
+        : JSON.parse(row.game_state);
+      return {
+        id: row.id,
+        game_code: row.game_code,
+        host_user_id: row.host_user_id,
+        status: row.status,
+        user_ids,
+        winner_id: row.winner_id,
+        game_state
+      };
+    });
+  }
 }
 
 export default new GameService();

@@ -4,6 +4,20 @@ import { requireAccessToken } from "../../middleware/index.js";
 
 const router = Router();
 
+// получить все игры пользователя
+router.get(
+  "/games",
+  requireAccessToken,
+  async (req, res) => {
+    try {
+      const games = await GameService.getGamesByUser(req.userId);
+      return res.json(games);
+    } catch (err) {
+      return res.status(err.status || 500).json({ message: err.message });
+    }
+  }
+);
+
 router.get("/game/:id", requireAccessToken, async (req, res) => {
   try {
     const gameId = req.params.id;
