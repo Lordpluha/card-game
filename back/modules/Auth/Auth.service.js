@@ -1,4 +1,4 @@
-import {pool} from "../../db/connect.js";
+import { pool } from "../../db/connect.js";                    // + import pool
 import { PasswordUtils, JWTUtils } from "../../utils/index.js";
 import {
   USER_REGISTERED,
@@ -45,10 +45,27 @@ class AuthService {
     const access = JWTUtils.generateAccessToken(user.id, username);
     const refresh = JWTUtils.generateRefreshToken(user.id, username);
 
+    // persist tokens
+    await pool.execute(
+      "INSERT INTO jwt_tokens (token, user_id, type) VALUES (?, ?, 'access')",
+      [access, user.id]
+    );
+    await pool.execute(
+      "INSERT INTO jwt_tokens (token, user_id, type) VALUES (?, ?, 'refresh')",
+      [refresh, user.id]
+    );
+
     return { access, refresh };
   }
 
-  async logout(access) {}
+  async logout(access) {
+    // decode userId and delete all tokens for него
+    const { userId } = JWTUtils.verifyToken(access);
+    await pool.execute(
+      "DELETE FROM jwt_tokens WHERE user_id = ?",
+      [userId]
+    );
+  }
 
   async refresh(oldRefresh) {
     if (!oldRefresh) {
@@ -56,18 +73,40 @@ class AuthService {
       err.status = 401;
       throw err;
     }
+    // check stored
+    const [found] = await pool.execute(
+      "SELECT token FROM jwt_tokens WHERE token = ? AND type = 'refresh'",
+      [oldRefresh]
+    );
+    if (!found.length) {
+      const err = new Error(REFRESH_TOKEN_MISSING);
+      err.status = 401;
+      throw err;
+    }
+    // remove old
+    await pool.execute(
+      "DELETE FROM jwt_tokens WHERE token = ?",
+      [oldRefresh]
+    );
 
     const { userId, username } = JWTUtils.verifyToken(oldRefresh);
     const access = JWTUtils.generateAccessToken(userId, username);
     const refresh = JWTUtils.generateRefreshToken(userId, username);
 
+    // persist new
+    await pool.execute(
+      "INSERT INTO jwt_tokens (token, user_id, type) VALUES (?, ?, 'access')",
+      [access, userId]
+    );
+    await pool.execute(
+      "INSERT INTO jwt_tokens (token, user_id, type) VALUES (?, ?, 'refresh')",
+      [refresh, userId]
+    );
+
     return {
       access,
       refresh,
-      user: {
-        username,
-        avatarUrl: null, // если нет, то хотя бы null
-      },
+      user: { username, avatarUrl: null }
     };
   }
 }
