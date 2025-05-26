@@ -34,6 +34,9 @@ app.get("/api", (req, res) => {
 });
 app.use("/api", router);
 
+// Global error handler
+app.use((req, res) => res.status(404).json({ message: "Not Found" }));
+
 // заменяем app.listen на server.listen
 server.listen(PORT, () => {
   console.log(`Using: ${NODE_ENV} environment`);
@@ -42,11 +45,4 @@ server.listen(PORT, () => {
 
 // создаём WebSocket-сервер
 export const wss = new WebSocketServer({ server, path: `/gaming` });
-wss.on("connection", (ws, req) => {
-  console.log("🔌 WebSocket client connected");
-  // извлекаем gameId из URL подключения
-  const qs = req.url.split("?")[1] || "";
-  const params = new URLSearchParams(qs);
-  ws.gameId = params.get("gameId") || null;
-  console.log("🔌 WS client subscribed to game:", ws.gameId);
-});
+console.log(`Websocket Game Server started: ws://${HOST}:${PORT}/api/gaming`);

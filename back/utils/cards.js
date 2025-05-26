@@ -1,0 +1,22 @@
+export default [
+  { id: 1,  name: 'Iron Man',    image: 'url_to_ironman.png',    attack: 6, defense: 5, cost: 3 },
+  { id: 2,  name: 'Captain America', image: 'url_to_captain.png', attack: 5, defense: 6, cost: 3 },
+  { id: 3,  name: 'Thor',        image: 'url_to_thor.png',       attack: 7, defense: 4, cost: 4 },
+  { id: 4,  name: 'Hulk',        image: 'url_to_hulk.png',       attack: 8, defense: 3, cost: 4 },
+  { id: 5,  name: 'Black Widow', image: 'url_to_blackwidow.png', attack: 4, defense: 5, cost: 2 },
+  { id: 6,  name: 'Hawkeye',     image: 'url_to_hawkeye.png',    attack: 4, defense: 4, cost: 2 },
+  { id: 7,  name: 'Spider-Man',  image: 'url_to_spiderman.png',  attack: 5, defense: 4, cost: 2 },
+  { id: 8,  name: 'Black Panther', image: 'url_to_panther.png',   attack: 5, defense: 5, cost: 3 },
+  { id: 9,  name: 'Doctor Strange', image: 'url_to_strange.png',  attack: 6, defense: 4, cost: 3 },
+  { id: 10, name: 'Scarlet Witch', image: 'url_to_witch.png',     attack: 6, defense: 3, cost: 3 },
+  { id: 11, name: 'Vision',      image: 'url_to_vision.png',     attack: 6, defense: 6, cost: 4 },
+  { id: 12, name: 'Ant-Man',     image: 'url_to_antman.png',     attack: 4, defense: 4, cost: 2 },
+  { id: 13, name: 'Wasp',        image: 'url_to_wasp.png',       attack: 3, defense: 3, cost: 1 },
+  { id: 14, name: 'Falcon',      image: 'url_to_falcon.png',     attack: 4, defense: 3, cost: 2 },
+  { id: 15, name: 'Winter Soldier', image: 'url_to_winter.png',   attack: 5, defense: 4, cost: 2 },
+  { id: 16, name: 'Star-Lord',   image: 'url_to_starlord.png',   attack: 5, defense: 4, cost: 2 },
+  { id: 17, name: 'Gamora',      image: 'url_to_gamora.png',     attack: 6, defense: 4, cost: 3 },
+  { id: 18, name: 'Drax',        image: 'url_to_drax.png',       attack: 7, defense: 3, cost: 3 },
+  { id: 19, name: 'Rocket Raccoon', image: 'url_to_rocket.png',  attack: 5, defense: 3, cost: 2 },
+  { id: 20, name: 'Groot',       image: 'url_to_groot.png',      attack: 6, defense: 5, cost: 3 }
+];

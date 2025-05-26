@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS games (
   host_user_id  INT UNSIGNED,
   status        ENUM('CREATED','IN_PROGRESS','ENDED') DEFAULT 'CREATED',
   user_ids      JSON         NOT NULL,
+  game_state    JSON         NOT NULL DEFAULT '{}',
   winner_id     INT UNSIGNED,
 
   FOREIGN KEY (host_user_id) REFERENCES users(id) ON DELETE SET NULL,
