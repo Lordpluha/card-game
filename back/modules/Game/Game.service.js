@@ -158,6 +158,11 @@ class GameService {
         "UPDATE games SET status = ?, winner_id = ? WHERE id = ?",
         ["ENDED", winner, gameId]
       );
+      // обновляем дату последней игры для всех участников
+      await pool.execute(
+        "UPDATE users SET last_game_date = NOW() WHERE id IN (?)",
+        [game.user_ids]
+      );
     }
 
     // сохраняем новое состояние игры
@@ -194,8 +199,13 @@ class GameService {
       throw { status: 403, message: 'No rights to finish game' };
     }
     await pool.execute(
-      'UPDATE games SET status = ?, winner_id = ? WHERE id = ?',
-      ['ENDED', userId, gameId]
+      "UPDATE games SET status = ?, winner_id = ? WHERE id = ?",
+      ["ENDED", userId, gameId]
+    );
+    // обновляем дату последней игры для всех участников
+    await pool.execute(
+      "UPDATE users SET last_game_date = NOW() WHERE id IN (?)",
+      [game.user_ids]
     );
     return this.getGameById(gameId);
   }
