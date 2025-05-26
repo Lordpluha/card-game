@@ -1,5 +1,4 @@
 import { pool } from "../../db/connect.js";
-import bcrypt from "bcrypt";
 
 class UserService {
 	// получить профиль по ID
@@ -39,7 +38,7 @@ class UserService {
 			values.push(settings.avatar_url);
 		}
 		if (settings.password) {
-			const hash = await bcrypt.hash(settings.password, 10);
+			const hash = await PasswordUtils.hashPassword(settings.password);
 			fields.push("password_hash = ?");
 			values.push(hash);
 		}
