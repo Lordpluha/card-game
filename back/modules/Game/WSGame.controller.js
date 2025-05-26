@@ -82,6 +82,16 @@ wss.on("connection", (ws, req) => {
           ws.send(JSON.stringify({ event: "gameDataByCode", game }));
           break;
         }
+        case "selectDeck": {
+          const { gameId, cardIds } = msg.payload;
+          const game = await GameService.selectDeck(userId, gameId, cardIds);
+          broadcastWS(game.id, {
+            event: "deckSelected",
+            player: userId,
+            deck: cardIds
+          });
+          break;
+        }
         default:
           ws.send(JSON.stringify({ event: "error", message: "Unknown event" }));
       }

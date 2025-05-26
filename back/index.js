@@ -45,4 +45,4 @@ server.listen(PORT, () => {
 
 // создаём WebSocket-сервер
 export const wss = new WebSocketServer({ server, path: `/gaming` });
-console.log(`Websocket Game Server started: ws://${HOST}:${PORT}/api/gaming`);
+console.log(`Websocket Game Server started: ws://${HOST}:${PORT}/gaming`);

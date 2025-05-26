@@ -23,9 +23,9 @@ class AuthService {
       "INSERT INTO users (username, password_hash) VALUES (?, ?)",
       [username, hash]
     );
-    // assign default 3 cards
+    // assign default 9 cards
     const userId = result.insertId;
-    const initial = cards.slice(0, 3).map(c => c.id);
+    const initial = cards.slice(0, 9).map(c => c.id);
     await pool.execute(
       "UPDATE users SET card_ids = ? WHERE id = ?",
       [JSON.stringify(initial), userId]

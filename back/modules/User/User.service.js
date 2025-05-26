@@ -4,7 +4,7 @@ class UserService {
 	// получить профиль по ID
 	async getUserById(userId) {
 		const [rows] = await pool.execute(
-			"SELECT id, username, email, avatar_url, created_at, last_game_date, card_ids FROM users WHERE id = ?",
+			"SELECT id, username, email, avatar_url, created_at, last_game_date, card_ids, coins FROM users WHERE id = ?",
 			[userId]
 		);
 		if (!rows.length) throw { status: 404, message: "User not found" };
@@ -16,7 +16,7 @@ class UserService {
 	// получить профиль по username
 	async getUserByUsername(username) {
 		const [rows] = await pool.execute(
-			"SELECT id, username, email, avatar_url, created_at, last_game_date, card_ids FROM users WHERE username = ?",
+			"SELECT id, username, email, avatar_url, created_at, last_game_date, card_ids, coins FROM users WHERE username = ?",
 			[username]
 		);
 		if (!rows.length) throw { status: 404, message: "User not found" };

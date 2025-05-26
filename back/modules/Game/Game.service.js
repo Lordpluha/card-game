@@ -9,6 +9,7 @@ class GameService {
       health: { [userId]: 20 },
       hands: { [userId]: [] },
       battlefield: { [userId]: [] },
+      decks: { [userId]: [] }, // <-- added
       currentTurn: null,
     };
     const [result] = await pool.execute(
@@ -249,6 +250,32 @@ class GameService {
         game_state
       };
     });
+  }
+
+  async selectDeck(userId, gameId, cardIds) {
+    const game = await this.getGameById(gameId);
+    if (game.status !== 'CREATED') {
+      throw { status: 400, message: 'Game already started' };
+    }
+    if (!game.user_ids.includes(userId)) {
+      throw { status: 403, message: 'Not in this game' };
+    }
+    // Проверяем, что пользователь владеет карточками
+    const [rows] = await pool.execute(
+      'SELECT card_ids FROM users WHERE id = ?',
+      [userId]
+    );
+    const own = JSON.parse(rows[0].card_ids || '[]');
+    if (!cardIds.every(id => own.includes(id))) {
+      throw { status: 400, message: 'Invalid card selection' };
+    }
+    // Обновляем состояние
+    const state = { ...game.game_state, decks: { ...game.game_state.decks, [userId]: cardIds } };
+    await pool.execute(
+      'UPDATE games SET game_state = ? WHERE id = ?',
+      [JSON.stringify(state), gameId]
+    );
+    return this.getGameById(gameId);
   }
 }
 
