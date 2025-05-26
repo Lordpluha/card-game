@@ -33,13 +33,13 @@ async function init() {
     // 4) создаём таблицы
     const usersSql    = await fs.readFile(join(__dirname, 'queries/create-users-table.sql'),    'utf-8');
     const gamesSql    = await fs.readFile(join(__dirname, 'queries/create-games-table.sql'),    'utf-8');
-    const tokensSql  = await fs.readFile(join(__dirname, 'queries/create-jwt-tokens-table.sql'),'utf-8');
-		const cardsSql  = await fs.readFile(join(__dirname, 'queries/create-cards-table.sql'),'utf-8');
+    const tokensSql   = await fs.readFile(join(__dirname, 'queries/create-jwt-tokens-table.sql'), 'utf-8');
+    const cardsSql    = await fs.readFile(join(__dirname, 'queries/create-cards-table.sql'),'utf-8');
 
     await conn.query(usersSql);
     await conn.query(gamesSql);
     await conn.query(tokensSql);
-		await conn.query(cardsSql);
+    await conn.query(cardsSql);
 
     await conn.commit();
     console.info('✅  Database schema is up to date');

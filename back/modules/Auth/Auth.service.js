@@ -1,5 +1,6 @@
 import { pool } from "../../db/connect.js";                    // + import pool
 import { PasswordUtils, JWTUtils } from "../../utils/index.js";
+import cards from "../../utils/cards.js";
 import {
   USER_REGISTERED,
   INVALID_USERNAME_OR_PASSWORD,
@@ -18,9 +19,16 @@ class AuthService {
       throw err;
     }
     const hash = await PasswordUtils.hashPassword(password);
-    await pool.execute(
+    const [result] = await pool.execute(
       "INSERT INTO users (username, password_hash) VALUES (?, ?)",
       [username, hash]
+    );
+    // assign default 3 cards
+    const userId = result.insertId;
+    const initial = cards.slice(0, 3).map(c => c.id);
+    await pool.execute(
+      "UPDATE users SET card_ids = ? WHERE id = ?",
+      [JSON.stringify(initial), userId]
     );
   }
 
