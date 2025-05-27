@@ -9,7 +9,6 @@ class UserService {
 		);
 		if (!rows.length) throw { status: 404, message: "User not found" };
 		const user = rows[0];
-		user.card_ids = JSON.parse(user.card_ids);
 		return user;
 	}
 
