@@ -1,4 +1,4 @@
-import { pool } from "../../db/connect.js";                    // + import pool
+import { pool } from "../../db/connect.js";
 import { PasswordUtils, JWTUtils } from "../../utils/index.js";
 import cards from "../../utils/cards.js";
 import {
@@ -8,10 +8,10 @@ import {
 } from "../../models/errors/auth.errors.js";
 
 class AuthService {
-  async register({ username, password }) {
+  async register({ username, password, email }) {
     const [exists] = await pool.execute(
-      "SELECT id FROM users WHERE username = ?",
-      [username]
+      "SELECT id FROM users WHERE username = ? OR email = ?",
+      [username, email]
     );
     if (exists.length) {
       const err = new Error(USER_REGISTERED);
@@ -19,23 +19,18 @@ class AuthService {
       throw err;
     }
     const hash = await PasswordUtils.hashPassword(password);
-    const [result] = await pool.execute(
-      "INSERT INTO users (username, password_hash) VALUES (?, ?)",
-      [username, hash]
-    );
-    // assign default 9 cards
-    const userId = result.insertId;
-    const initial = cards.slice(0, 9).map(c => c.id);
-    await pool.execute(
-      "UPDATE users SET card_ids = ? WHERE id = ?",
-      [JSON.stringify(initial), userId]
-    );
+		const initial = cards.slice(0, 9).map(c => c.id);
+		// Add first 9 cards to user
+		const [result] = await pool.execute(
+			"INSERT INTO users (username, email, password_hash, card_ids) VALUES (?, ?, ?, ?)",
+			[username, email, hash, JSON.stringify(initial)]
+		);
   }
 
-  async login({ username, password }) {
+  async login({ login, password }) {
     const [rows] = await pool.execute(
-      "SELECT id, password_hash FROM users WHERE username = ?",
-      [username]
+      "SELECT id, username, password_hash FROM users WHERE username = ? OR email = ?",
+      [login, login]
     );
     if (!rows.length) {
       const err = new Error(INVALID_USERNAME_OR_PASSWORD);
@@ -45,13 +40,25 @@ class AuthService {
     const user = rows[0];
     try {
       await PasswordUtils.comparePasswords(password, user.password_hash);
-    } catch (e) {
+    } catch {
       const err = new Error(INVALID_USERNAME_OR_PASSWORD);
       err.status = 401;
       throw err;
     }
-    const access = JWTUtils.generateAccessToken(user.id, username);
-    const refresh = JWTUtils.generateRefreshToken(user.id, username);
+
+    // проверка на существующую сессию
+    const [active] = await pool.execute(
+      "SELECT token FROM jwt_tokens WHERE user_id = ?",
+      [user.id]
+    );
+    if (active.length) {
+      const err = new Error("Active session exists. Log out on other device first.");
+      err.status = 403;
+      throw err;
+    }
+
+    const access = JWTUtils.generateAccessToken(user.id, user.username);
+    const refresh = JWTUtils.generateRefreshToken(user.id, user.username);
 
     // persist tokens
     await pool.execute(
@@ -87,7 +94,7 @@ class AuthService {
       [oldRefresh]
     );
     if (!found.length) {
-      const err = new Error(REFRESH_TOKEN_MISSING);
+      const err = new Error();
       err.status = 401;
       throw err;
     }
@@ -113,8 +120,7 @@ class AuthService {
 
     return {
       access,
-      refresh,
-      user: { username, avatarUrl: null }
+      refresh
     };
   }
 }

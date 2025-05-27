@@ -67,6 +67,23 @@ class CardsService {
     );
     return this.getById(id);
   }
+
+  // merge: объединить две карточки в новую со (суммой стат / 1.5) - 1
+  async merge(ids) {
+    if (ids.length !== 2) throw { status: 400, message: 'Need exactly two cards to merge' };
+    const cards = await Promise.all(ids.map(id => this.getById(id)));
+    const avg = key => Math.floor((cards[0][key] + cards[1][key]) / 1.5) - 1;
+    const name = 'Merged: ' + cards.map(c => c.name).join('+');
+    const image_url = cards[0].image_url;
+    const attack = Math.max(0, avg('attack'));
+    const defense = Math.max(0, avg('defense'));
+    const cost = Math.max(0, avg('cost'));
+    const [result] = await pool.execute(
+      'INSERT INTO cards (name, image_url, attack, defense, cost) VALUES (?,?,?,?,?)',
+      [name, image_url, attack, defense, cost]
+    );
+    return this.getById(result.insertId);
+  }
 }
 
 export default new CardsService();

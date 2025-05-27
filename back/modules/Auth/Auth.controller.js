@@ -42,8 +42,6 @@ router.post("/auth/refresh", requireRefreshToken, async (req, res) => {
     );
     res = JWTUtils.generateHttpOnlyCookie(res, access, refresh);
 
-    // console.log("🔁 /auth/refresh -> user:", user);
-
     return res.json({
       message: TOKEN_REFRESHED,
       user,

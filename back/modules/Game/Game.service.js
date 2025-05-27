@@ -116,10 +116,11 @@ class GameService {
       deck,
       hands,
       battlefield: {},
-      health: Object.fromEntries(
-        game.user_ids.map((id) => [id, 20])
-      ),
-      currentTurn: game.user_ids[Math.floor(Math.random() * game.user_ids.length)],
+      health: Object.fromEntries(game.user_ids.map(id => [id, 20])),
+      decks: game.game_state.decks,
+      playedCards: {},        // <- add
+      readies: {},            // <- add
+      currentTurn: game.user_ids[Math.floor(Math.random()*game.user_ids.length)]
     };
     await pool.execute(
       "UPDATE games SET status = ?, game_state = ? WHERE id = ?",
@@ -172,6 +173,31 @@ class GameService {
       [JSON.stringify(state), gameId]
     );
     return this.getGameById(gameId);
+  }
+
+  // игрок готов; когда оба готовы — сравниваем
+  async playerReady(userId, gameId) {
+    const game = await this.getGameById(gameId);
+    if (game.status!=="IN_PROGRESS") throw {status:400,message:'Game not in progress'};
+    const state = {...game.game_state};
+    state.readies = state.readies||{};
+    state.readies[userId] = true;
+
+    let outcome = null;
+    const [pA, pB] = game.user_ids;
+    if (state.readies[pA] && state.readies[pB]) {
+      const cA = state.playedCards[pA], cB = state.playedCards[pB];
+      const diff = Math.abs(cA.attack - cB.attack);
+      let winner = null, loser = null;
+      if (cA.attack>cB.attack) { winner=pA; loser=pB; }
+      else if (cB.attack>cA.attack) { winner=pB; loser=pA; }
+      if (winner) state.health[loser] -= diff;
+      outcome = { cardA:cA, cardB:cB, winner, damage:diff };
+      state.playedCards = {}; state.readies = {};
+    }
+
+    await pool.execute("UPDATE games SET game_state = ? WHERE id = ?",[JSON.stringify(state),gameId]);
+    return { game: await this.getGameById(gameId), outcome };
   }
 
   async endTurn(userId, gameId) {
@@ -275,6 +301,45 @@ class GameService {
       'UPDATE games SET game_state = ? WHERE id = ?',
       [JSON.stringify(state), gameId]
     );
+    return this.getGameById(gameId);
+  }
+
+  // во время игры объединить две карточки на battlefield
+  async mergeCards(userId, gameId, [id1, id2]) {
+    const game = await this.getGameById(gameId);
+    if (game.status !== "IN_PROGRESS") throw { status: 400, message: 'Game not in progress' };
+
+    const state = { ...game.game_state };
+    const bf = state.battlefield[userId] || [];
+
+    const idx1 = bf.findIndex(c => c.id === id1);
+    const idx2 = bf.findIndex(c => c.id === id2);
+    if (idx1 < 0 || idx2 < 0) throw { status: 400, message: 'Cards not on battlefield' };
+
+    // удаляем карточки
+    const [card1] = bf.splice(idx1, 1);
+    const secondIdx = idx2 > idx1 ? idx2 - 1 : idx2;
+    const [card2] = bf.splice(secondIdx, 1);
+
+    // рассчитываем новый стат по каждому ключу
+    const calc = key => Math.max(0, Math.floor((card1[key] + card2[key]) / 1.5) - 1);
+
+    const newCard = {
+      id: `m-${Date.now()}`,
+      name: `Merged:${card1.name}+${card2.name}`,
+      attack: calc('attack'),
+      defense: calc('defense'),
+      cost:    calc('cost')
+    };
+
+    bf.push(newCard);
+    state.battlefield[userId] = bf;
+
+    await pool.execute(
+      "UPDATE games SET game_state = ? WHERE id = ?",
+      [JSON.stringify(state), gameId]
+    );
+
     return this.getGameById(gameId);
   }
 }

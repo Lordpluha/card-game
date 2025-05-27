@@ -4,7 +4,6 @@ import { requireAccessToken } from "../../middleware/index.js";
 
 const router = Router();
 
-// получить все игры пользователя
 router.get(
   "/games",
   requireAccessToken,

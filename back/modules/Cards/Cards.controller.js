@@ -25,26 +25,6 @@ router.get('/:id', requireAccessToken, async (req, res) => {
   }
 });
 
-// создать новую карточку
-router.post('/', requireAccessToken, async (req, res) => {
-  try {
-    const card = await CardsService.create(req.body);
-    res.status(201).json(card);
-  } catch (err) {
-    res.status(err.status||500).json({ message: err.message });
-  }
-});
-
-// обновить карточку
-router.put('/:id', requireAccessToken, async (req, res) => {
-  try {
-    const card = await CardsService.update(req.params.id, req.body);
-    res.json(card);
-  } catch (err) {
-    res.status(err.status||500).json({ message: err.message });
-  }
-});
-
 // удалить карточку
 router.delete('/:id', requireAccessToken, async (req, res) => {
   try {
@@ -55,44 +35,72 @@ router.delete('/:id', requireAccessToken, async (req, res) => {
   }
 });
 
-// крафт карточек за coins
+// крафт карточек за fragments
 router.post('/craft', requireAccessToken, async (req, res) => {
   try {
     const { ids } = req.body;
-    // рассчитываем цену по сумме cost выбранных карт
     const cardsInfo = await Promise.all(ids.map(id => CardsService.getById(id)));
     const price = cardsInfo.reduce((sum, c) => sum + c.cost, 0);
 
-    // получаем баланс и текущие card_ids пользователя
+    // получаем fragments и current card_ids
     const [[user]] = await pool.execute(
-      'SELECT coins, card_ids FROM users WHERE id = ?',
+      'SELECT fragments, card_ids FROM users WHERE id = ?',
       [req.userId]
     );
-    if (user.coins < price) {
-      return res.status(400).json({ message: 'Not enough coins' });
+    if (user.fragments < price) {
+      return res.status(400).json({ message: 'Not enough fragments' });
     }
 
-    // списываем монеты
-    const newCoins = user.coins - price;
-    await pool.execute(
-      'UPDATE users SET coins = ? WHERE id = ?',
-      [newCoins, req.userId]
-    );
+    // списываем fragments
+    const newFragments = user.fragments - price;
+    await pool.execute('UPDATE users SET fragments = ? WHERE id = ?', [newFragments, req.userId]);
 
     // создаём скрафченную карту
     const newCard = await CardsService.craft(ids);
 
-    // обновляем список card_ids пользователя
-    const current = Array.isArray(user.card_ids)
-      ? user.card_ids
-      : JSON.parse(user.card_ids);
+    // обновляем card_ids
+    const current = Array.isArray(user.card_ids) ? user.card_ids : JSON.parse(user.card_ids);
     current.push(newCard.id);
     await pool.execute(
       'UPDATE users SET card_ids = ? WHERE id = ?',
       [JSON.stringify(current), req.userId]
     );
 
-    return res.json({ card: newCard, coins: newCoins, card_ids: current });
+    return res.json({ card: newCard, fragments: newFragments, card_ids: current });
+  } catch (err) {
+    return res.status(err.status || 500).json({ message: err.message });
+  }
+});
+
+// merge двух карточек за fragments
+router.post('/merge', requireAccessToken, async (req, res) => {
+  try {
+    const { ids } = req.body;
+    const cardsInfo = await Promise.all(ids.map(id => CardsService.getById(id)));
+    const price = cardsInfo.reduce((sum, c) => sum + c.cost, 0);
+
+    const [[user]] = await pool.execute(
+      'SELECT fragments, card_ids FROM users WHERE id = ?',
+      [req.userId]
+    );
+    if (user.fragments < price) {
+      return res.status(400).json({ message: 'Not enough fragments' });
+    }
+
+    const newFragments = user.fragments - price;
+    await pool.execute('UPDATE users SET fragments = ? WHERE id = ?', [newFragments, req.userId]);
+
+    const newCard = await CardsService.merge(ids);
+
+    const current = Array.isArray(user.card_ids) ? user.card_ids : JSON.parse(user.card_ids);
+    const updated = current.filter(cid => !ids.includes(cid));
+    updated.push(newCard.id);
+    await pool.execute(
+      'UPDATE users SET card_ids = ? WHERE id = ?',
+      [JSON.stringify(updated), req.userId]
+    );
+
+    return res.json({ card: newCard, fragments: newFragments, card_ids: updated });
   } catch (err) {
     return res.status(err.status || 500).json({ message: err.message });
   }

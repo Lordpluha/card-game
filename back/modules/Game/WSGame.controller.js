@@ -1,7 +1,9 @@
 import WebSocket from "ws";
+import cookie from "cookie";
 import JWTUtils from "../../utils/jwt-token.js";
 import GameService from "./Game.service.js";
 import { wss } from "../../index.js";
+import { ACCESS_TOKEN_NAME } from "../../config.js";
 
 // helper для рассылки WS
 const broadcastWS = (gameId, payload) => {
@@ -14,15 +16,27 @@ const broadcastWS = (gameId, payload) => {
 };
 
 wss.on("connection", (ws, req) => {
-  console.log(`🔌 WebSocket client connected`);
+  const cookies = cookie.parse(req.headers.cookie || "");
+  const token = cookies[ACCESS_TOKEN_NAME];
+  if (!token) {
+    ws.send(JSON.stringify({ event: "error", message: "Auth required" }));
+    return ws.close(1008);
+  }
+  try {
+    ws.userId = JWTUtils.verifyToken(token).userId;
+  } catch {
+    ws.send(JSON.stringify({ event: "error", message: "Invalid token" }));
+    return ws.close(1008);
+  }
+
+  console.log(`🔌 WebSocket client connected: user ${ws.userId}`);
 
   ws.on("message", async (raw) => {
-    let msg, userId;
+    let msg, userId = ws.userId;
     try {
       msg = JSON.parse(raw);
-      userId = JWTUtils.verifyToken(msg.token).userId;
     } catch (e) {
-      return ws.send(JSON.stringify({ event: "error", message: "Auth failed" }));
+      return ws.send(JSON.stringify({ event: "error", message: "Invalid JSON" }));
     }
 
     try {
@@ -90,6 +104,18 @@ wss.on("connection", (ws, req) => {
             player: userId,
             deck: cardIds
           });
+          break;
+        }
+        case "mergeCards": {
+          const { gameId, cardIds } = msg.payload;
+          const game = await GameService.mergeCards(userId, gameId, cardIds);
+          broadcastWS(game.id, { event: "cardsMerged", game, cardIds });
+          console.log(`[User:${userId} - Game:${game.id}] Merged cards`, cardIds);
+          break;
+        }
+        case "playerReady": {
+          const { game, outcome } = await GameService.playerReady(userId, msg.payload.gameId);
+          broadcastWS(game.id, { event: "roundResolved", outcome, health: game.game_state.health });
           break;
         }
         default:
