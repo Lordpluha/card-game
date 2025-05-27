@@ -6,7 +6,7 @@ import { requireAccessToken } from '../../middleware/index.js';
 const router = Router();
 
 // получить все карточки
-router.get('/', requireAccessToken, async (req, res) => {
+router.get('/cards', requireAccessToken, async (req, res) => {
   try {
     const cards = await CardsService.getAll();
     res.json(cards);
@@ -16,7 +16,7 @@ router.get('/', requireAccessToken, async (req, res) => {
 });
 
 // получить карточку по id
-router.get('/:id', requireAccessToken, async (req, res) => {
+router.get('/cards/:id', requireAccessToken, async (req, res) => {
   try {
     const card = await CardsService.getById(req.params.id);
     res.json(card);
@@ -26,7 +26,7 @@ router.get('/:id', requireAccessToken, async (req, res) => {
 });
 
 // удалить карточку
-router.delete('/:id', requireAccessToken, async (req, res) => {
+router.delete('/cards/:id', requireAccessToken, async (req, res) => {
   try {
     const resp = await CardsService.delete(req.params.id);
     res.json(resp);
@@ -36,7 +36,7 @@ router.delete('/:id', requireAccessToken, async (req, res) => {
 });
 
 // крафт карточек за fragments
-router.post('/craft', requireAccessToken, async (req, res) => {
+router.post('/cards/craft', requireAccessToken, async (req, res) => {
   try {
     const { ids } = req.body;
     const cardsInfo = await Promise.all(ids.map(id => CardsService.getById(id)));
@@ -73,7 +73,7 @@ router.post('/craft', requireAccessToken, async (req, res) => {
 });
 
 // merge двух карточек за fragments
-router.post('/merge', requireAccessToken, async (req, res) => {
+router.post('/cards/merge', requireAccessToken, async (req, res) => {
   try {
     const { ids } = req.body;
     const cardsInfo = await Promise.all(ids.map(id => CardsService.getById(id)));
@@ -107,7 +107,7 @@ router.post('/merge', requireAccessToken, async (req, res) => {
 });
 
 // улучшить карточку
-router.post('/:id/upgrade', requireAccessToken, async (req, res) => {
+router.post('/cards/:id/upgrade', requireAccessToken, async (req, res) => {
   try {
     const upgraded = await CardsService.upgrade(req.params.id);
     res.json(upgraded);
