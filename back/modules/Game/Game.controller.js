@@ -4,18 +4,14 @@ import { requireAccessToken } from "../../middleware/index.js";
 
 const router = Router();
 
-router.get(
-  "/games",
-  requireAccessToken,
-  async (req, res) => {
-    try {
-      const games = await GameService.getGamesByUser(req.userId);
-      return res.json(games);
-    } catch (err) {
-      return res.status(err.status || 500).json({ message: err.message });
-    }
+router.get("/games", requireAccessToken, async (req, res) => {
+  try {
+    const games = await GameService.getGamesByUser(req.userId);
+    return res.json(games);
+  } catch (err) {
+    return res.status(err.status || 500).json({ message: err.message });
   }
-);
+});
 
 router.get("/game/:id", requireAccessToken, async (req, res) => {
   try {
@@ -24,6 +20,34 @@ router.get("/game/:id", requireAccessToken, async (req, res) => {
     return res.json(game);
   } catch (err) {
     return res.status(err.status || 500).json({ message: err.message });
+  }
+});
+
+router.get("/history", requireAccessToken, async (req, res) => {
+  try {
+    const history = await GameService.getGameHistory(req.userId);
+    res.json(history);
+  } catch (err) {
+    console.error("❌ Історія не завантажена:", err);
+    res.status(500).json({ message: "Помилка при отриманні історії матчів" });
+  }
+});
+
+router.post("/create", requireAccessToken, async (req, res) => {
+  try {
+    const game = await GameService.createGame(req.userId);
+    res.json(game);
+  } catch (err) {
+    res.status(err.status || 500).json({ message: err.message });
+  }
+});
+
+router.get("/by-code/:code", requireAccessToken, async (req, res) => {
+  try {
+    const game = await GameService.getGameByCode(req.params.code);
+    res.json(game);
+  } catch (err) {
+    res.status(err.status || 500).json({ message: err.message });
   }
 });
 

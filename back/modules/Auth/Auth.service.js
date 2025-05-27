@@ -19,12 +19,12 @@ class AuthService {
       throw err;
     }
     const hash = await PasswordUtils.hashPassword(password);
-		const initial = cards.slice(0, 9).map(c => c.id);
-		// Add first 9 cards to user
-		const [result] = await pool.execute(
-			"INSERT INTO users (username, email, password_hash, card_ids) VALUES (?, ?, ?, ?)",
-			[username, email, hash, JSON.stringify(initial)]
-		);
+    const initial = cards.slice(0, 9).map((c) => c.id);
+    // Add first 9 cards to user
+    const [result] = await pool.execute(
+      "INSERT INTO users (username, email, password_hash, card_ids) VALUES (?, ?, ?, ?)",
+      [username, email, hash, JSON.stringify(initial)]
+    );
   }
 
   async login({ login, password }) {
@@ -52,7 +52,9 @@ class AuthService {
       [user.id]
     );
     if (active.length) {
-      const err = new Error("Active session exists. Log out on other device first.");
+      const err = new Error(
+        "Active session exists. Log out on other device first."
+      );
       err.status = 403;
       throw err;
     }
@@ -76,10 +78,7 @@ class AuthService {
   async logout(access) {
     // decode userId and delete all tokens for него
     const { userId } = JWTUtils.verifyToken(access);
-    await pool.execute(
-      "DELETE FROM jwt_tokens WHERE user_id = ?",
-      [userId]
-    );
+    await pool.execute("DELETE FROM jwt_tokens WHERE user_id = ?", [userId]);
   }
 
   async refresh(oldRefresh) {
@@ -99,10 +98,7 @@ class AuthService {
       throw err;
     }
     // remove old
-    await pool.execute(
-      "DELETE FROM jwt_tokens WHERE token = ?",
-      [oldRefresh]
-    );
+    await pool.execute("DELETE FROM jwt_tokens WHERE token = ?", [oldRefresh]);
 
     const { userId, username } = JWTUtils.verifyToken(oldRefresh);
     const access = JWTUtils.generateAccessToken(userId, username);
@@ -120,7 +116,7 @@ class AuthService {
 
     return {
       access,
-      refresh
+      refresh,
     };
   }
 }

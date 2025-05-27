@@ -11,31 +11,22 @@ class AuthService {
     };
   }
 
-  async login(username, password) {
+  async login(login, password) {
     return await fetch(`${this.url}/login`, {
       method: "POST",
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ login, password }),
       ...this.params,
     });
   }
 
-  // async refresh() {
-  // 	return await fetch(`${this.url}/refresh`, {
-  // 		method: "POST",
-  // 		...this.params
-  // 	})
-  // }
-
   async refresh() {
     const res = await fetch(`${this.url}/refresh`, {
       method: "POST",
+      credentials: "include",
       ...this.params,
     });
     const json = await res.json();
-    // console.log("📥 [AuthService.refresh] response:", json);
-
     if (!res.ok) throw new Error("Unauthorized");
-
     return json;
   }
 
@@ -46,10 +37,10 @@ class AuthService {
     });
   }
 
-  async register(username, password) {
+  async register(username, password, email) {
     return await fetch(`${this.url}/register`, {
       method: "POST",
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ username, password, email }),
       ...this.params,
     });
   }

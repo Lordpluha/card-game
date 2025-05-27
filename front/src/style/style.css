@@ -1915,3 +1915,14 @@ body {
   letter-spacing: 1px;
   text-shadow: 0 0 10px var(--color-accent);
 }
+#packCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 16px;
+}
+
+.pack-card {
+  transform-origin: center;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  text-align: center;
+}

@@ -3,7 +3,7 @@ import AuthService from "../api/Auth.service.js";
 AuthService.refresh()
   .then(() => {
     console.log("✅ Уже авторизован — редирект на меню");
-    window.location.replace("/pages/main-menu.html"); // ⬅ замена href
+    window.location.replace("/pages/main-menu.html");
   })
   .catch(() => {
     console.log("🔓 Не авторизован — остался на регистрации");
@@ -13,6 +13,7 @@ document.getElementById("registerForm").addEventListener("submit", (e) => {
   e.preventDefault();
 
   const username = document.getElementById("username").value.trim();
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
   const passwordAgain = document.getElementById("passwordAgain").value;
   const errorMessage = document.getElementById("errorMessage");
@@ -22,6 +23,12 @@ document.getElementById("registerForm").addEventListener("submit", (e) => {
 
   if (!username || username.length < 3) {
     errorMessage.textContent = "Username must be at least 3 characters long.";
+    errorMessage.classList.remove("hidden");
+    return;
+  }
+
+  if (!email || !email.includes("@")) {
+    errorMessage.textContent = "Please enter a valid email.";
     errorMessage.classList.remove("hidden");
     return;
   }
@@ -38,7 +45,7 @@ document.getElementById("registerForm").addEventListener("submit", (e) => {
     return;
   }
 
-  AuthService.register(username, password)
+  AuthService.register(username, password, email)
     .then((res) => {
       if (res.ok) {
         document.getElementById("modal").classList.remove("hidden");
@@ -56,7 +63,6 @@ document.getElementById("registerForm").addEventListener("submit", (e) => {
     });
 });
 
-// 👁 Подключение клик-событий на иконки
 document.querySelectorAll("[data-toggle-password]").forEach((el) => {
   el.addEventListener("click", () => {
     const id = el.getAttribute("data-toggle-password");

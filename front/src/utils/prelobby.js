@@ -4,67 +4,108 @@ import { connectToGameWS } from "../utils/ws-game-client.js";
 let currentUser = null;
 let currentGame = null;
 
-// 🟢 Отримуємо користувача
-AuthService.refresh().then(async (res) => {
-  currentUser = res.user;
+// 🟢 Перевіряємо авторизацію
+AuthService.refresh()
+  .then(async (res) => {
+    currentUser = res.user;
+    await setupGame();
+  })
+  .catch((err) => {
+    console.warn("❌ Не авторизований:", err.message);
+    alert("Ви не авторизовані. Перейдіть на сторінку входу.");
+    window.location.href = "/pages/login.html";
+  });
 
-  let gameId = new URLSearchParams(window.location.search).get("gameId");
+async function setupGame() {
+  const urlParams = new URLSearchParams(window.location.search);
+  let gameId = urlParams.get("gameId");
+  let codeFromUrl = urlParams.get("code");
 
-  // 🔄 Якщо немає gameId — створюємо нову гру
+  // 🎮 Створення гри, якщо немає gameId
   if (!gameId) {
-    const response = await fetch("http://localhost:8080/api/game/create", {
-      method: "POST",
-      credentials: "include",
-    });
-    const game = await response.json();
-    gameId = game.id;
+    try {
+      const response = await fetch("http://localhost:8080/api/game/create", {
+        method: "POST",
+        credentials: "include",
+      });
 
-    // Перезавантажуємо з параметром
-    window.location.href = `/pages/prelobby.html?gameId=${gameId}`;
-    return;
+      if (!response.ok) {
+        throw new Error("Помилка створення гри: " + response.status);
+      }
+
+      const game = await response.json();
+      if (!game?.id) throw new Error("Сервер не повернув ID гри");
+
+      sessionStorage.setItem("lastCreatedGameCode", game.game_code);
+      window.location.href = `/pages/prelobby.html?gameId=${game.id}&code=${game.game_code}`;
+      return;
+    } catch (err) {
+      console.error("❌ Помилка при створенні гри:", err);
+      alert("Сталася помилка при створенні гри. Спробуйте ще раз.");
+      return;
+    }
   }
 
-  // 🔗 Підключаємось до сокета
+  // 🔌 Підключення до WebSocket
   connectToGameWS(gameId, handleWSMessage);
 
-  // 📡 Отримуємо гру
-  const game = await fetch(`http://localhost:8080/api/game/${gameId}`, {
-    credentials: "include",
-  }).then((res) => res.json());
+  // 🔎 Отримання гри з бекенду
+  try {
+    const response = await fetch(`http://localhost:8080/api/game/${gameId}`, {
+      credentials: "include",
+    });
 
-  currentGame = game;
-  updateUI(game);
+    if (!response.ok) {
+      throw new Error("Не вдалося завантажити гру: " + response.status);
+    }
 
-  // ✨ Показуємо код гри
-  if (document.getElementById("game-code")) {
-    document.getElementById("game-code").textContent = game.game_code;
+    const game = await response.json();
+    currentGame = game;
+
+    // 🔁 Оновити інтерфейс
+    updateUI(game);
+
+    // 🆔 Показати код гри
+    const codeEl = document.getElementById("game-code");
+    const sessionCode = sessionStorage.getItem("lastCreatedGameCode");
+    const finalCode = game?.game_code || codeFromUrl || sessionCode || "❌";
+
+    if (codeEl) {
+      codeEl.textContent = finalCode;
+    }
+
+    sessionStorage.removeItem("lastCreatedGameCode");
+  } catch (err) {
+    console.error("❌ Failed to fetch game:", err.message);
+    alert("Гру не знайдено або термін її дії вичерпано.");
   }
-});
+}
 
 function updateUI(game) {
+  if (!game || !Array.isArray(game.user_ids)) return;
+
   const [p1, p2] = game.user_ids;
-  const isHost = currentUser.id === p1;
+  const isHost = currentUser?.id === p1;
   const opponent = isHost ? p2 : p1;
 
-  // 👤 Свої дані
-  document.getElementById("p1-name").textContent = currentUser.username || "Ви";
+  document.getElementById("p1-name").textContent =
+    currentUser?.username || "Ви";
   document.getElementById("p1-avatar").src =
-    getAvatar(currentUser.username) || "/assets/avatar1.png";
+    getAvatar(currentUser?.username) || "/assets/avatar1.png";
   document.getElementById("p1-status").textContent = "🟢 Готовий";
 
-  // 🤖 Противник
   if (opponent) {
     document.getElementById("p2-name").textContent = "Гравець";
     document.getElementById("p2-avatar").src = "/assets/avatar2.png";
     document.getElementById("p2-status").textContent = "🟡 Очікує";
   } else {
     document.getElementById("p2-name").textContent = "Очікуємо...";
+    document.getElementById("p2-status").textContent = "🟡 Очікує";
   }
 }
 
 function handleWSMessage(msg) {
   if (!msg.data) return;
-
   try {
     const data = JSON.parse(msg.data);
     if (data.event === "playerJoined") {
@@ -77,6 +118,7 @@ function handleWSMessage(msg) {
 }
 
 function getAvatar(username) {
+  if (!username) return "";
   const name = `avatar_${username}`;
   const cookie = document.cookie
     .split("; ")
@@ -84,6 +126,8 @@ function getAvatar(username) {
   return cookie ? decodeURIComponent(cookie.split("=")[1]) : "";
 }
 
+//
+//
 (() => {
   const mainCountdownEl = document.getElementById("countdown");
   const cornerCountdownEl = document.querySelector(".corner-countdown-timer");

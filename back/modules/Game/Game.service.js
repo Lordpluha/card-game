@@ -4,19 +4,26 @@ import cards from "../../utils/cards.js";
 
 class GameService {
   async createGame(userId) {
-    const code = generateGameCode();
+    const code = generateGameCode(); // Спочатку згенеруй
+    if (!code || typeof code !== "string") {
+      throw new Error("Game code generation failed");
+    }
+
+    console.log("🎮 Сгенерований код гри:", code);
+
     const initialState = {
       health: { [userId]: 20 },
       hands: { [userId]: [] },
       battlefield: { [userId]: [] },
-      decks: { [userId]: [] }, // <-- added
+      decks: { [userId]: [] },
       currentTurn: null,
     };
+
     const [result] = await pool.execute(
-      // changed to include game_state
       "INSERT INTO games (game_code, host_user_id, user_ids, game_state) VALUES (?, ?, ?, ?)",
       [code, userId, JSON.stringify([userId]), JSON.stringify(initialState)]
     );
+
     return this.getGameById(result.insertId);
   }
 
@@ -116,11 +123,12 @@ class GameService {
       deck,
       hands,
       battlefield: {},
-      health: Object.fromEntries(game.user_ids.map(id => [id, 20])),
+      health: Object.fromEntries(game.user_ids.map((id) => [id, 20])),
       decks: game.game_state.decks,
-      playedCards: {},        // <- add
-      readies: {},            // <- add
-      currentTurn: game.user_ids[Math.floor(Math.random()*game.user_ids.length)]
+      playedCards: {}, // <- add
+      readies: {}, // <- add
+      currentTurn:
+        game.user_ids[Math.floor(Math.random() * game.user_ids.length)],
     };
     await pool.execute(
       "UPDATE games SET status = ?, game_state = ? WHERE id = ?",
@@ -168,35 +176,47 @@ class GameService {
     }
 
     // сохраняем новое состояние игры
-    await pool.execute(
-      "UPDATE games SET game_state = ? WHERE id = ?",
-      [JSON.stringify(state), gameId]
-    );
+    await pool.execute("UPDATE games SET game_state = ? WHERE id = ?", [
+      JSON.stringify(state),
+      gameId,
+    ]);
     return this.getGameById(gameId);
   }
 
   // игрок готов; когда оба готовы — сравниваем
   async playerReady(userId, gameId) {
     const game = await this.getGameById(gameId);
-    if (game.status!=="IN_PROGRESS") throw {status:400,message:'Game not in progress'};
-    const state = {...game.game_state};
-    state.readies = state.readies||{};
+    if (game.status !== "IN_PROGRESS")
+      throw { status: 400, message: "Game not in progress" };
+    const state = { ...game.game_state };
+    state.readies = state.readies || {};
     state.readies[userId] = true;
 
     let outcome = null;
     const [pA, pB] = game.user_ids;
     if (state.readies[pA] && state.readies[pB]) {
-      const cA = state.playedCards[pA], cB = state.playedCards[pB];
+      const cA = state.playedCards[pA],
+        cB = state.playedCards[pB];
       const diff = Math.abs(cA.attack - cB.attack);
-      let winner = null, loser = null;
-      if (cA.attack>cB.attack) { winner=pA; loser=pB; }
-      else if (cB.attack>cA.attack) { winner=pB; loser=pA; }
+      let winner = null,
+        loser = null;
+      if (cA.attack > cB.attack) {
+        winner = pA;
+        loser = pB;
+      } else if (cB.attack > cA.attack) {
+        winner = pB;
+        loser = pA;
+      }
       if (winner) state.health[loser] -= diff;
-      outcome = { cardA:cA, cardB:cB, winner, damage:diff };
-      state.playedCards = {}; state.readies = {};
+      outcome = { cardA: cA, cardB: cB, winner, damage: diff };
+      state.playedCards = {};
+      state.readies = {};
     }
 
-    await pool.execute("UPDATE games SET game_state = ? WHERE id = ?",[JSON.stringify(state),gameId]);
+    await pool.execute("UPDATE games SET game_state = ? WHERE id = ?", [
+      JSON.stringify(state),
+      gameId,
+    ]);
     return { game: await this.getGameById(gameId), outcome };
   }
 
@@ -212,10 +232,10 @@ class GameService {
     const idx = game.user_ids.indexOf(userId);
     const next = game.user_ids[(idx + 1) % game.user_ids.length];
     const newState = { ...game.game_state, currentTurn: next };
-    await pool.execute(
-      "UPDATE games SET game_state = ? WHERE id = ?",
-      [JSON.stringify(newState), gameId]
-    );
+    await pool.execute("UPDATE games SET game_state = ? WHERE id = ?", [
+      JSON.stringify(newState),
+      gameId,
+    ]);
     return this.getGameById(gameId);
   }
 
@@ -223,7 +243,7 @@ class GameService {
     const game = await this.getGameById(gameId);
     // только участник (или хост) может завершить игру
     if (!game.user_ids.includes(userId) && game.host_user_id !== userId) {
-      throw { status: 403, message: 'No rights to finish game' };
+      throw { status: 403, message: "No rights to finish game" };
     }
     await pool.execute(
       "UPDATE games SET status = ?, winner_id = ? WHERE id = ?",
@@ -240,32 +260,33 @@ class GameService {
   async surrenderGame(userId, gameId) {
     const game = await this.getGameById(gameId);
     if (!game.user_ids.includes(userId)) {
-      throw { status: 403, message: 'Not in this game' };
+      throw { status: 403, message: "Not in this game" };
     }
-    const opponents = game.user_ids.filter(id => id !== userId);
+    const opponents = game.user_ids.filter((id) => id !== userId);
     if (!opponents.length) {
-      throw { status: 400, message: 'No opponent to surrender to' };
+      throw { status: 400, message: "No opponent to surrender to" };
     }
     const winner = opponents[0];
     await pool.execute(
-      'UPDATE games SET status = ?, winner_id = ? WHERE id = ?',
-      ['ENDED', winner, gameId]
+      "UPDATE games SET status = ?, winner_id = ? WHERE id = ?",
+      ["ENDED", winner, gameId]
     );
     return this.getGameById(gameId);
   }
 
   async getGamesByUser(userId) {
     const [rows] = await pool.execute(
-      'SELECT * FROM games WHERE JSON_CONTAINS(user_ids, JSON_ARRAY(?))',
+      "SELECT * FROM games WHERE JSON_CONTAINS(user_ids, JSON_ARRAY(?))",
       [userId]
     );
-    return rows.map(row => {
+    return rows.map((row) => {
       const user_ids = Array.isArray(row.user_ids)
         ? row.user_ids
         : JSON.parse(row.user_ids);
-      const game_state = typeof row.game_state === 'object'
-        ? row.game_state
-        : JSON.parse(row.game_state);
+      const game_state =
+        typeof row.game_state === "object"
+          ? row.game_state
+          : JSON.parse(row.game_state);
       return {
         id: row.id,
         game_code: row.game_code,
@@ -273,48 +294,53 @@ class GameService {
         status: row.status,
         user_ids,
         winner_id: row.winner_id,
-        game_state
+        game_state,
       };
     });
   }
 
   async selectDeck(userId, gameId, cardIds) {
     const game = await this.getGameById(gameId);
-    if (game.status !== 'CREATED') {
-      throw { status: 400, message: 'Game already started' };
+    if (game.status !== "CREATED") {
+      throw { status: 400, message: "Game already started" };
     }
     if (!game.user_ids.includes(userId)) {
-      throw { status: 403, message: 'Not in this game' };
+      throw { status: 403, message: "Not in this game" };
     }
     // Проверяем, что пользователь владеет карточками
     const [rows] = await pool.execute(
-      'SELECT card_ids FROM users WHERE id = ?',
+      "SELECT card_ids FROM users WHERE id = ?",
       [userId]
     );
-    const own = JSON.parse(rows[0].card_ids || '[]');
-    if (!cardIds.every(id => own.includes(id))) {
-      throw { status: 400, message: 'Invalid card selection' };
+    const own = JSON.parse(rows[0].card_ids || "[]");
+    if (!cardIds.every((id) => own.includes(id))) {
+      throw { status: 400, message: "Invalid card selection" };
     }
     // Обновляем состояние
-    const state = { ...game.game_state, decks: { ...game.game_state.decks, [userId]: cardIds } };
-    await pool.execute(
-      'UPDATE games SET game_state = ? WHERE id = ?',
-      [JSON.stringify(state), gameId]
-    );
+    const state = {
+      ...game.game_state,
+      decks: { ...game.game_state.decks, [userId]: cardIds },
+    };
+    await pool.execute("UPDATE games SET game_state = ? WHERE id = ?", [
+      JSON.stringify(state),
+      gameId,
+    ]);
     return this.getGameById(gameId);
   }
 
   // во время игры объединить две карточки на battlefield
   async mergeCards(userId, gameId, [id1, id2]) {
     const game = await this.getGameById(gameId);
-    if (game.status !== "IN_PROGRESS") throw { status: 400, message: 'Game not in progress' };
+    if (game.status !== "IN_PROGRESS")
+      throw { status: 400, message: "Game not in progress" };
 
     const state = { ...game.game_state };
     const bf = state.battlefield[userId] || [];
 
-    const idx1 = bf.findIndex(c => c.id === id1);
-    const idx2 = bf.findIndex(c => c.id === id2);
-    if (idx1 < 0 || idx2 < 0) throw { status: 400, message: 'Cards not on battlefield' };
+    const idx1 = bf.findIndex((c) => c.id === id1);
+    const idx2 = bf.findIndex((c) => c.id === id2);
+    if (idx1 < 0 || idx2 < 0)
+      throw { status: 400, message: "Cards not on battlefield" };
 
     // удаляем карточки
     const [card1] = bf.splice(idx1, 1);
@@ -322,25 +348,56 @@ class GameService {
     const [card2] = bf.splice(secondIdx, 1);
 
     // рассчитываем новый стат по каждому ключу
-    const calc = key => Math.max(0, Math.floor((card1[key] + card2[key]) / 1.5) - 1);
+    const calc = (key) =>
+      Math.max(0, Math.floor((card1[key] + card2[key]) / 1.5) - 1);
 
     const newCard = {
       id: `m-${Date.now()}`,
       name: `Merged:${card1.name}+${card2.name}`,
-      attack: calc('attack'),
-      defense: calc('defense'),
-      cost:    calc('cost')
+      attack: calc("attack"),
+      defense: calc("defense"),
+      cost: calc("cost"),
     };
 
     bf.push(newCard);
     state.battlefield[userId] = bf;
 
-    await pool.execute(
-      "UPDATE games SET game_state = ? WHERE id = ?",
-      [JSON.stringify(state), gameId]
-    );
+    await pool.execute("UPDATE games SET game_state = ? WHERE id = ?", [
+      JSON.stringify(state),
+      gameId,
+    ]);
 
     return this.getGameById(gameId);
+  }
+  async getGameHistory(userId) {
+    const [rows] = await pool.execute(
+      `
+    SELECT 
+      g.id,
+      g.winner_id,
+      u1.username AS player1,
+      u2.username AS player2
+    FROM games g
+    JOIN users u1 ON JSON_EXTRACT(g.user_ids, '$[0]') = u1.id
+    JOIN users u2 ON JSON_EXTRACT(g.user_ids, '$[1]') = u2.id
+    WHERE JSON_CONTAINS(g.user_ids, JSON_ARRAY(?))
+      AND JSON_LENGTH(g.user_ids) = 2
+    ORDER BY g.id DESC
+    LIMIT 10
+    `,
+      [userId]
+    );
+
+    return rows.map((row) => ({
+      p1: row.player1,
+      p2: row.player2,
+      result:
+        row.winner_id === null
+          ? "Ще триває"
+          : row.winner_id === row.player1
+          ? `Перемога ${row.player1}`
+          : `Перемога ${row.player2}`,
+    }));
   }
 }
 

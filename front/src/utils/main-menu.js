@@ -1,11 +1,11 @@
 import AuthService from "../api/Auth.service.js";
+import UserService from "../api/User.service.js";
 
 // ===== Авторизация и аватар =====
-AuthService.refresh()
-  .then((res) => {
-    console.log("✅ Auth response:", res);
+UserService.getUser()
+  .then((user) => {
+    console.log("✅ Auth response:", user);
 
-    const user = res.user;
     const username = user?.username;
     const nicknameEl = document.getElementById("nickname");
     const avatarImg = document.getElementById("avatar-img");
@@ -25,12 +25,13 @@ AuthService.refresh()
   });
 
 // ===== Logout =====
-document.getElementById("logoutBtn").addEventListener("click", () => {
-  AuthService.logout().then(() => {
-    window.location.href = "/pages/login.html";
+if (document.getElementById("logoutBtn")) {
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    AuthService.logout().then(() => {
+      window.location.href = "/pages/login.html";
+    });
   });
-});
-
+}
 // ===== Helper: получить куку =====
 function getCookie(name) {
   return document.cookie
