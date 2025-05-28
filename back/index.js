@@ -22,8 +22,13 @@ app.use(
   })
 );
 
+// Static files
 app.use(express.static("public"));
+
+// Autoparse JSON requests
 app.use(express.json());
+
+// Autoparse cookies from requests
 app.use(cookieParser());
 
 // Точка входа
@@ -32,10 +37,7 @@ app.get("/api", (req, res) => {
 });
 
 // 👇 Остальные модули (auth, cards, game)
-// app.use("/api", router);
-
-// ✅ Подключаем все подроутеры
-router.forEach((r) => app.use("/api", r));
+app.use("/api", router);
 
 // Глобальный обработчик 404
 app.use((req, res) => res.status(404).json({ message: "Not Found" }));
