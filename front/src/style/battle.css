@@ -124,3 +124,43 @@ html {
   color: white;
   width: 100%;
 }
+
+@keyframes pulseName {
+  0% {
+    transform: scale(1);
+    color: #fff;
+  }
+  50% {
+    transform: scale(1.2);
+    color: #e879f9; /* светло-фиолетовый */
+  }
+  100% {
+    transform: scale(1);
+    color: #fff;
+  }
+}
+
+.pulse-name {
+  animation: pulseName 1.5s ease-in-out;
+}
+
+.draggable {
+  cursor: grab;
+}
+.draggable:active {
+  cursor: grabbing;
+}
+.drop-zone {
+  transition: background 0.2s ease-in-out;
+}
+.drop-zone.over {
+  background-color: rgba(139, 92, 246, 0.1);
+}
+
+.deck-card {
+  min-width: 120px;
+  min-height: 300px;
+  max-width: 150px;
+  max-height: 300px;
+  flex-shrink: 0;
+}

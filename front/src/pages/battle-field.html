@@ -115,10 +115,14 @@
     <!-- 🃏 Зона карт -->
     <div
       id="battle-field"
-      class="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 w-[1024px] hidden">
+      class="absolute inset-0 z-10 w-full flex flex-col justify-end hidden">
       <div
         id="battle-cards"
-        class="battle-cards-grid grid grid-cols-3 gap-4"></div>
+        class="battle-cards-grid grid grid-cols-6 gap-4 w-[1024px] mx-auto"></div>
+      <!-- 🧱 Моя бойова зона -->
+      <div
+        id="player-battle-zone"
+        class="drop-zone absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[1024px] min-h-[150px] border-2 border-dashed border-purple-500 rounded-lg flex gap-4 justify-center items-center p-4 z-10 text-white"></div>
     </div>
 
     <!-- 🕹 Кнопка завершення ходу -->

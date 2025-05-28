@@ -11,10 +11,9 @@ class GameService {
 
     let userRow;
     try {
-      const [[row]] = await pool.execute(
-        "SELECT * FROM users WHERE id = ?",
-        [userId]
-      );
+      const [[row]] = await pool.execute("SELECT * FROM users WHERE id = ?", [
+        userId,
+      ]);
       userRow = row;
       console.log("🙋‍♂️ Found user:", row);
     } catch (e) {
@@ -30,9 +29,9 @@ class GameService {
         },
       },
       health: { [userId]: 100 },
-      hands: { },
-      battlefield: { },
-      decks: { },
+      hands: {},
+      battlefield: {},
+      decks: {},
       currentTurn: null,
     };
 
@@ -53,18 +52,17 @@ class GameService {
   async joinGame(userId, gameId) {
     const game = await this.getGameById(gameId);
     if (game.user_ids.includes(userId)) {
-			return this.getGameById(gameId);
+      return this.getGameById(gameId);
     }
 
     const users = [...game.user_ids, userId];
 
-    const [[userRow]] = await pool.execute(
-      "SELECT * FROM users WHERE id = ?",
-      [userId]
-    );
+    const [[userRow]] = await pool.execute("SELECT * FROM users WHERE id = ?", [
+      userId,
+    ]);
     const state = game.game_state;
     state.players = state.players || {};
-    state.players[userId] = userRow
+    state.players[userId] = userRow;
 
     await pool.execute(
       "UPDATE games SET user_ids = ?, game_state = ? WHERE id = ?",
@@ -153,7 +151,7 @@ class GameService {
     // shuffle deck & deal N cards per player (stub logic)
     const deck = [...cards];
     deck.sort(() => Math.random() - 0.5);
-    const handSize = 5;
+    const handSize = 6;
     const hands = {};
     game.user_ids.forEach((uid) => {
       hands[uid] = deck.splice(0, handSize);

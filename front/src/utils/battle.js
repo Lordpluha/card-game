@@ -7,7 +7,7 @@ let playerId = null;
 let gameID = null;
 let playerDeck = [];
 let enemyDeck = [];
-let selectedCards = []; // Вибрані карти для бою
+let selectedCards = [];
 
 const battleField = document.getElementById("battle-field");
 const battleStatus = document.getElementById("battle-status");
@@ -21,6 +21,11 @@ const p2HpEl = document.getElementById("p2-hp");
 const p1AvatarEl = document.getElementById("p1-avatar");
 const p2AvatarEl = document.getElementById("p2-avatar");
 
+<<<<<<< Updated upstream
+=======
+let userData = {};
+
+>>>>>>> Stashed changes
 async function initWebSocket() {
   socket = new WebSocket("ws://localhost:8080/gaming");
 
@@ -29,13 +34,12 @@ async function initWebSocket() {
 
     try {
       const user = await UserService.getUser();
-      console.log("🧠 Отримано user з API:", user);
       if (!user || !user.id) {
         console.error("❌ Гравець не знайдено");
         return;
       }
       playerId = user.id;
-      username = user.username || "You";
+      userData = user;
       console.log("👤 Player ID:", playerId);
     } catch (err) {
       console.error("❌ Не вдалося отримати гравця:", err);
@@ -43,11 +47,8 @@ async function initWebSocket() {
     }
 
     const url = new URL(window.location.href);
-    console.log("🌐 Поточний URL:", url.href);
-
     const params = url.searchParams;
-    gameID =
-      params.get("code") || params.get("gameId") || params.get("game") || null;
+    gameID = params.get("code") || params.get("gameId") || params.get("game");
 
     if (!gameID) {
       console.error("❌ Немає коду гри");
@@ -57,31 +58,56 @@ async function initWebSocket() {
 
     socket.send(
       JSON.stringify({
-        type: "joinGame",
-        payload: { gameId: gameID, playerId },
+        event: "joinGame",
+        payload: { gameId: gameID },
       })
     );
   };
 
   socket.onmessage = (event) => {
+    let message;
     try {
-      const message = JSON.parse(event.data);
+      message = JSON.parse(event.data);
       console.log("📨 Отримано повідомлення:", message);
-
-      if (message.event === "battle_started") handleBattleStart(message);
-      else if (message.event === "battle_result") handleBattleResult(message);
-      else if (message.event === "turnEnded")
-        console.log("🛑 Хід завершено іншого гравця");
-      else if (message.event === "turnStarted")
-        console.log("▶️ Новий хід для:", message.nextPlayer);
-      else console.warn("⚠️ Unknown event type:", message.event);
     } catch (err) {
-      console.error("❌ Не вдалося розпарсити повідомлення WebSocket:", err);
+      return console.error(
+        "❌ Не вдалося розпарсити повідомлення WebSocket:",
+        err
+      );
+    }
+
+    switch (message.event) {
+      case "gameStarted":
+        handleBattleStart(message);
+        break;
+      case "battle_result":
+        handleBattleResult(message);
+        break;
+      case "turnEnded":
+        console.log("🔚 Хід завершено іншого гравця");
+        break;
+      case "turnStarted":
+        console.log("▶️ Новий хід:", message.nextPlayer);
+        break;
+      case "playerJoined":
+        console.log("👥 Гравець приєднався до гри");
+        break;
+      case "decksSelected":
+        console.log("🃏 Обрано колоди, гра стартує...");
+        socket.send(
+          JSON.stringify({
+            event: "startGame",
+            payload: { gameId: gameID },
+          })
+        );
+        break;
+      default:
+        console.warn("⚠️ Unknown event:", message.event);
     }
   };
 
   socket.onerror = (error) => {
-    console.error("WS Error:", error);
+    console.error("❌ WebSocket Error:", error);
   };
 }
 
@@ -89,37 +115,61 @@ function handleBattleStart(data) {
   battleStatus.classList.remove("hidden");
   battleStatus.textContent = data.message || "⚔️ Бій розпочався!";
 
-  const gameState = data.game_state;
-  if (!gameState || !gameState.decks) {
-    console.warn("⚠️ Немає інформації про колоди");
+  const game = data.game;
+  const gameState = game.game_state;
+
+  if (Array.isArray(gameState.decks)) {
+    console.warn("⚠️ Відсутні колоди у стані гри або вони у невірному форматі");
     return;
   }
 
-  const p1 = gameState.decks.p1;
-  const p2 = gameState.decks.p2;
+  const decks = gameState.decks;
+  const players = gameState.players || {};
+  const hands = gameState.hands || {};
 
-  let isP1 = p1.playerId === playerId;
-  const me = isP1 ? p1 : p2;
-  const enemy = isP1 ? p2 : p1;
+  const userIds = Object.keys(decks);
+  if (userIds.length !== 2) {
+    console.warn("⚠️ Очікується 2 гравці, отримано:", userIds.length);
+    return;
+  }
 
-  playerDeck = me.cards;
-  enemyDeck = enemy.cards;
+  const [id1, id2] = userIds;
+  const deck1 = { user_id: +id1 };
+  const deck2 = { user_id: +id2 };
 
-  p1NameEl.textContent = me.username || "You";
-  p2NameEl.textContent = enemy.username || "Enemy";
+  const isFirstDeckMine = deck1.user_id === playerId;
 
-  p1HpEl.textContent = me.hp;
-  p2HpEl.textContent = enemy.hp;
+  const me = isFirstDeckMine ? deck1 : deck2;
+  const enemy = isFirstDeckMine ? deck2 : deck1;
 
-  if (me.avatar) p1AvatarEl.src = me.avatar;
-  if (enemy.avatar) p2AvatarEl.src = enemy.avatar;
+  const meUser = players[me.user_id] || {};
+  const enemyUser = players[enemy.user_id] || {};
 
-  console.log("🃏 Player cards:", playerDeck);
-  console.log("🃏 Enemy cards:", enemyDeck);
+  p1NameEl.textContent = meUser.username || "You";
+  p2NameEl.textContent = enemyUser.username || "Enemy";
+
+  p1AvatarEl.src = meUser.avatar_url || "/assets/empty-avatar.png";
+  p2AvatarEl.src = enemyUser.avatar_url || "/assets/empty-avatar.png";
+
+  p1NameEl.classList.add("pulse-name");
+  p2NameEl.classList.add("pulse-name");
+  setTimeout(() => {
+    p1NameEl.classList.remove("pulse-name");
+    p2NameEl.classList.remove("pulse-name");
+  }, 1500);
+
+  const health = gameState.health || {};
+  p1HpEl.textContent = health[me.user_id] || 100;
+  p2HpEl.textContent = health[enemy.user_id] || 100;
+
+  playerDeck = hands[me.user_id] || [];
+  enemyDeck = hands[enemy.user_id] || [];
 
   setTimeout(() => {
     battleStatus.classList.add("hidden");
     renderPlayerDeck();
+    renderEnemyDeck();
+    setupDragAndDrop();
     battleField.classList.remove("hidden");
   }, 3000);
 }
@@ -128,13 +178,19 @@ function renderPlayerDeck() {
   cardZone.innerHTML = "";
   selectedCards = [];
 
-  playerDeck.forEach((card, index) => {
+  playerDeck.forEach((card) => {
+    const imageUrl =
+      card.image_url ||
+      (card.image?.startsWith("http")
+        ? card.image
+        : `http://localhost:8080/cards/${card.image}`);
+
     const cardElement = document.createElement("div");
     cardElement.className =
       "deck-card cursor-pointer hover:scale-105 transition";
     cardElement.innerHTML = `
       <div class="deck-image-wrapper">
-        <img src="http://localhost:8080/cards/${card.image}" alt="${card.name}" class="deck-image" />
+        <img src="${imageUrl}" alt="${card.name}" class="deck-image" />
       </div>
       <div class="deck-info">
         <div class="deck-name">${card.name}</div>
@@ -144,12 +200,33 @@ function renderPlayerDeck() {
         </div>
       </div>
     `;
+    cardElement.dataset.cardId = card.id;
 
     cardElement.addEventListener("click", () =>
       toggleCardSelection(card, cardElement)
     );
     cardZone.appendChild(cardElement);
   });
+}
+
+function renderEnemyDeck() {
+  const enemyZone = document.createElement("div");
+  enemyZone.className =
+    "enemy-cards-grid absolute top-4 right-1/2 translate-x-1/2 flex gap-4 z-10";
+
+  enemyDeck.forEach(() => {
+    const cardBack = document.createElement("div");
+    cardBack.className =
+      "deck-card deck-card-back w-24 h-36 bg-purple-800 rounded-xl shadow-md";
+    cardBack.innerHTML = `
+      <div class="w-full h-full flex items-center justify-center text-white font-bold text-xl">
+        ?
+      </div>
+    `;
+    enemyZone.appendChild(cardBack);
+  });
+
+  battleField.appendChild(enemyZone);
 }
 
 function toggleCardSelection(card, element) {
@@ -174,10 +251,9 @@ endTurnBtn.addEventListener("click", () => {
 
   socket.send(
     JSON.stringify({
-      type: "endTurn",
+      event: "endTurn",
       payload: {
         gameId: gameID,
-        playerId,
         cards: selectedCards.map((c) => c.name),
       },
     })
@@ -189,11 +265,46 @@ endTurnBtn.addEventListener("click", () => {
 
 function handleBattleResult(data) {
   console.log("⚔️ Результати бою:", data);
-
-  // todo: тут буде логіка анімацій, візуальних ефектів та оновлення здоров’я
-
-  // Після обробки результатів знову дозволити вибір
   endTurnBtn.disabled = false;
+}
+
+function setupDragAndDrop() {
+  document.querySelectorAll(".deck-card").forEach((card) => {
+    card.setAttribute("draggable", "true");
+
+    card.addEventListener("dragstart", (e) => {
+      e.dataTransfer.setData("text/plain", card.dataset.cardId);
+    });
+  });
+
+  const dropZone = document.getElementById("player-battle-zone");
+
+  dropZone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropZone.classList.add("over");
+  });
+
+  dropZone.addEventListener("dragleave", () => {
+    dropZone.classList.remove("over");
+  });
+
+  dropZone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropZone.classList.remove("over");
+
+    const cardId = e.dataTransfer.getData("text/plain");
+
+    if (dropZone.children.length >= 3) {
+      alert("Максимум 3 карти на полі!");
+      return;
+    }
+
+    const card = document.querySelector(`.deck-card[data-card-id="${cardId}"]`);
+    if (card && !dropZone.contains(card)) {
+      dropZone.appendChild(card);
+      card.classList.add("ring", "ring-purple-500");
+    }
+  });
 }
 
 document.addEventListener("DOMContentLoaded", initWebSocket);
