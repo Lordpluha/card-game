@@ -1,4 +1,4 @@
-import CardsService from '../api/Cards.service.js';
+import CardsService from "../api/Cards.service.js";
 
 let currentGame = null;
 let socket = null;
@@ -70,10 +70,10 @@ async function setupGame() {
 
 // Load user cards for deck selection
 const cards = await CardsService.getMyCards();
-const grid = document.getElementById('decksGrid');
+const grid = document.getElementById("decksGrid");
 grid.innerHTML = cards
-	.map(
-		(c) => `
+  .map(
+    (c) => `
 	<label class="deck-card" id="deck-card-${c.id}">
 		<input type="checkbox" name="cards" value="${c.id}" />
 		<div class="deck-check"><i class="fas fa-check"></i></div>
@@ -88,9 +88,8 @@ grid.innerHTML = cards
 			</div>
 		</div>
 	</label>`
-	)
-	.join('');
-
+  )
+  .join("");
 
 function initWebSocket(gameId) {
   console.log("📡 Connecting WebSocket...");
@@ -130,30 +129,46 @@ function initWebSocket(gameId) {
   socket.onclose = () => console.warn("🔌 WS connection closed");
 }
 
-function updateUI(game) {
+import UserService from "../api/User.service.js";
+
+async function updateUI(game) {
   if (!game || !Array.isArray(game.user_ids)) return;
   const players = game.game_state?.players || {};
   const [p1, p2] = game.user_ids;
 
-  const me = p1;
-  const opponent = p2;
+  const myId = await UserService.getUser()
+    .then((u) => u.id)
+    .catch((e) => null);
+  if (!myId) return;
+
+  const isHost = myId === p1;
+  const me = isHost ? p1 : p2;
+  const opponent = isHost ? p2 : p1;
 
   const meInfo = players[me] || {};
   const oppInfo = players[opponent] || {};
 
+  console.log("🧍 Я:", meInfo.username, "🧑‍🤝‍🧑 Противник:", oppInfo.username);
+
+  // Я зліва
   document.getElementById("p1-name").textContent = meInfo.username || "Ви";
   document.getElementById("p1-avatar").src =
     meInfo.avatar_url || "/assets/empty-avatar.png";
-  document.getElementById("p1-status").textContent = "🟢 Готовий";
+  document.getElementById("p1-status").textContent = meInfo.ready
+    ? "🟢 Готовий"
+    : "🟡 Очікує";
 
+  // Противник справа
   if (oppInfo.username) {
     document.getElementById("p2-name").textContent = oppInfo.username;
     document.getElementById("p2-avatar").src =
       oppInfo.avatar_url || "/assets/empty-avatar.png";
-    document.getElementById("p2-status").textContent = "🟡 Очікує";
+    document.getElementById("p2-status").textContent = oppInfo.ready
+      ? "🟢 Готовий"
+      : "🟡 Очікує";
   } else {
     document.getElementById("p2-name").textContent = "Очікуємо...";
-		document.getElementById("p2-avatar").src = "/assets/empty-avatar.png";
+    document.getElementById("p2-avatar").src = "/assets/empty-avatar.png";
     document.getElementById("p2-status").textContent = "🟡 Очікує";
   }
 }
@@ -161,7 +176,9 @@ function updateUI(game) {
 function setupUIInteractions() {
   const readyBtn = document.getElementById("readyBtn");
   const deckCards = document.querySelectorAll(".deck-card");
-  const checkboxes = document.querySelectorAll('.deck-card input[type="checkbox"]');
+  const checkboxes = document.querySelectorAll(
+    '.deck-card input[type="checkbox"]'
+  );
   const playerStatusEl = document.querySelector(
     ".player-card:nth-child(2) .player-status"
   );
@@ -181,10 +198,10 @@ function setupUIInteractions() {
     const checked = Array.from(checkboxes).filter((c) => c.checked);
     readyBtn.disabled = checked.length !== 6;
     readyBtn.classList.toggle("active", checked.length === 6);
-    checkboxes.forEach(c => {
+    checkboxes.forEach((c) => {
       c.disabled = !c.checked && checked.length >= 6;
     });
-		console.log('Update button state')
+    console.log("Update button state");
   }
 
   function updateSelectedDeckUI() {
@@ -193,10 +210,10 @@ function setupUIInteractions() {
       card.classList.toggle("selected", input.checked);
     });
   }
-	console.log(checkboxes)
+  console.log(checkboxes);
   checkboxes.forEach((cb) => {
     cb.addEventListener("change", () => {
-			console.log('Checkbox changed', cb.value);
+      console.log("Checkbox changed", cb.value);
 
       const selected = Array.from(checkboxes).filter((c) => c.checked);
       if (selected.length > 6) {
@@ -220,12 +237,14 @@ function setupUIInteractions() {
     if (isUserReady) return;
     // send selected 6 card IDs to server
     const selectedIds = Array.from(checkboxes)
-      .filter(c => c.checked)
-      .map(c => Number(c.value));
-    socket.send(JSON.stringify({
-      event: "selectDeck",
-      payload: { gameId, cardIds: selectedIds }
-    }));
+      .filter((c) => c.checked)
+      .map((c) => Number(c.value));
+    socket.send(
+      JSON.stringify({
+        event: "selectDeck",
+        payload: { gameId, cardIds: selectedIds },
+      })
+    );
 
     isUserReady = true;
     readyBtn.innerHTML = '<i class="fas fa-check-circle"></i> Готово!';
