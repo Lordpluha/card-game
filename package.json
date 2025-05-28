@@ -8,6 +8,8 @@
     "start:back": "cd back && npm run start",
     "start:front": "cd front && npm run start",
     "start": "npm-run-all --parallel start:back start:front",
+		"db:init": "cd back && npm run db:init",
+		"db:init-win": "cd back && npm run db:init-win",
 
     "install:back": "cd back && npm install",
     "install:front": "cd front && npm install",
