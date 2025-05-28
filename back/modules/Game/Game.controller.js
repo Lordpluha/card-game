@@ -23,6 +23,18 @@ router.get("/game/:id", requireAccessToken, async (req, res) => {
   }
 });
 
+router.put("/game/:id/join", requireAccessToken, async (req, res) => {
+  try {
+    const gameId = req.params.id;
+    const userId = req.userId;
+
+    const game = await GameService.joinGame(userId, gameId);
+    res.json(game);
+  } catch (err) {
+    res.status(err.status || 500).json({ message: err.message });
+  }
+});
+
 router.get("/history", requireAccessToken, async (req, res) => {
   try {
     const history = await GameService.getGameHistory(req.userId);
@@ -35,10 +47,22 @@ router.get("/history", requireAccessToken, async (req, res) => {
 
 router.post("/create", requireAccessToken, async (req, res) => {
   try {
+    console.log("🎯 Creating game for user:", req.userId);
+
     const game = await GameService.createGame(req.userId);
+
+    if (!game) {
+      console.error("❌ GameService.createGame returned null/undefined");
+      return res.status(500).json({ message: "Game not returned" });
+    }
+
+    console.log("📤 Returning created game:", JSON.stringify(game, null, 2));
     res.json(game);
   } catch (err) {
-    res.status(err.status || 500).json({ message: err.message });
+    console.error("🔥 Error in POST /create:", err);
+    res
+      .status(err.status || 500)
+      .json({ message: err.message || "Internal error" });
   }
 });
 

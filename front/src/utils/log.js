@@ -1,15 +1,23 @@
 import AuthService from "../api/Auth.service.js";
 
-// 🔒 Проверка: если уже залогинен — редирект на main-menu
-AuthService.refresh()
-  .then(() => {
-    console.log("✅ Уже авторизован — редирект на меню");
-    window.location.replace("/pages/main-menu.html"); // ⬅ замена href
-  })
-  .catch(() => {
-    console.log("🔓 Не авторизован — остался на логине");
-  });
+// 🔒 Проверка: сначала accessToken, потом refresh
+const accessToken = getCookie("accessToken");
 
+if (accessToken) {
+  console.log("✅ Access token найден — редирект на main-menu");
+  window.location.replace("/pages/main-menu.html");
+} else {
+  AuthService.refresh()
+    .then(() => {
+      console.log("🔄 Refresh прошёл — редирект на main-menu");
+      window.location.replace("/pages/main-menu.html");
+    })
+    .catch(() => {
+      console.log("🔓 Не авторизован — остался на логине");
+    });
+}
+
+// 🧾 Обработка отправки формы логина
 document.getElementById("loginForm").addEventListener("submit", (e) => {
   e.preventDefault();
 
@@ -37,7 +45,7 @@ document.getElementById("loginForm").addEventListener("submit", (e) => {
       if (res.ok) {
         document.getElementById("modal").classList.remove("hidden");
         setTimeout(() => {
-          window.location.replace("/pages/main-menu.html"); // 👈 replace
+          window.location.replace("/pages/main-menu.html");
         }, 500);
       } else {
         return res.json().then((data) => {
@@ -47,7 +55,7 @@ document.getElementById("loginForm").addEventListener("submit", (e) => {
       }
     })
     .catch((e) => {
-      errorMessage.textContent = JSON.stringify(e);
+      errorMessage.textContent = "Network error or server not responding.";
       errorMessage.classList.remove("hidden");
     });
 });
@@ -65,6 +73,15 @@ document.querySelectorAll("[data-toggle-password]").forEach((el) => {
   });
 });
 
+// ❌ Закрытие модалки
 document.getElementById("closeModal").addEventListener("click", () => {
   document.getElementById("modal").classList.add("hidden");
 });
+
+// 🍪 Вспомогательная функция
+function getCookie(name) {
+  return document.cookie
+    .split("; ")
+    .find((row) => row.startsWith(name + "="))
+    ?.split("=")[1];
+}

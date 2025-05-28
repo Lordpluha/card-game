@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { PORT, HOST, NODE_ENV, FRONT_HOST } from "./config.js";
+import { PORT, HOST, NODE_ENV, FRONT_HOST, FRONT_PORT } from "./config.js";
 import cookieParser from "cookie-parser";
 import { createServer } from "http";
 import { WebSocketServer } from "ws";
@@ -13,7 +13,7 @@ export const server = createServer(app);
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || origin.startsWith(`http://${FRONT_HOST}:3000`)) {
+      if (!origin || origin.startsWith(`http://${FRONT_HOST}:${FRONT_PORT}`)) {
         return callback(null, true);
       }
       return callback(new Error("Not allowed by CORS"));
@@ -32,7 +32,10 @@ app.get("/api", (req, res) => {
 });
 
 // 👇 Остальные модули (auth, cards, game)
-app.use("/api", router);
+// app.use("/api", router);
+
+// ✅ Подключаем все подроутеры
+router.forEach((r) => app.use("/api", r));
 
 // Глобальный обработчик 404
 app.use((req, res) => res.status(404).json({ message: "Not Found" }));

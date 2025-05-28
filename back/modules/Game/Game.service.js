@@ -4,14 +4,31 @@ import cards from "../../utils/cards.js";
 
 class GameService {
   async createGame(userId) {
-    const code = generateGameCode(); // Спочатку згенеруй
-    if (!code || typeof code !== "string") {
-      throw new Error("Game code generation failed");
+    console.log("🎮 [createGame] Called by userId:", userId);
+
+    const code = generateGameCode();
+    console.log("🔢 Generated game code:", code);
+
+    let userRow;
+    try {
+      const [[row]] = await pool.execute(
+        "SELECT username FROM users WHERE id = ?",
+        [userId]
+      );
+      userRow = row;
+      console.log("🙋‍♂️ Found user:", row);
+    } catch (e) {
+      console.error("❌ DB error fetching user:", e);
+      throw e;
     }
 
-    console.log("🎮 Сгенерований код гри:", code);
-
     const initialState = {
+      players: {
+        [userId]: {
+          username: userRow?.username || "Гравець",
+          avatar: null,
+        },
+      },
       health: { [userId]: 20 },
       hands: { [userId]: [] },
       battlefield: { [userId]: [] },
@@ -19,24 +36,44 @@ class GameService {
       currentTurn: null,
     };
 
-    const [result] = await pool.execute(
-      "INSERT INTO games (game_code, host_user_id, user_ids, game_state) VALUES (?, ?, ?, ?)",
-      [code, userId, JSON.stringify([userId]), JSON.stringify(initialState)]
-    );
+    console.log("📦 Initial game state:", initialState);
 
-    return this.getGameById(result.insertId);
+    try {
+      const [result] = await pool.execute(
+        "INSERT INTO games (game_code, host_user_id, user_ids, game_state) VALUES (?, ?, ?, ?)",
+        [code, userId, JSON.stringify([userId]), JSON.stringify(initialState)]
+      );
+      console.log("✅ Game inserted with ID:", result.insertId);
+      return this.getGameById(result.insertId);
+    } catch (e) {
+      console.error("🔥 Failed to insert game:", e);
+      throw e;
+    }
   }
-
   async joinGame(userId, gameId) {
     const game = await this.getGameById(gameId);
     if (game.user_ids.includes(userId)) {
       throw { status: 400, message: "User already in game" };
     }
+
     const users = [...game.user_ids, userId];
-    await pool.execute("UPDATE games SET user_ids = ? WHERE id = ?", [
-      JSON.stringify(users),
-      gameId,
-    ]);
+
+    const [[userRow]] = await pool.execute(
+      "SELECT username FROM users WHERE id = ?",
+      [userId]
+    );
+    const state = game.game_state;
+    state.players = state.players || {};
+    state.players[userId] = {
+      username: userRow?.username || "Гравець",
+      avatar: null,
+    };
+
+    await pool.execute(
+      "UPDATE games SET user_ids = ?, game_state = ? WHERE id = ?",
+      [JSON.stringify(users), JSON.stringify(state), gameId]
+    );
+
     return this.getGameById(gameId);
   }
 
@@ -57,17 +94,23 @@ class GameService {
     const [rows] = await pool.execute("SELECT * FROM games WHERE id = ?", [
       gameId,
     ]);
+
     if (!rows.length) {
       throw { status: 404, message: "Game not found" };
     }
+
     const row = rows[0];
-    const user_ids = Array.isArray(row.user_ids)
-      ? row.user_ids
-      : JSON.parse(row.user_ids);
+
+    const user_ids =
+      typeof row.user_ids === "string"
+        ? JSON.parse(row.user_ids)
+        : row.user_ids;
+
     const game_state =
-      typeof row.game_state === "object"
-        ? row.game_state
-        : JSON.parse(row.game_state);
+      typeof row.game_state === "string"
+        ? JSON.parse(row.game_state)
+        : row.game_state;
+
     return {
       id: row.id,
       game_code: row.game_code,
