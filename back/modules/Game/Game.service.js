@@ -12,7 +12,7 @@ class GameService {
     let userRow;
     try {
       const [[row]] = await pool.execute(
-        "SELECT username FROM users WHERE id = ?",
+        "SELECT * FROM users WHERE id = ?",
         [userId]
       );
       userRow = row;
@@ -26,7 +26,7 @@ class GameService {
       players: {
         [userId]: {
           username: userRow?.username || "Гравець",
-          avatar: null,
+          avatar_url: userRow?.avatar_url || null,
         },
       },
       health: { [userId]: 20 },
@@ -66,7 +66,7 @@ class GameService {
     state.players = state.players || {};
     state.players[userId] = {
       username: userRow?.username || "Гравець",
-      avatar: null,
+      avatar_url: userRow?.avatar_url || null,
     };
 
     await pool.execute(
@@ -415,7 +415,7 @@ class GameService {
   async getGameHistory(userId) {
     const [rows] = await pool.execute(
       `
-    SELECT 
+    SELECT
       g.id,
       g.winner_id,
       u1.username AS player1,

@@ -1,16 +1,15 @@
+import CardsService from '../api/Cards.service.js';
+
 let currentGame = null;
 let socket = null;
+let gameId = null;
 
 proceed();
 
 function proceed() {
   const urlParams = new URLSearchParams(window.location.search);
-  const gameId = urlParams.get("gameId");
-
-  if (gameId) {
-    initWebSocket(gameId);
-  }
-
+  gameId = urlParams.get("gameId");
+  if (gameId) initWebSocket(gameId);
   setupGame();
   setupUIInteractions();
 }
@@ -122,16 +121,17 @@ function updateUI(game) {
 
   document.getElementById("p1-name").textContent = meInfo.username || "Ви";
   document.getElementById("p1-avatar").src =
-    getAvatar(meInfo.username) || "/assets/avatar1.png";
+    meInfo.avatar_url || "/assets/empty-avatar.png";
   document.getElementById("p1-status").textContent = "🟢 Готовий";
 
   if (oppInfo.username) {
     document.getElementById("p2-name").textContent = oppInfo.username;
     document.getElementById("p2-avatar").src =
-      getAvatar(oppInfo.username) || "/assets/avatar2.png";
+      oppInfo.avatar_url || "/assets/empty-avatar.png";
     document.getElementById("p2-status").textContent = "🟡 Очікує";
   } else {
     document.getElementById("p2-name").textContent = "Очікуємо...";
+		document.getElementById("p2-avatar").src = "/assets/empty-avatar.png";
     document.getElementById("p2-status").textContent = "🟡 Очікує";
   }
 }
@@ -148,13 +148,14 @@ function getAvatar(username) {
 function setupUIInteractions() {
   const readyBtn = document.getElementById("readyBtn");
   const deckCards = document.querySelectorAll(".deck-card");
-  const radios = document.querySelectorAll('input[name="deck"]');
+  const checkboxes = document.querySelectorAll('input[name="cards"]');
   const playerStatusEl = document.querySelector(
     ".player-card:nth-child(2) .player-status"
   );
 
   let isUserReady = false;
 
+  // add start button
   const startBtn = document.createElement("button");
   startBtn.id = "startBtn";
   startBtn.className = "ready-button hidden";
@@ -162,21 +163,31 @@ function setupUIInteractions() {
   startBtn.style.marginTop = "1rem";
   readyBtn.parentNode.appendChild(startBtn);
 
+  // enforce max 6 selection
   function updateButtonState() {
-    const selected = Array.from(radios).some((r) => r.checked);
-    readyBtn.disabled = !selected;
-    readyBtn.classList.toggle("active", selected);
+    const checked = Array.from(checkboxes).filter((c) => c.checked);
+    readyBtn.disabled = checked.length !== 6;
+    readyBtn.classList.toggle("active", checked.length === 6);
+    checkboxes.forEach(c => {
+      c.disabled = !c.checked && checked.length >= 6;
+    });
   }
 
   function updateSelectedDeckUI() {
     deckCards.forEach((card) => {
-      const input = card.querySelector('input[type="radio"]');
+      const input = card.querySelector('input[type="checkbox"]');
       card.classList.toggle("selected", input.checked);
     });
   }
 
-  radios.forEach((radio) => {
-    radio.addEventListener("change", () => {
+  checkboxes.forEach((cb) => {
+    cb.addEventListener("change", () => {
+     const selected = Array.from(checkboxes).filter((c) => c.checked);
+     if (selected.length > 6) {
+       // отменяем выбор, если больше 6
+       cb.checked = false;
+       return;
+     }
       updateButtonState();
       updateSelectedDeckUI();
     });
@@ -184,38 +195,45 @@ function setupUIInteractions() {
 
   deckCards.forEach((card) => {
     card.addEventListener("click", () => {
-      const radio = card.querySelector('input[type="radio"]');
-      radio.checked = true;
-      radio.dispatchEvent(new Event("change"));
+      const cb = card.querySelector('input[type="checkbox"]');
+      if (!cb.disabled) cb.checked = !cb.checked;
+      cb.dispatchEvent(new Event("change"));
     });
   });
 
   readyBtn.addEventListener("click", () => {
-    const selectedDeck = document.querySelector('input[name="deck"]:checked');
-    if (selectedDeck && !isUserReady) {
-      isUserReady = true;
-      readyBtn.innerHTML = '<i class="fas fa-check-circle"></i> Готово!';
-      readyBtn.style.background = "#10b981";
-      readyBtn.disabled = true;
+    if (isUserReady) return;
+    // send selected 6 card IDs to server
+    const selectedIds = Array.from(checkboxes)
+      .filter(c => c.checked)
+      .map(c => Number(c.value));
+    socket.send(JSON.stringify({
+      event: "selectDeck",
+      payload: { gameId, cardIds: selectedIds }
+    }));
 
-      if (playerStatusEl) {
-        playerStatusEl.classList.remove("status-waiting");
-        playerStatusEl.classList.add("status-ready");
-        playerStatusEl.innerHTML =
-          '<i class="fas fa-check-circle"></i><span>ГОТОВИЙ</span>';
-      }
+    isUserReady = true;
+    readyBtn.innerHTML = '<i class="fas fa-check-circle"></i> Готово!';
+    readyBtn.style.background = "#10b981";
+    readyBtn.disabled = true;
 
-      const waitingMsg = document.createElement("div");
-      waitingMsg.style.marginTop = "1rem";
-      waitingMsg.style.textAlign = "center";
-      waitingMsg.style.color = "var(--text-secondary)";
-      waitingMsg.style.fontFamily = "'Rajdhani', sans-serif";
-      waitingMsg.style.fontSize = "1rem";
-      waitingMsg.innerHTML = "Всі гравці готові! Гра скоро розпочнеться...";
-      readyBtn.parentNode.appendChild(waitingMsg);
-
-      startBtn.classList.remove("hidden");
+    if (playerStatusEl) {
+      playerStatusEl.classList.remove("status-waiting");
+      playerStatusEl.classList.add("status-ready");
+      playerStatusEl.innerHTML =
+        '<i class="fas fa-check-circle"></i><span>ГОТОВИЙ</span>';
     }
+
+    const waitingMsg = document.createElement("div");
+    waitingMsg.style.marginTop = "1rem";
+    waitingMsg.style.textAlign = "center";
+    waitingMsg.style.color = "var(--text-secondary)";
+    waitingMsg.style.fontFamily = "'Rajdhani', sans-serif";
+    waitingMsg.style.fontSize = "1rem";
+    waitingMsg.innerHTML = "Всі гравці готові! Гра скоро розпочнеться...";
+    readyBtn.parentNode.appendChild(waitingMsg);
+
+    startBtn.classList.remove("hidden");
   });
 
   startBtn.addEventListener("click", () => {
@@ -227,28 +245,26 @@ function setupUIInteractions() {
 }
 
 // Load user cards for deck selection
-import CardsService from '../api/Cards.service.js';
-
 document.addEventListener('DOMContentLoaded', async () => {
-	const cards = await CardsService.getMyCards();
-	const grid = document.getElementById('decksGrid');
-	grid.innerHTML = cards
-		.map(
-			(c) => `
-	<label class="deck-card" id="deck-card-${c.id}">
-		<input type="radio" name="deck" value="${c.id}" />
-		<div class="deck-check"><i class="fas fa-check"></i></div>
-		<div class="deck-image-wrapper">
-			<img src="${c.image_url}" alt="${c.name}" class="deck-image" />
-		</div>
-		<div class="deck-info">
-			<div class="deck-name">${c.name}</div>
-			<div class="deck-stats">
-				<span class="deck-stat"><i class="fas fa-fist-raised stat-attack"></i>${c.attack}</span>
-				<span class="deck-stat"><i class="fas fa-shield-alt stat-defense"></i>${c.defense}</span>
-			</div>
-		</div>
-	</label>`
-		)
-		.join('');
+  const cards = await CardsService.getMyCards();
+  const grid = document.getElementById('decksGrid');
+  grid.innerHTML = cards
+    .map(
+      (c) => `
+    <label class="deck-card" id="deck-card-${c.id}">
+      <input type="checkbox" name="cards" value="${c.id}" />
+      <div class="deck-check"><i class="fas fa-check"></i></div>
+      <div class="deck-image-wrapper">
+        <img src="${c.image_url}" alt="${c.name}" class="deck-image" />
+      </div>
+      <div class="deck-info">
+        <div class="deck-name">${c.name}</div>
+        <div class="deck-stats">
+          <span class="deck-stat"><i class="fas fa-fist-raised stat-attack"></i>${c.attack}</span>
+          <span class="deck-stat"><i class="fas fa-shield-alt stat-defense"></i>${c.defense}</span>
+        </div>
+      </div>
+    </label>`
+    )
+    .join('');
 });

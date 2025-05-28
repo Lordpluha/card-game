@@ -6,6 +6,7 @@ import {
   INVALID_USERNAME_OR_PASSWORD,
   REFRESH_TOKEN_MISSING,
 } from "../../models/errors/auth.errors.js";
+import { HOST, PORT } from "../../config.js";
 
 class AuthService {
   async register({ username, password, email }) {
@@ -22,8 +23,8 @@ class AuthService {
 
     // 1) create user record (without card_ids)
     const [userRes] = await pool.execute(
-      "INSERT INTO users (username, email, password_hash, card_ids) VALUES (?, ?, ?, ?)",
-      [username, email, hash, '[]']
+      "INSERT INTO users (username, email, password_hash, card_ids, avatar_url) VALUES (?, ?, ?, ?, ?)",
+      [username, email, hash, '[]', `http://${HOST}:${PORT}/user/avatar.png`],
     );
     const userId = userRes.insertId;
 
