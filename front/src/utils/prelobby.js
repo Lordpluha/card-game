@@ -4,8 +4,6 @@ let currentGame = null;
 let socket = null;
 let gameId = null;
 
-proceed();
-
 function proceed() {
   const urlParams = new URLSearchParams(window.location.search);
   gameId = urlParams.get("gameId");
@@ -92,6 +90,7 @@ grid.innerHTML = cards
 	</label>`
 	)
 	.join('');
+
 
 function initWebSocket(gameId) {
   console.log("📡 Connecting WebSocket...");
@@ -259,3 +258,6 @@ function setupUIInteractions() {
   updateButtonState();
   updateSelectedDeckUI();
 }
+
+// після динамической вставки карточек запускаем логику WS і UI
+proceed();
