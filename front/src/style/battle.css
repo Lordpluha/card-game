@@ -1,0 +1,126 @@
+:root {
+  --color-bg: #19002c;
+  --color-particles: rgba(255, 196, 110, 0.3);
+  --color-accent: #b762f2;
+  --color-accent-light: #da95ff;
+  --text-primary: #f3e8ff;
+  --text-muted: #bfa3d1;
+  --card-bg: #2e1a47;
+  --card-glow: 0 0 15px rgba(183, 98, 242, 0.5);
+  --card-glow-hover: 0 0 25px rgba(255, 255, 255, 0.6);
+  --color-blueviolet: #5e17eb;
+  --color-violet: #ab33e3;
+  --color-darkviolet: #762860;
+  --color-bg-dark: #1e0f2f;
+  --color-bg-gradient-start: #2a0a47;
+  --color-bg-gradient-end: #3c0e5e;
+  --color-accent: #b762f2;
+  --color-accent-light: #da95ff;
+  --color-accent-dark: #7d34a0;
+  --color-crimson: #a83279;
+  --color-text-light: #f3e8ff;
+  --color-text-muted: #bfa3d1;
+  --color-shadow: rgba(183, 98, 242, 0.5);
+  --primary-bg: #1e0f2f;
+  --secondary-bg: #2a0a47;
+  --game-card-bg: #3c0e5e;
+
+  --accent-color: #b762f2;
+  --accent-glow: rgba(183, 98, 242, 0.35);
+  --secondary-accent: #da95ff;
+
+  --text-primary: #f3e8ff;
+  --text-secondary: #bfa3d1;
+
+  --ready-color: #5e17eb;
+  --waiting-color: #a83279;
+  --attack-color: #ab33e3;
+  --defense-color: #7d34a0;
+
+  --card-glow: 0 0 15px rgba(171, 51, 227, 0.3);
+  --card-selected-glow: 0 0 20px rgba(183, 98, 242, 0.5);
+}
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #1e0f2f;
+  font-family: sans-serif;
+}
+
+.table-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.bg-gradient-radial {
+  background: radial-gradient(circle at center, #2a0a47, #1e0f2f);
+}
+
+.table-texture {
+  background-image: url("https://www.transparenttextures.com/patterns/black-linen.png");
+  background-size: cover;
+}
+
+.game-grid-line-vertical,
+.game-grid-line-horizontal {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.game-grid-line-vertical {
+  width: 1px;
+  top: 0;
+  bottom: 0;
+}
+
+.game-grid-line-horizontal {
+  height: 1px;
+  left: 0;
+  right: 0;
+}
+
+.decorative-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(183, 98, 242, 0.1), transparent);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.game-piece {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.game-piece-purple {
+  background-color: #9f7aea;
+}
+
+.game-piece-amber {
+  background-color: #fbbf24;
+}
+
+.game-piece-blue {
+  background-color: #60a5fa;
+}
+
+.battle-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 15px var(--accent-glow);
+  color: white;
+  width: 100%;
+}

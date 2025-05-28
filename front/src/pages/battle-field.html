@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Battle Field</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto&display=swap"
+      rel="stylesheet" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+      rel="stylesheet" />
+    <link rel="stylesheet" href="../style/style.css" />
+    <link rel="stylesheet" href="../style/battle.css" />
+  </head>
+  <body class="relative min-h-screen bg-[#1e0f2f] font-sans overflow-hidden">
+    <!-- Background -->
+    <div class="table-background absolute inset-0 z-0">
+      <div class="absolute inset-0 bg-gradient-radial"></div>
+      <div class="absolute inset-0 opacity-30 table-texture"></div>
+      <div class="game-grid">
+        <div class="game-grid-line-vertical" style="left: 25%"></div>
+        <div class="game-grid-line-vertical" style="left: 50%"></div>
+        <div class="game-grid-line-vertical" style="left: 75%"></div>
+        <div class="game-grid-line-horizontal" style="top: 25%"></div>
+        <div class="game-grid-line-horizontal" style="top: 50%"></div>
+        <div class="game-grid-line-horizontal" style="top: 75%"></div>
+      </div>
+      <div class="decorative-circle" style="width: 600px; height: 600px"></div>
+      <div class="decorative-circle" style="width: 400px; height: 400px"></div>
+      <div class="decorative-circle" style="width: 200px; height: 200px"></div>
+      <div
+        class="game-piece game-piece-purple"
+        style="
+          top: 15%;
+          left: 10%;
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          transform: rotate(12deg);
+        "></div>
+      <div
+        class="game-piece game-piece-amber"
+        style="
+          top: 75%;
+          right: 15%;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+        "></div>
+      <div
+        class="game-piece game-piece-blue"
+        style="
+          top: 65%;
+          left: 20%;
+          width: 16px;
+          height: 40px;
+          transform: rotate(45deg);
+        "></div>
+    </div>
+
+    <!-- Opponent Info -->
+    <div class="absolute top-4 left-4 z-10">
+      <div class="player-card">
+        <div class="avatar-wrapper">
+          <div class="avatar-border"></div>
+          <img
+            id="p2-avatar"
+            src="/assets/empty-avatar.png"
+            alt="Opponent Avatar"
+            class="player-avatar" />
+        </div>
+        <div class="player-info text-white">
+          <h3 id="p2-name" class="player-name">Enemy</h3>
+          <div class="player-stats">
+            <div class="player-stat">
+              <i class="fas fa-heart text-red-500"></i>
+              <span id="p2-hp">100</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Player Info -->
+    <div class="absolute bottom-4 left-4 z-10">
+      <div class="player-card">
+        <div class="avatar-wrapper">
+          <div class="avatar-border"></div>
+          <img
+            id="p1-avatar"
+            src="/assets/empty-avatar.png"
+            alt="Player Avatar"
+            class="player-avatar" />
+        </div>
+        <div class="player-info text-white">
+          <h3 id="p1-name" class="player-name">You</h3>
+          <div class="player-stats">
+            <div class="player-stat">
+              <i class="fas fa-heart text-red-500"></i>
+              <span id="p1-hp">100</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card Deck -->
+    <div
+      class="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 w-[1024px]">
+      <div id="battle-cards" class="battle-cards-grid"></div>
+    </div>
+
+    <!-- End Turn Button -->
+    <div class="absolute bottom-4 right-8 z-10">
+      <button
+        id="end-turn"
+        class="bg-purple-700 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled>
+        Хід завершено
+      </button>
+    </div>
+
+    <script src="../utils/battle/battle.js"></script>
+  </body>
+</html>
