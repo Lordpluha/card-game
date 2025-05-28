@@ -1,5 +1,5 @@
 import { pool } from '../../db/connect.js';
-import { cards } from '../../utils/cards.js'
+import cards from '../../utils/cards.js'
 
 class CardsService {
   async getAll() {
