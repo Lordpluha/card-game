@@ -1,14 +1,5 @@
 import AuthService from "../api/Auth.service.js";
 
-AuthService.refresh()
-  .then(() => {
-    console.log("✅ Уже авторизован — редирект на меню");
-    window.location.replace("/pages/main-menu.html");
-  })
-  .catch(() => {
-    console.log("🔓 Не авторизован — остался на регистрации");
-  });
-
 document.getElementById("registerForm").addEventListener("submit", (e) => {
   e.preventDefault();
 
@@ -63,6 +54,7 @@ document.getElementById("registerForm").addEventListener("submit", (e) => {
     });
 });
 
+// Показ/скрытие пароля
 document.querySelectorAll("[data-toggle-password]").forEach((el) => {
   el.addEventListener("click", () => {
     const id = el.getAttribute("data-toggle-password");

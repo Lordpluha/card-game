@@ -1,34 +1,7 @@
-import AuthService from "../api/Auth.service.js";
-
-let currentUser = null;
 let currentGame = null;
 let socket = null;
 
-checkAuthOrRedirect().then(() => {
-  proceed();
-});
-
-async function checkAuthOrRedirect() {
-  const accessToken = getCookie("accessToken");
-
-  if (accessToken) {
-    console.log("✅ Access token найден, используем его");
-    return;
-  }
-
-  console.log("🔁 Access token не найден, пробуем refresh...");
-
-  try {
-    const res = await AuthService.refresh();
-    currentUser = res.user;
-    console.log("✅ Refresh прошёл успешно");
-  } catch (err) {
-    console.warn("❌ Не авторизований:", err.message);
-    alert("Ви не авторизовані. Перейдіть на сторінку входу.");
-    window.location.href = "/pages/login.html";
-    throw new Error("Unauthorized");
-  }
-}
+proceed();
 
 function proceed() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -39,6 +12,7 @@ function proceed() {
   }
 
   setupGame();
+  setupUIInteractions();
 }
 
 async function setupGame() {
@@ -53,9 +27,8 @@ async function setupGame() {
         credentials: "include",
       });
 
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error("Помилка створення гри: " + response.status);
-      }
 
       const game = await response.json();
       if (!game?.id) throw new Error("Сервер не повернув ID гри");
@@ -78,9 +51,8 @@ async function setupGame() {
       credentials: "include",
     });
 
-    if (!response.ok) {
+    if (!response.ok)
       throw new Error("Не вдалося завантажити гру: " + response.status);
-    }
 
     const game = await response.json();
     currentGame = game;
@@ -101,7 +73,6 @@ async function setupGame() {
 
 function initWebSocket(gameId) {
   console.log("📡 Connecting WebSocket...");
-
   socket = new WebSocket("ws://localhost:8080/gaming");
 
   socket.onopen = () => {
@@ -110,31 +81,22 @@ function initWebSocket(gameId) {
   };
 
   socket.onmessage = (msg) => {
-    console.log("📨 WS raw message:", msg.data);
-
     try {
       const data = JSON.parse(msg.data);
-      console.log("✅ WS parsed:", data);
-
       switch (data.event) {
         case "playerJoined":
-          console.log("👥 Player joined the lobby!");
           currentGame = data.game;
           updateUI(currentGame);
           break;
-
         case "lobbyUpdate":
           console.log("🔄 Lobby updated:", data);
           break;
-
         case "gameStarted":
           console.log("🚀 Game has started!");
           break;
-
         case "error":
           console.error("❌ WS ERROR:", data.message);
           break;
-
         default:
           console.warn("⚠️ Unknown WS event:", data.event);
       }
@@ -143,24 +105,17 @@ function initWebSocket(gameId) {
     }
   };
 
-  socket.onerror = (err) => {
-    console.error("❌ WS connection error:", err);
-  };
-
-  socket.onclose = () => {
-    console.warn("🔌 WS connection closed");
-  };
+  socket.onerror = (err) => console.error("❌ WS connection error:", err);
+  socket.onclose = () => console.warn("🔌 WS connection closed");
 }
 
 function updateUI(game) {
   if (!game || !Array.isArray(game.user_ids)) return;
-
   const players = game.game_state?.players || {};
   const [p1, p2] = game.user_ids;
 
-  const isHost = currentUser?.id === p1;
-  const me = isHost ? p1 : p2;
-  const opponent = isHost ? p2 : p1;
+  const me = p1;
+  const opponent = p2;
 
   const meInfo = players[me] || {};
   const oppInfo = players[opponent] || {};
@@ -190,9 +145,83 @@ function getAvatar(username) {
   return cookie ? decodeURIComponent(cookie.split("=")[1]) : "";
 }
 
-function getCookie(name) {
-  return document.cookie
-    .split("; ")
-    .find((row) => row.startsWith(name + "="))
-    ?.split("=")[1];
+function setupUIInteractions() {
+  const readyBtn = document.getElementById("readyBtn");
+  const deckCards = document.querySelectorAll(".deck-card");
+  const radios = document.querySelectorAll('input[name="deck"]');
+  const playerStatusEl = document.querySelector(
+    ".player-card:nth-child(2) .player-status"
+  );
+
+  let isUserReady = false;
+
+  const startBtn = document.createElement("button");
+  startBtn.id = "startBtn";
+  startBtn.className = "ready-button hidden";
+  startBtn.innerHTML = '<i class="fas fa-play"></i> Почати гру';
+  startBtn.style.marginTop = "1rem";
+  readyBtn.parentNode.appendChild(startBtn);
+
+  function updateButtonState() {
+    const selected = Array.from(radios).some((r) => r.checked);
+    readyBtn.disabled = !selected;
+    readyBtn.classList.toggle("active", selected);
+  }
+
+  function updateSelectedDeckUI() {
+    deckCards.forEach((card) => {
+      const input = card.querySelector('input[type="radio"]');
+      card.classList.toggle("selected", input.checked);
+    });
+  }
+
+  radios.forEach((radio) => {
+    radio.addEventListener("change", () => {
+      updateButtonState();
+      updateSelectedDeckUI();
+    });
+  });
+
+  deckCards.forEach((card) => {
+    card.addEventListener("click", () => {
+      const radio = card.querySelector('input[type="radio"]');
+      radio.checked = true;
+      radio.dispatchEvent(new Event("change"));
+    });
+  });
+
+  readyBtn.addEventListener("click", () => {
+    const selectedDeck = document.querySelector('input[name="deck"]:checked');
+    if (selectedDeck && !isUserReady) {
+      isUserReady = true;
+      readyBtn.innerHTML = '<i class="fas fa-check-circle"></i> Готово!';
+      readyBtn.style.background = "#10b981";
+      readyBtn.disabled = true;
+
+      if (playerStatusEl) {
+        playerStatusEl.classList.remove("status-waiting");
+        playerStatusEl.classList.add("status-ready");
+        playerStatusEl.innerHTML =
+          '<i class="fas fa-check-circle"></i><span>ГОТОВИЙ</span>';
+      }
+
+      const waitingMsg = document.createElement("div");
+      waitingMsg.style.marginTop = "1rem";
+      waitingMsg.style.textAlign = "center";
+      waitingMsg.style.color = "var(--text-secondary)";
+      waitingMsg.style.fontFamily = "'Rajdhani', sans-serif";
+      waitingMsg.style.fontSize = "1rem";
+      waitingMsg.innerHTML = "Всі гравці готові! Гра скоро розпочнеться...";
+      readyBtn.parentNode.appendChild(waitingMsg);
+
+      startBtn.classList.remove("hidden");
+    }
+  });
+
+  startBtn.addEventListener("click", () => {
+    alert("🚀 Гра розпочалась! (тут буде перехід)");
+  });
+
+  updateButtonState();
+  updateSelectedDeckUI();
 }
