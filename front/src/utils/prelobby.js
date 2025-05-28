@@ -155,6 +155,28 @@ async function updateUI(game) {
     document.getElementById("p2-avatar").src = "/assets/empty-avatar.png";
     document.getElementById("p2-status").textContent = "🟡 Очікує";
   }
+
+  // highlight ready button if this user has already selected a deck
+  const readyBtn = document.getElementById("readyBtn");
+  if (game.game_state.decks[me]) {
+    readyBtn.innerHTML = '<i class="fas fa-check-circle"></i> Готово!';
+    readyBtn.style.background = "#10b981";
+    readyBtn.disabled = true;
+  }
+
+  // reflect and lock selected cards on reload
+  const myDeck = game.game_state.decks[me] || [];
+  const deckCards = document.querySelectorAll(".deck-card");
+  deckCards.forEach((card) => {
+    const input = card.querySelector('input[type="checkbox"]');
+    const cid = Number(input.value);
+    if (myDeck.includes(cid)) {
+      input.checked = true;
+      card.classList.add("selected");
+    }
+    // disable all inputs so user can't change selection
+    input.disabled = Boolean(myDeck.length);
+  });
 }
 
 function setupUIInteractions() {
@@ -249,9 +271,6 @@ function setupUIInteractions() {
     waitingMsg.style.fontSize = "1rem";
     waitingMsg.innerHTML = "Всі гравці готові! Гра скоро розпочнеться...";
     readyBtn.parentNode.appendChild(waitingMsg);
-
-    // startBtn.classList.remove("hidden"); // still show on your ready
-    // startBtn remains disabled until decksSelected arrives
   });
 
   startBtn.addEventListener("click", () => {
