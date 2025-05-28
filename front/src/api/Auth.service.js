@@ -20,14 +20,11 @@ class AuthService {
   }
 
   async refresh() {
-    const res = await fetch(`${this.url}/refresh`, {
+    return await fetch(`${this.url}/refresh`, {
       method: "POST",
       credentials: "include",
       ...this.params,
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error("Unauthorized");
-    return json;
+    }).then((res) => res.ok ? res.json() : Promise.reject(res.json()));;
   }
 
   async logout() {

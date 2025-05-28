@@ -4,18 +4,12 @@ import UserService from "../api/User.service.js";
 // Выполняем запрос только если токены есть
 UserService.getUser()
   .then((user) => {
-    if (user?.id) {
-      console.log("✅ Уже авторизован — редирект на меню");
-      window.location.href = "/pages/main-menu.html";
-    } else {
-      console.log("Юзер не найден");
-    }
+		window.location.href = "/pages/main-menu.html";
   })
   .catch((err) => {
-    console.log(
-      "🔓 Ошибка получения юзера — залишаємо на реєстрації",
-      err.message
-    );
+    AuthService.refresh().then(() => {
+			window.location.reload()
+		})
   });
 
 // 🧾 Обработка формы регистрации

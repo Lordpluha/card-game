@@ -15,7 +15,9 @@ class UserService {
     return await fetch(`${this.url}/user`, {
       method: "GET",
       ...this.params,
-    }).then((res) => res.json());
+    }).then((res) =>
+			res.ok ? res.json() : Promise.reject(res.json())
+		);
   }
 
   // update current user settings

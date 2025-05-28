@@ -53,14 +53,15 @@ class UserService {
   }
   async getTopPlayers() {
     const [rows] = await pool.execute(`
-    SELECT id, username, card_ids FROM users 
-    ORDER BY JSON_LENGTH(card_ids) DESC
+    SELECT id, username, rating FROM users
+    ORDER BY rating DESC
   `);
 
     return rows.map((user) => ({
       id: user.id,
       username: user.username,
-      card_ids: user.card_ids, // mysql2 сам парсит JSON
+      card_ids: user.card_ids,
+			rating: user.rating,
     }));
   }
 }

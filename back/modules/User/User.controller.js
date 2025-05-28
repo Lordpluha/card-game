@@ -44,7 +44,7 @@ router.patch("/user", requireAccessToken, async (req, res) => {
   }
 });
 // топ гравців
-router.get("/top", async (req, res) => {
+router.get("/users/top", async (req, res) => {
   try {
     const players = await UserService.getTopPlayers();
     return res.json(players);

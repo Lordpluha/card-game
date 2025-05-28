@@ -12,7 +12,7 @@ fetch("http://localhost:8080/api/users/top")
     }
 
     players.forEach((player) => {
-      const rating = undefined;
+      const rating = player.rating;
 
       const div = document.createElement("div");
       div.className =

@@ -1,6 +1,6 @@
 const tbody = document.getElementById("history-body");
 
-fetch("http://localhost:8080/api/game/history", {
+fetch("http://localhost:8080/api/games/history", {
   credentials: "include",
 })
   .then((res) => {
@@ -14,11 +14,14 @@ fetch("http://localhost:8080/api/game/history", {
     }
 
     const resultColor = (result) => {
-      if (result.includes("Нічия")) return "text-[#facc15]";
-      if (result.includes("Перемога") && result.includes("1"))
-        return "text-[#4ade80]";
-      if (result.includes("Перемога")) return "text-[#ef4444]";
-      return "text-white";
+			switch (result) {
+				case 'IN_PROGRESS':
+					return "text-[#a78bfa]";
+				case 'CREATED':
+					return "text-[#facc15]";
+				case 'ENDED':
+					return "text-[#4ade80]";
+			}
     };
 
     historyData.forEach((match) => {
@@ -29,10 +32,10 @@ fetch("http://localhost:8080/api/game/history", {
         <td class="py-3 px-6 text-[var(--color-text-light)]">${match.p1}</td>
         <td class="py-3 px-6 text-[var(--color-text-light)]">${match.p2}</td>
         <td class="py-3 px-6 font-semibold ${resultColor(match.result)}">${
-        match.result
+        match.result.split('_').join(' ')
       }</td>
         <td class="py-3 px-6 text-[var(--color-text-light)]">${
-          match.date || "-"
+          `${new Date(match?.created_at).getHours()}:${new Date(match?.created_at).getMinutes()}:${new Date(match?.created_at).getSeconds()} ${new Date(match?.created_at).toLocaleDateString()}` || "-"
         }</td>
       `;
       tbody.appendChild(tr);

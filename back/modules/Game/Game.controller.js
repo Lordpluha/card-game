@@ -32,7 +32,7 @@ router.get("/by-code/:code", requireAccessToken, async (req, res) => {
   }
 });
 
-router.get("/history", requireAccessToken, async (req, res) => {
+router.get("/games/history", requireAccessToken, async (req, res) => {
   try {
     const history = await GameService.getGameHistory(req.userId);
     res.json(history);

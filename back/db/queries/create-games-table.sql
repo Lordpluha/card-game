@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS games (
   user_ids      JSON         NOT NULL,
   game_state    JSON         NOT NULL,
   winner_id     INT UNSIGNED,
+	created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
   FOREIGN KEY (host_user_id) REFERENCES users(id) ON DELETE SET NULL,
   FOREIGN KEY (winner_id)    REFERENCES users(id) ON DELETE SET NULL

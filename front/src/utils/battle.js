@@ -21,8 +21,6 @@ const p2HpEl = document.getElementById("p2-hp");
 const p1AvatarEl = document.getElementById("p1-avatar");
 const p2AvatarEl = document.getElementById("p2-avatar");
 
-let username = "You";
-
 async function initWebSocket() {
   socket = new WebSocket("ws://localhost:8080/gaming");
 

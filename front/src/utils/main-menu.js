@@ -20,10 +20,13 @@ UserService.getUser()
     }
   })
   .catch((err) => {
-    console.log("❌ Не авторизован:", err.message);
-    // window.location.href = "/pages/login.html";
-  });
-
+    AuthService.refresh()
+			.then(() => {
+				window.location.reload()
+			}).catch((e) => {
+				window.location.href = "/pages/login.html";
+			})
+  })
 // ===== Logout =====
 if (document.getElementById("logoutBtn")) {
   document.getElementById("logoutBtn").addEventListener("click", () => {

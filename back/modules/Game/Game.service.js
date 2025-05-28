@@ -412,6 +412,8 @@ class GameService {
     SELECT
       g.id,
       g.winner_id,
+			g.status,
+			g.created_at,
       u1.username AS player1,
       u2.username AS player2
     FROM games g
@@ -430,10 +432,11 @@ class GameService {
       p2: row.player2,
       result:
         row.winner_id === null
-          ? "Ще триває"
+          ? row.status
           : row.winner_id === row.player1
           ? `Перемога ${row.player1}`
           : `Перемога ${row.player2}`,
+			created_at: row.created_at
     }));
   }
 }
