@@ -14,9 +14,8 @@ UserService.getUser()
       nicknameEl.textContent = username;
     }
 
-    const savedAvatar = getCookie(`avatar_${username}`);
-    if (avatarImg && savedAvatar) {
-      avatarImg.src = decodeURIComponent(savedAvatar);
+    if (avatarImg && user?.avatar_url && user?.avatar_url !== "null") {
+      avatarImg.src = user?.avatar_url
     }
   })
   .catch((err) => {
