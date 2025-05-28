@@ -70,6 +70,29 @@ async function setupGame() {
   }
 }
 
+// Load user cards for deck selection
+const cards = await CardsService.getMyCards();
+const grid = document.getElementById('decksGrid');
+grid.innerHTML = cards
+	.map(
+		(c) => `
+	<label class="deck-card" id="deck-card-${c.id}">
+		<input type="checkbox" name="cards" value="${c.id}" />
+		<div class="deck-check"><i class="fas fa-check"></i></div>
+		<div class="deck-image-wrapper">
+			<img src="${c.image_url}" alt="${c.name}" class="deck-image" />
+		</div>
+		<div class="deck-info">
+			<div class="deck-name">${c.name}</div>
+			<div class="deck-stats">
+				<span class="deck-stat"><i class="fas fa-fist-raised stat-attack"></i>${c.attack}</span>
+				<span class="deck-stat"><i class="fas fa-shield-alt stat-defense"></i>${c.defense}</span>
+			</div>
+		</div>
+	</label>`
+	)
+	.join('');
+
 function initWebSocket(gameId) {
   console.log("📡 Connecting WebSocket...");
   socket = new WebSocket("ws://localhost:8080/gaming");
@@ -136,19 +159,10 @@ function updateUI(game) {
   }
 }
 
-function getAvatar(username) {
-  if (!username) return "";
-  const name = `avatar_${username}`;
-  const cookie = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith(name + "="));
-  return cookie ? decodeURIComponent(cookie.split("=")[1]) : "";
-}
-
 function setupUIInteractions() {
   const readyBtn = document.getElementById("readyBtn");
   const deckCards = document.querySelectorAll(".deck-card");
-  const checkboxes = document.querySelectorAll('input[name="cards"]');
+  const checkboxes = document.querySelectorAll('.deck-card input[type="checkbox"]');
   const playerStatusEl = document.querySelector(
     ".player-card:nth-child(2) .player-status"
   );
@@ -171,6 +185,7 @@ function setupUIInteractions() {
     checkboxes.forEach(c => {
       c.disabled = !c.checked && checked.length >= 6;
     });
+		console.log('Update button state')
   }
 
   function updateSelectedDeckUI() {
@@ -179,15 +194,16 @@ function setupUIInteractions() {
       card.classList.toggle("selected", input.checked);
     });
   }
-
+	console.log(checkboxes)
   checkboxes.forEach((cb) => {
     cb.addEventListener("change", () => {
-     const selected = Array.from(checkboxes).filter((c) => c.checked);
-     if (selected.length > 6) {
-       // отменяем выбор, если больше 6
-       cb.checked = false;
-       return;
-     }
+			console.log('Checkbox changed', cb.value);
+
+      const selected = Array.from(checkboxes).filter((c) => c.checked);
+      if (selected.length > 6) {
+        cb.checked = false;
+        return;
+      }
       updateButtonState();
       updateSelectedDeckUI();
     });
@@ -243,28 +259,3 @@ function setupUIInteractions() {
   updateButtonState();
   updateSelectedDeckUI();
 }
-
-// Load user cards for deck selection
-document.addEventListener('DOMContentLoaded', async () => {
-  const cards = await CardsService.getMyCards();
-  const grid = document.getElementById('decksGrid');
-  grid.innerHTML = cards
-    .map(
-      (c) => `
-    <label class="deck-card" id="deck-card-${c.id}">
-      <input type="checkbox" name="cards" value="${c.id}" />
-      <div class="deck-check"><i class="fas fa-check"></i></div>
-      <div class="deck-image-wrapper">
-        <img src="${c.image_url}" alt="${c.name}" class="deck-image" />
-      </div>
-      <div class="deck-info">
-        <div class="deck-name">${c.name}</div>
-        <div class="deck-stats">
-          <span class="deck-stat"><i class="fas fa-fist-raised stat-attack"></i>${c.attack}</span>
-          <span class="deck-stat"><i class="fas fa-shield-alt stat-defense"></i>${c.defense}</span>
-        </div>
-      </div>
-    </label>`
-    )
-    .join('');
-});
