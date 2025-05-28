@@ -1,6 +1,7 @@
 import { pool } from "../../db/connect.js";
 import { generateGameCode } from "../../utils/index.js";
 import cards from "../../utils/cards.js";
+import CardsService from "../Cards/Cards.service.js";
 
 class GameService {
   async createGame(userId) {
@@ -148,6 +149,16 @@ class GameService {
     if (game.host_user_id !== userId) {
       throw { status: 403, message: "Only host can start" };
     }
+    const handsEntries = await Promise.all(
+      Object.entries(game.game_state.decks).map(async ([user_id, cardIds]) => {
+        const cards = await Promise.all(cardIds.map(async (cardId) => {
+          const card = await CardsService.getById(cardId);
+          return { ...card };
+        }));
+        return [user_id, cards];
+      })
+    );
+    const hands = Object.fromEntries(handsEntries);
     const newState = {
       ...game.game_state,
       hands,

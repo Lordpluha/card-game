@@ -1,5 +1,6 @@
 // battle.js — логіка фронту бою
 
+import AuthService from "../api/Auth.service.js";
 import UserService from "../api/User.service.js";
 
 let socket;
@@ -21,11 +22,8 @@ const p2HpEl = document.getElementById("p2-hp");
 const p1AvatarEl = document.getElementById("p1-avatar");
 const p2AvatarEl = document.getElementById("p2-avatar");
 
-<<<<<<< Updated upstream
-=======
 let userData = {};
 
->>>>>>> Stashed changes
 async function initWebSocket() {
   socket = new WebSocket("ws://localhost:8080/gaming");
 
@@ -33,7 +31,9 @@ async function initWebSocket() {
     console.log("🔌 Підключено до WebSocket");
 
     try {
-      const user = await UserService.getUser();
+      const user = await UserService.getUser().catch(err => {
+				AuthService.refresh().then(() => window.location.reload());
+			});
       if (!user || !user.id) {
         console.error("❌ Гравець не знайдено");
         return;
