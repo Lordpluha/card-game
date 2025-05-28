@@ -1,5 +1,24 @@
 import AuthService from "../api/Auth.service.js";
+import UserService from "../api/User.service.js";
 
+// Выполняем запрос только если токены есть
+UserService.getUser()
+  .then((user) => {
+    if (user?.id) {
+      console.log("✅ Уже авторизован — редирект на меню");
+      window.location.href = "/pages/main-menu.html";
+    } else {
+      console.log("Юзер не найден");
+    }
+  })
+  .catch((err) => {
+    console.log(
+      "🔓 Ошибка получения юзера — залишаємо на реєстрації",
+      err.message
+    );
+  });
+
+// 🧾 Обработка формы регистрации
 document.getElementById("registerForm").addEventListener("submit", (e) => {
   e.preventDefault();
 
@@ -54,7 +73,7 @@ document.getElementById("registerForm").addEventListener("submit", (e) => {
     });
 });
 
-// Показ/скрытие пароля
+// 👁️‍🗨️ Показ/скрытие пароля
 document.querySelectorAll("[data-toggle-password]").forEach((el) => {
   el.addEventListener("click", () => {
     const id = el.getAttribute("data-toggle-password");
@@ -67,6 +86,7 @@ document.querySelectorAll("[data-toggle-password]").forEach((el) => {
   });
 });
 
+// ❌ Закрытие модалки
 document.getElementById("closeModal").addEventListener("click", () => {
   document.getElementById("modal").classList.add("hidden");
 });

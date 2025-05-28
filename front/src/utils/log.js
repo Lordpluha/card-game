@@ -1,5 +1,20 @@
 import AuthService from "../api/Auth.service.js";
 
+import UserService from "../api/User.service.js";
+
+// Выполняем запрос только если токены есть
+UserService.getUser()
+  .then((user) => {
+    if (user?.id) {
+      console.log("✅ Уже авторизован — редирект на меню");
+      window.location.href = "/pages/main-menu.html";
+    } else {
+      console.log("🔓 Токены есть, но юзер не найден");
+    }
+  })
+  .catch((err) => {
+    console.log("🔓 Ошибка получения юзера — залишаємо на логине", err.message);
+  });
 // 🧾 Обработка отправки формы логина
 document.getElementById("loginForm").addEventListener("submit", (e) => {
   e.preventDefault();
