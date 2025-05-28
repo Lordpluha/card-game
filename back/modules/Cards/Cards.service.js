@@ -84,6 +84,28 @@ class CardsService {
     );
     return this.getById(result.insertId);
   }
+
+	async getUserCards(userId) {
+    // fetch stored card_ids JSON for this user
+    const [[user]] = await pool.execute(
+      'SELECT card_ids FROM users WHERE id = ?',
+      [userId]
+    );
+    if (!user) throw { status: 404, message: 'User not found' };
+
+    // parse JSON array of ids
+    const ids = Array.isArray(user.card_ids)
+      ? user.card_ids
+      : JSON.parse(user.card_ids || '[]');
+    if (!ids.length) return [];
+
+    // retrieve and return all cards matching those ids
+    const [cards] = await pool.query(
+      'SELECT * FROM cards WHERE id IN (?)',
+      [ids]
+    );
+    return cards;
+  }
 }
 
 export default new CardsService();

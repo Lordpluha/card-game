@@ -4,11 +4,10 @@ export default [
   {
     id: 1,
     name: 'Elf Cyber Archer',
-    image_url: `${HOST}:${PORT}/cards/Elven_cyber_archer.jpg`,
+    image_url: `http://${HOST}:${PORT}/cards/Elven_cyber_archer.jpg`,
     attack: 10,
     defense: 0,
     cost: 3,
-    price: 30,
     type: 'COMMON',
     categories: ['Cyber-Fantasy Creatures'],
     description: 'In the heart of the cyber-jungle, where neon mist shrouds ruined temples, the Elf Cyber Archer is an elusive hunter whose digital-light arrows cut through the apocalypse\'s darkness. His holographic eyes pierce chaos, and each shot is a hymn to elven grace fused with cold logic.'
@@ -16,11 +15,10 @@ export default [
   {
     id: 2,
     name: 'Goblin Raider',
-    image_url: `${HOST}:${PORT}/cards/Goblin_robber.jpg`,
+    image_url: `http://${HOST}:${PORT}/cards/Goblin_robber.jpg`,
     attack: 10,
     defense: 0,
     cost: 2,
-    price: 20,
     type: 'COMMON',
     categories: ['Medieval Warriors'],
     description: 'The Goblin Raider is a shadow in neon-lit backstreets of ruined cities, where rust and magic dance in chaos. His laser dagger slices flesh and enemy plans alike, leaving only digital-fire surprises.'
@@ -28,11 +26,10 @@ export default [
   {
     id: 3,
     name: 'Elf Hacker',
-    image_url: `${HOST}:${PORT}/cards/Elf_hacker.jpg`,
+    image_url: `http://${HOST}:${PORT}/cards/Elf_hacker.jpg`,
     attack: 8,
     defense: 5,
     cost: 5,
-    price: 50,
     type: 'COMMON',
     categories: ['Cyber-Fantasy Creatures'],
     description: 'The Elf Hacker rules digital shadows, dancing between reality and code. His cyber-dagger severs data streams, paralyzing enemy schemes with every keystroke—magic and machine in perfect harmony.'
@@ -40,11 +37,10 @@ export default [
   {
     id: 4,
     name: 'Gnome Inventor',
-    image_url: `${HOST}:${PORT}/cards/Gnome_inventor.jpg`,
+    image_url: `http://${HOST}:${PORT}/cards/Gnome_inventor.jpg`,
     attack: 5,
     defense: 10,
     cost: 4,
-    price: 40,
     type: 'RARE',
     categories: ['Cyber-Fantasy Creatures'],
     description: 'A reactor of mad ideas, he builds drones from teleport shards, each invention a technomagic masterpiece—from time-loop grenades to energy-absorbing shields.'
@@ -52,11 +48,10 @@ export default [
   {
     id: 5,
     name: 'Goblin Necromancer',
-    image_url: `${HOST}:${PORT}/cards/Goblin_necromancer.jpg`,
+    image_url: `http://${HOST}:${PORT}/cards/Goblin_necromancer.jpg`,
     attack: 17,
     defense: 5,
     cost: 6,
-    price: 60,
     type: 'RARE',
     categories: ['Medieval Warriors'],
     description: 'Merging ancient necromancy with modern tech, he reprograms corpses into cyborgs fueled by hellish cores, each skeleton a virus of chaos.'
@@ -64,11 +59,10 @@ export default [
   {
     id: 6,
     name: 'Hellbound Cyber-Skeleton',
-    image_url: `${HOST}:${PORT}/cards/Infernal_cyber_skeleton.jpg`,
+    image_url: `http://${HOST}:${PORT}/cards/Infernal_cyber_skeleton.jpg`,
     attack: 22,
     defense: 10,
     cost: 8,
-    price: 80,
     type: 'RARE',
     categories: ['Apocalyptic Creatures'],
     description: 'An eternal soldier of techno-hell, forged from titanium and cursed runes. Death only rebuilds him stronger.'
@@ -76,11 +70,10 @@ export default [
   {
     id: 7,
     name: 'Cyber-Chaos Fairy',
-    image_url: `${HOST}:${PORT}/cards/Fairy_of_Cyber_Chaos.jpg`,
+    image_url: `http://${HOST}:${PORT}/cards/Fairy_of_Cyber_Chaos.jpg`,
     attack: 17,
     defense: 12,
     cost: 10,
-    price: 100,
     type: 'EPIC',
     categories: ['Cyber-Fantasy Creatures'],
     description: 'The final chord of a fracturing world’s symphony. Her digital butterflies heal damaged systems and make ruins bloom in neon.'
@@ -88,11 +81,10 @@ export default [
   {
     id: 8,
     name: 'Troll Warlord',
-    image_url: `${HOST}:${PORT}/cards/Troll_leader.jpg`,
+    image_url: `http://${HOST}:${PORT}/cards/Troll_leader.jpg`,
     attack: 28,
     defense: 15,
     cost: 9,
-    price: 90,
     type: 'EPIC',
     categories: ['Apocalyptic Creatures'],
     description: 'His roar splits worlds. Leading trolls into battle, his cyber-implants convert allied fury into seismic destruction.'
@@ -100,11 +92,10 @@ export default [
   {
     id: 9,
     name: 'Undead Sovereign',
-    image_url: `${HOST}:${PORT}/cards/Undead_lord.jpg`,
+    image_url: `http://${HOST}:${PORT}/cards/Undead_lord.jpg`,
     attack: 25,
     defense: 20,
     cost: 12,
-    price: 120,
     type: 'MYTHICAL',
     categories: ['Apocalyptic Creatures'],
     description: 'Eternal monarch of a techno-necropolis, his cyber-implants feed on decay energy, raising reprogrammed soldiers from digital echoes of the dead.'
@@ -112,11 +103,10 @@ export default [
   {
     id: 10,
     name: 'Infernal Code Dragon',
-    image_url: `${HOST}:${PORT}/cards/Dragon_of_the_Infernal_Code.jpg`,
+    image_url: `http://${HOST}:${PORT}/cards/Dragon_of_the_Infernal_Code.jpg`,
     attack: 40,
     defense: 25,
     cost: 14,
-    price: 140,
     type: 'MYTHICAL',
     categories: ['Dragons'],
     description: 'A genesis from the network’s collapse, its fire is a system-wide format, rewriting worlds into voids of binary.'
@@ -124,11 +114,10 @@ export default [
   {
     id: 11,
     name: 'Neon Fortress Dwarf King',
-    image_url: `${HOST}:${PORT}/cards/King_of_the_Neon_Fortress_dwarves.jpg`,
+    image_url: `http://${HOST}:${PORT}/cards/King_of_the_Neon_Fortress_dwarves.jpg`,
     attack: 35,
     defense: 30,
     cost: 16,
-    price: 160,
     type: 'LEGENDARY',
     categories: ['Medieval Warriors'],
     description: 'His hammer is the fortress’s hymn, his crown sparks a living stronghold of server-towers and energy walls.'
@@ -136,11 +125,10 @@ export default [
   {
     id: 12,
     name: 'Elven Cyber Deity',
-    image_url: `${HOST}:${PORT}/cards/Elven_cyber_archer.jpg`,
+    image_url: `http://${HOST}:${PORT}/cards/Elven_cyber_archer.jpg`,
     attack: 30,
     defense: 22,
     cost: 15,
-    price: 150,
     type: 'LEGENDARY',
     categories: ['Cyber-Fantasy Creatures'],
     description: 'The quintessence of technomagic. When she raises her staff, reality pixelates and remakes itself at her will.'
@@ -148,11 +136,10 @@ export default [
   {
     id: 13,
     name: 'Rift Archdemon',
-    image_url: `${HOST}:${PORT}/cards/Archdemon_of_the_Rift.jpg`,
+    image_url: `http://${HOST}:${PORT}/cards/Archdemon_of_the_Rift.jpg`,
     attack: 70,
     defense: 50,
     cost: 20,
-    price: 200,
     type: 'LEGENDARY',
     categories: ['Apocalyptic Creatures'],
     description: 'A matrix-error of existence. When slain, he reassembles from millions of pixels, stronger and hungrier.'

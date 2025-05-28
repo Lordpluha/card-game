@@ -15,21 +15,21 @@ router.get('/cards', requireAccessToken, async (req, res) => {
   }
 });
 
-// получить карточку по id
-router.get('/cards/:id', requireAccessToken, async (req, res) => {
+// получить все карточки текущего пользователя
+router.get('/my-cards', requireAccessToken, async (req, res) => {
   try {
-    const card = await CardsService.getById(req.params.id);
-    res.json(card);
+    const cards = await CardsService.getUserCards(req.userId);
+    res.json(cards);
   } catch (err) {
     res.status(err.status||500).json({ message: err.message });
   }
 });
 
-// удалить карточку
-router.delete('/cards/:id', requireAccessToken, async (req, res) => {
+// получить карточку по id
+router.get('/cards/:id', requireAccessToken, async (req, res) => {
   try {
-    const resp = await CardsService.delete(req.params.id);
-    res.json(resp);
+    const card = await CardsService.getById(req.params.id);
+    res.json(card);
   } catch (err) {
     res.status(err.status||500).json({ message: err.message });
   }

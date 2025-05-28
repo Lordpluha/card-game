@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS cards (
   attack       INT             NOT NULL,
   defense      INT             NOT NULL,
   cost         INT             NOT NULL,
-  description  VARCHAR(255)    DEFAULT NULL,
-	type         ENUM('COMMON','RARE','EPIC', 'MYTHICAL', 'LEGENDARY') DEFAULT 'COMMON'
+  type         ENUM('COMMON','RARE','EPIC','MYTHICAL','LEGENDARY') DEFAULT 'COMMON',
+  categories   JSON            NOT NULL,
+  description  VARCHAR(500)    DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

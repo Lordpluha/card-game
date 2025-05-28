@@ -12,5 +12,5 @@ CREATE TABLE IF NOT EXISTS users (
   coins           INT UNSIGNED    NOT NULL DEFAULT 0,
   fragments       INT UNSIGNED    NOT NULL DEFAULT 0,
 
-	rating          INT             NOT NULL DEFAULT 0
+  rating          INT             NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -19,11 +19,40 @@ class AuthService {
       throw err;
     }
     const hash = await PasswordUtils.hashPassword(password);
-    const initial = cards.slice(0, 9).map((c) => c.id);
-    // Add first 9 cards to user
-    const [result] = await pool.execute(
+
+    // 1) create user record (without card_ids)
+    const [userRes] = await pool.execute(
       "INSERT INTO users (username, email, password_hash, card_ids) VALUES (?, ?, ?, ?)",
-      [username, email, hash, JSON.stringify(initial)]
+      [username, email, hash, '[]']
+    );
+    const userId = userRes.insertId;
+
+    // 2) take first 9 templates, insert into `cards` table, collect their new IDs
+    const initialTemplates = cards.slice(0, 9);
+    const newCardIds = [];
+    for (let tpl of initialTemplates) {
+      const [cardRes] = await pool.execute(
+        `INSERT INTO cards
+          (name, image_url, attack, defense, cost, type, categories, description)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          tpl.name,
+          tpl.image_url,
+          tpl.attack,
+          tpl.defense,
+          tpl.cost,
+          tpl.type || 'COMMON',
+          JSON.stringify(tpl.categories || []),
+          tpl.description || null
+        ]
+      );
+      newCardIds.push(cardRes.insertId);
+    }
+
+    // 3) update user with generated card_ids JSON
+    await pool.execute(
+      "UPDATE users SET card_ids = ? WHERE id = ?",
+      [JSON.stringify(newCardIds), userId]
     );
   }
 
