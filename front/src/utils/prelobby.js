@@ -59,6 +59,7 @@ function initWebSocket() {
 				break;
 				case "gameStarted":
 					console.log("🚀 Game has started!");
+					window.location.href = `/pages/battle-field.html?gameId=${game.id}`;
 					break;
 				case "decksSelected": {
         // save updated game state
