@@ -69,6 +69,16 @@ export function initGameController(server) {
             ws.gameId = String(game.id);
             broadcastWS(game.id, { event: "playerJoined", game });
             console.log(`[${userId}] Joined to game with Id = `, game.id);
+            if (
+              Object.keys(game.game_state.decks).length ===
+                game.user_ids.length &&
+              game.user_ids.length === 2
+            ) {
+              broadcastWS(game.id, {
+                event: "decksSelected",
+                game: game,
+              });
+            }
             break;
           }
           case "startGame": {
@@ -162,7 +172,9 @@ export function initGameController(server) {
 
             // новое: когда оба игрока выбрали колоды
             if (
-              Object.keys(game.game_state.decks).length === game.user_ids.length
+              Object.keys(game.game_state.decks).length ===
+                game.user_ids.length &&
+              game.user_ids.length === 2
             ) {
               broadcastWS(game.id, {
                 event: "decksSelected",
