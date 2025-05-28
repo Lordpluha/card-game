@@ -2,8 +2,13 @@ import WebSocket from "ws";
 import cookie from "cookie";
 import JWTUtils from "../../utils/jwt-token.js";
 import GameService from "./Game.service.js";
-import { wss } from "../../index.js";
 import { ACCESS_TOKEN_NAME } from "../../config.js";
+import { WebSocketServer } from "ws";
+import { HOST, PORT } from "../../config.js";
+
+export function initGameController(server) {
+	const wss = new WebSocketServer({ server, path: `/gaming` });
+	console.log(`Websocket Game Server started: ws://${HOST}:${PORT}/gaming`);
 
 // helper для рассылки WS
 const broadcastWS = (gameId, payload) => {
@@ -43,14 +48,21 @@ wss.on("connection", (ws, req) => {
       switch (msg.event) {
         case "createGame": {
           const game = await GameService.createGame(userId);
+          // associate this socket with new gameId
+          ws.gameId = String(game.id);
+          // reply immediately
+          ws.send(JSON.stringify({ event: "gameCreated", game }));
+          // broadcast to any others (now includes this socket)
           broadcastWS(game.id, { event: "gameCreated", game });
           console.log(`[${userId}] Game created with Id = `, game.id);
           break;
         }
         case "joinGame": {
           const game = await GameService.joinGame(userId, msg.payload.gameId);
+          // tag socket so future broadcasts reach it
+          ws.gameId = String(game.id);
           broadcastWS(game.id, { event: "playerJoined", game });
-					console.log(`[${userId}] Joined to game with Id = `, game.id);
+          console.log(`[${userId}] Joined to game with Id = `, game.id);
           break;
         }
         case "startGame": {
@@ -126,3 +138,6 @@ wss.on("connection", (ws, req) => {
     }
   });
 });
+}
+
+

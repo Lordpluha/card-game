@@ -1506,6 +1506,10 @@ body {
   font-size: 0.85rem;
 }
 
+input[type="checkbox"] {
+	display: contents;
+}
+
 .deck-check {
   position: absolute;
   top: 0.5rem;

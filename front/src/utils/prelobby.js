@@ -1,145 +1,121 @@
 import CardsService from "../api/Cards.service.js";
+import UserService from "../api/User.service.js";
 
-let currentGame = null;
-let socket = null;
-let gameId = null;
+/** Global variables in window object */
+window.socket = null;
+window.game = { id: null };
 
-function proceed() {
-  const urlParams = new URLSearchParams(window.location.search);
-  gameId = urlParams.get("gameId");
-  if (gameId) initWebSocket(gameId);
-  setupGame();
-  setupUIInteractions();
+function initWebSocket() {
+  console.log("📡 Connecting WebSocket...");
+  window.socket = new WebSocket("ws://localhost:8080/gaming");
+
+  window.socket.onopen = () => {
+		// Если есть gameId в URL, то присоединяемся к игре, в другом случае создаем новую
+		const urlParams = new URLSearchParams(window.location.search);
+    const gameId = urlParams.get("gameId");
+
+    if (gameId) {
+			try {
+				window.socket.send(
+					JSON.stringify({ event: "joinGame", payload: { gameId } })
+				);
+				window.game.id = gameId;
+			} catch (e) {
+				console.error("❌ Error joining game:", e);
+			}
+    } else {
+			try {
+				window.socket.send(JSON.stringify({ event: "createGame" }));
+			} catch (e) {
+				console.error("❌ Error creating game:", e);
+			}
+    }
+  };
+
+  window.socket.onmessage = (msg) => {
+    const data = JSON.parse(msg.data);
+    switch (data.event) {
+      case "gameCreated":
+        // save and update URL
+        window.game = data.game;
+        const u = new URL(window.location.href);
+        u.searchParams.set("gameId", window.game.id);
+        window.history.replaceState(null, "", u);
+        updateUI(data.game);
+        break;
+      case "playerJoined":
+        // render the same code for join
+        updateUI(data.game);
+        break;
+      case "lobbyUpdate":
+        console.log("🔄 Lobby updated:", data);
+        break;
+      case "gameStarted":
+        console.log("🚀 Game has started!");
+        break;
+      case "deckSelected":
+        // mark the player who selected as ready
+        if (data.player === myId) {
+          document.getElementById("p1-status").className = "player-status status-ready";
+          document.getElementById("p1-status").innerHTML = '<i class="fas fa-check-circle"></i><span>ГОТОВИЙ</span>';
+        } else {
+          document.getElementById("p2-status").className = "player-status status-ready";
+          document.getElementById("p2-status").innerHTML = '<i class="fas fa-check-circle"></i><span>ГОТОВИЙ</span>';
+        }
+        break;
+      case "error":
+        console.error("❌ WS ERROR:", data.message);
+        break;
+      default:
+        console.warn("⚠️ Unknown WS event:", data.event);
+    }
+  };
+
+  window.socket.onerror = (err) => console.error("❌ WS connection error:", err);
+  window.socket.onclose = () => console.warn("🔌 WS connection closed");
 }
 
-async function setupGame() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const gameId = urlParams.get("gameId");
-  const codeFromUrl = urlParams.get("code");
-
-  if (!gameId) {
-    try {
-      const response = await fetch("http://localhost:8080/api/create", {
-        method: "POST",
-        credentials: "include",
-      });
-
-      if (!response.ok)
-        throw new Error("Помилка створення гри: " + response.status);
-
-      const game = await response.json();
-      if (!game?.id) throw new Error("Сервер не повернув ID гри");
-
-      sessionStorage.setItem("lastCreatedGameCode", game.game_code);
-
-      setTimeout(() => {
-        window.location.href = `/pages/prelobby.html?gameId=${game.id}&code=${game.game_code}`;
-      }, 300);
-      return;
-    } catch (err) {
-      console.error("❌ Помилка при створенні гри:", err);
-      alert("Спробуйте ще раз.");
-      return;
-    }
-  }
-
-  try {
-    const response = await fetch(`http://localhost:8080/api/game/${gameId}`, {
-      credentials: "include",
-    });
-
-    if (!response.ok)
-      throw new Error("Не вдалося завантажити гру: " + response.status);
-
-    const game = await response.json();
-    currentGame = game;
-
-    updateUI(game);
-
-    const codeEl = document.getElementById("game-code");
-    const sessionCode = sessionStorage.getItem("lastCreatedGameCode");
-    const finalCode = game?.game_code || codeFromUrl || sessionCode || "❌";
-    if (codeEl) codeEl.textContent = finalCode;
-
-    sessionStorage.removeItem("lastCreatedGameCode");
-  } catch (err) {
-    console.error("❌ Failed to fetch game:", err.message);
-    alert("Гру не знайдено або вже неактивна.");
-  }
+async function init() {
+  await renderDeckCards();
+  setupUIInteractions();
+  initWebSocket();
 }
 
 // Load user cards for deck selection
-const cards = await CardsService.getMyCards();
-const grid = document.getElementById("decksGrid");
-grid.innerHTML = cards
-  .map(
-    (c) => `
-	<label class="deck-card" id="deck-card-${c.id}">
-		<input type="checkbox" name="cards" value="${c.id}" />
-		<div class="deck-check"><i class="fas fa-check"></i></div>
-		<div class="deck-image-wrapper">
-			<img src="${c.image_url}" alt="${c.name}" class="deck-image" />
-		</div>
-		<div class="deck-info">
-			<div class="deck-name">${c.name}</div>
-			<div class="deck-stats">
-				<span class="deck-stat"><i class="fas fa-fist-raised stat-attack"></i>${c.attack}</span>
-				<span class="deck-stat"><i class="fas fa-shield-alt stat-defense"></i>${c.defense}</span>
+const renderDeckCards = async () => {
+	const cards = await CardsService.getMyCards();
+	const grid = document.getElementById('decksGrid');
+	grid.innerHTML = cards
+		.map(
+			(c) => `
+		<label class="deck-card" id="deck-card-${c.id}">
+			<input type="checkbox" name="cards" value="${c.id}" />
+			<div class="deck-check"><i class="fas fa-check"></i></div>
+			<div class="deck-image-wrapper">
+				<img src="${c.image_url}" alt="${c.name}" class="deck-image" />
 			</div>
-		</div>
-	</label>`
-  )
-  .join("");
-
-function initWebSocket(gameId) {
-  console.log("📡 Connecting WebSocket...");
-  socket = new WebSocket("ws://localhost:8080/gaming");
-
-  socket.onopen = () => {
-    console.log("🟢 WS connected, sending joinGame...");
-    socket.send(JSON.stringify({ event: "joinGame", payload: { gameId } }));
-  };
-
-  socket.onmessage = (msg) => {
-    try {
-      const data = JSON.parse(msg.data);
-      switch (data.event) {
-        case "playerJoined":
-          currentGame = data.game;
-          updateUI(currentGame);
-          break;
-        case "lobbyUpdate":
-          console.log("🔄 Lobby updated:", data);
-          break;
-        case "gameStarted":
-          console.log("🚀 Game has started!");
-          break;
-        case "error":
-          console.error("❌ WS ERROR:", data.message);
-          break;
-        default:
-          console.warn("⚠️ Unknown WS event:", data.event);
-      }
-    } catch (err) {
-      console.error("❌ WS JSON parse error:", err);
-    }
-  };
-
-  socket.onerror = (err) => console.error("❌ WS connection error:", err);
-  socket.onclose = () => console.warn("🔌 WS connection closed");
+			<div class="deck-info">
+				<div class="deck-name">${c.name}</div>
+				<div class="deck-stats">
+					<span class="deck-stat"><i class="fas fa-fist-raised stat-attack"></i>${c.attack}</span>
+					<span class="deck-stat"><i class="fas fa-shield-alt stat-defense"></i>${c.defense}</span>
+				</div>
+			</div>
+		</label>`
+		)
+		.join('');
 }
 
-import UserService from "../api/User.service.js";
+// store current user id for status updates
+let myId;
+UserService.getUser()
+  .then((u) => (myId = u.id))
+  .catch(() => (myId = null));
 
 async function updateUI(game) {
   if (!game || !Array.isArray(game.user_ids)) return;
   const players = game.game_state?.players || {};
   const [p1, p2] = game.user_ids;
-
-  const myId = await UserService.getUser()
-    .then((u) => u.id)
-    .catch((e) => null);
-  if (!myId) return;
 
   const isHost = myId === p1;
   const me = isHost ? p1 : p2;
@@ -157,6 +133,8 @@ async function updateUI(game) {
   document.getElementById("p1-status").textContent = meInfo.ready
     ? "🟢 Готовий"
     : "🟡 Очікує";
+
+	document.getElementById("game-code").textContent = game.game_code;
 
   // Противник справа
   if (oppInfo.username) {
@@ -235,15 +213,16 @@ function setupUIInteractions() {
 
   readyBtn.addEventListener("click", () => {
     if (isUserReady) return;
-    // send selected 6 card IDs to server
     const selectedIds = Array.from(checkboxes)
       .filter((c) => c.checked)
       .map((c) => Number(c.value));
-    socket.send(
-      JSON.stringify({
-        event: "selectDeck",
-        payload: { gameId, cardIds: selectedIds },
-      })
+    // 1) tell server our deck choice
+    window.socket.send(
+      JSON.stringify({ event: "selectDeck", payload: { gameId: window.game.id, cardIds: selectedIds } })
+    );
+    // 2) then tell server we are ready
+    window.socket.send(
+      JSON.stringify({ event: "playerReady", payload: { gameId: window.game.id } })
     );
 
     isUserReady = true;
@@ -271,7 +250,10 @@ function setupUIInteractions() {
   });
 
   startBtn.addEventListener("click", () => {
-    alert("🚀 Гра розпочалась! (тут буде перехід)");
+    // host starts the game
+    window.socket.send(
+      JSON.stringify({ event: "startGame", payload: { gameId: window.game.id } })
+    );
   });
 
   updateButtonState();
@@ -279,4 +261,4 @@ function setupUIInteractions() {
 }
 
 // після динамической вставки карточек запускаем логику WS і UI
-proceed();
+init();

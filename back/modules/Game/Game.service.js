@@ -53,7 +53,7 @@ class GameService {
   async joinGame(userId, gameId) {
     const game = await this.getGameById(gameId);
     if (game.user_ids.includes(userId)) {
-      throw { status: 400, message: "User already in game" };
+			return this.getGameById(gameId);
     }
 
     const users = [...game.user_ids, userId];
