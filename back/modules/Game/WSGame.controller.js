@@ -109,13 +109,20 @@ wss.on("connection", (ws, req) => {
           break;
         }
         case "selectDeck": {
-          const { gameId, cardIds } = msg.payload;
-          const game = await GameService.selectDeck(userId, gameId, cardIds);
+          const game = await GameService.selectDeck(userId, msg.payload.gameId, msg.payload.cardIds);
           broadcastWS(game.id, {
             event: "deckSelected",
             player: userId,
-            deck: cardIds
+            deck: msg.payload.cardIds
           });
+
+					// новое: когда оба игрока выбрали колоды
+          if (Object.keys(game.game_state.decks).length === game.user_ids.length) {
+            broadcastWS(game.id, {
+              event: "decksSelected",
+              game: game
+            });
+          }
           break;
         }
         case "mergeCards": {

@@ -36,33 +36,41 @@ function initWebSocket() {
     const data = JSON.parse(msg.data);
     switch (data.event) {
       case "gameCreated":
-        // save and update URL
+        // add gameId to URL params
         window.game = data.game;
         const u = new URL(window.location.href);
         u.searchParams.set("gameId", window.game.id);
         window.history.replaceState(null, "", u);
+
         updateUI(data.game);
         break;
       case "playerJoined":
         updateUI(data.game);
         break;
-      case "lobbyUpdate":
-        console.log("🔄 Lobby updated:", data);
-        break;
-      case "gameStarted":
-        console.log("🚀 Game has started!");
-        break;
-      case "deckSelected":
-        // mark the player who selected as ready
-        if (data.player === myId) {
-          document.getElementById("p1-status").className = "player-status status-ready";
-          document.getElementById("p1-status").innerHTML = '<i class="fas fa-check-circle"></i><span>ГОТОВИЙ</span>';
-        } else {
-          document.getElementById("p2-status").className = "player-status status-ready";
-          document.getElementById("p2-status").innerHTML = '<i class="fas fa-check-circle"></i><span>ГОТОВИЙ</span>';
+				case "deckSelected":
+					// mark the player who selected as ready
+					if (data.player === myId) {
+						document.getElementById("p1-status").className = "player-status status-ready";
+						document.getElementById("p1-status").innerHTML = '<i class="fas fa-check-circle"></i><span>ГОТОВИЙ</span>';
+					} else {
+						document.getElementById("p2-status").className = "player-status status-ready";
+						document.getElementById("p2-status").innerHTML = '<i class="fas fa-check-circle"></i><span>ГОТОВИЙ</span>';
+					}
+					break;
+				case "gameStarted":
+					console.log("🚀 Game has started!");
+					break;
+				case "decksSelected": {
+        // save updated game state
+        window.game = data.game;
+        const sb = document.getElementById("startBtn");
+        // only show/enable to the host
+        if (sb && window.game.host_user_id === myId) {
+          sb.classList.remove("hidden");
+          sb.disabled = false;
         }
         break;
-
+      }
       case "error":
         console.error("❌ WS ERROR:", data.message);
         break;
@@ -167,6 +175,7 @@ function setupUIInteractions() {
   const startBtn = document.createElement("button");
   startBtn.id = "startBtn";
   startBtn.className = "ready-button hidden";
+  startBtn.disabled = true;              // ← new: always disabled initially
   startBtn.innerHTML = '<i class="fas fa-play"></i> Почати гру';
   startBtn.style.marginTop = "1rem";
   readyBtn.parentNode.appendChild(startBtn);
@@ -243,7 +252,8 @@ function setupUIInteractions() {
     waitingMsg.innerHTML = "Всі гравці готові! Гра скоро розпочнеться...";
     readyBtn.parentNode.appendChild(waitingMsg);
 
-    startBtn.classList.remove("hidden");
+    // startBtn.classList.remove("hidden"); // still show on your ready
+    // startBtn remains disabled until decksSelected arrives
   });
 
   startBtn.addEventListener("click", () => {
