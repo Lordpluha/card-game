@@ -225,3 +225,30 @@ function setupUIInteractions() {
   updateButtonState();
   updateSelectedDeckUI();
 }
+
+// Load user cards for deck selection
+import CardsService from '../api/Cards.service.js';
+
+document.addEventListener('DOMContentLoaded', async () => {
+	const cards = await CardsService.getMyCards();
+	const grid = document.getElementById('decksGrid');
+	grid.innerHTML = cards
+		.map(
+			(c) => `
+	<label class="deck-card" id="deck-card-${c.id}">
+		<input type="radio" name="deck" value="${c.id}" />
+		<div class="deck-check"><i class="fas fa-check"></i></div>
+		<div class="deck-image-wrapper">
+			<img src="${c.image_url}" alt="${c.name}" class="deck-image" />
+		</div>
+		<div class="deck-info">
+			<div class="deck-name">${c.name}</div>
+			<div class="deck-stats">
+				<span class="deck-stat"><i class="fas fa-fist-raised stat-attack"></i>${c.attack}</span>
+				<span class="deck-stat"><i class="fas fa-shield-alt stat-defense"></i>${c.defense}</span>
+			</div>
+		</div>
+	</label>`
+		)
+		.join('');
+});
