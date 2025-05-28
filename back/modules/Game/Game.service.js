@@ -226,11 +226,9 @@ class GameService {
     return this.getGameById(gameId);
   }
 
-  // игрок готов; когда оба готовы — сравниваем
+  // игрок готов; когда оба готовы — даем хосту возможность запустить игру
   async playerReady(userId, gameId) {
     const game = await this.getGameById(gameId);
-    if (game.status !== "IN_PROGRESS")
-      throw { status: 400, message: "Game not in progress" };
     const state = { ...game.game_state };
     state.readies = state.readies || {};
     state.readies[userId] = true;
@@ -351,12 +349,11 @@ class GameService {
       throw { status: 403, message: "Not in this game" };
     }
     // Проверяем, что пользователь владеет карточками
-    const [rows] = await pool.execute(
+    const [[user]] = await pool.execute(
       "SELECT card_ids FROM users WHERE id = ?",
       [userId]
     );
-    const own = JSON.parse(rows[0].card_ids || "[]");
-    if (!cardIds.every((id) => own.includes(id))) {
+    if (!cardIds.every((id) => user.card_ids.includes(id))) {
       throw { status: 400, message: "Invalid card selection" };
     }
     // Обновляем состояние

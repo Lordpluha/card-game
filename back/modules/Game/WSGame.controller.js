@@ -127,7 +127,7 @@ wss.on("connection", (ws, req) => {
         }
         case "playerReady": {
           const { game, outcome } = await GameService.playerReady(userId, msg.payload.gameId);
-          broadcastWS(game.id, { event: "roundResolved", outcome, health: game.game_state.health });
+          broadcastWS(game.id, { event: "playerReady", player: userId });
           break;
         }
         default:

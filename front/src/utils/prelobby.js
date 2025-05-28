@@ -44,7 +44,6 @@ function initWebSocket() {
         updateUI(data.game);
         break;
       case "playerJoined":
-        // render the same code for join
         updateUI(data.game);
         break;
       case "lobbyUpdate":
@@ -63,6 +62,7 @@ function initWebSocket() {
           document.getElementById("p2-status").innerHTML = '<i class="fas fa-check-circle"></i><span>ГОТОВИЙ</span>';
         }
         break;
+
       case "error":
         console.error("❌ WS ERROR:", data.message);
         break;
@@ -216,13 +216,10 @@ function setupUIInteractions() {
     const selectedIds = Array.from(checkboxes)
       .filter((c) => c.checked)
       .map((c) => Number(c.value));
+
     // 1) tell server our deck choice
     window.socket.send(
       JSON.stringify({ event: "selectDeck", payload: { gameId: window.game.id, cardIds: selectedIds } })
-    );
-    // 2) then tell server we are ready
-    window.socket.send(
-      JSON.stringify({ event: "playerReady", payload: { gameId: window.game.id } })
     );
 
     isUserReady = true;
