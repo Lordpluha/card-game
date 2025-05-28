@@ -47,16 +47,16 @@ function initWebSocket() {
       case "playerJoined":
         updateUI(data.game);
         break;
-				case "deckSelected":
-					// mark the player who selected as ready
-					if (data.player === myId) {
-						document.getElementById("p1-status").className = "player-status status-ready";
-						document.getElementById("p1-status").innerHTML = '<i class="fas fa-check-circle"></i><span>ГОТОВИЙ</span>';
-					} else {
-						document.getElementById("p2-status").className = "player-status status-ready";
-						document.getElementById("p2-status").innerHTML = '<i class="fas fa-check-circle"></i><span>ГОТОВИЙ</span>';
-					}
-					break;
+			case "deckSelected":
+				// mark the player who selected as ready
+				if (data.player === myId) {
+					document.getElementById("p1-status").className = "player-status status-ready";
+					document.getElementById("p1-status").innerHTML = '<i class="fas fa-check-circle"></i><span>ГОТОВИЙ</span>';
+				} else {
+					document.getElementById("p2-status").className = "player-status status-ready";
+					document.getElementById("p2-status").innerHTML = '<i class="fas fa-check-circle"></i><span>ГОТОВИЙ</span>';
+				}
+				break;
 				case "gameStarted":
 					console.log("🚀 Game has started!");
 					break;
@@ -121,7 +121,6 @@ UserService.getUser()
   .catch(() => (myId = null));
 
 async function updateUI(game) {
-  if (!game || !Array.isArray(game.user_ids)) return;
   const players = game.game_state?.players || {};
   const [p1, p2] = game.user_ids;
 
@@ -132,13 +131,11 @@ async function updateUI(game) {
   const meInfo = players[me] || {};
   const oppInfo = players[opponent] || {};
 
-  console.log("🧍 Я:", meInfo.username, "🧑‍🤝‍🧑 Противник:", oppInfo.username);
-
   // Я зліва
   document.getElementById("p1-name").textContent = meInfo.username || "Ви";
   document.getElementById("p1-avatar").src =
     meInfo.avatar_url || "/assets/empty-avatar.png";
-  document.getElementById("p1-status").textContent = meInfo.ready
+  document.getElementById("p1-status").textContent = game.game_state?.decks?.[me]
     ? "🟢 Готовий"
     : "🟡 Очікує";
 
@@ -149,7 +146,7 @@ async function updateUI(game) {
     document.getElementById("p2-name").textContent = oppInfo.username;
     document.getElementById("p2-avatar").src =
       oppInfo.avatar_url || "/assets/empty-avatar.png";
-    document.getElementById("p2-status").textContent = oppInfo.ready
+    document.getElementById("p2-status").textContent = game.game_state?.decks?.[opponent]
       ? "🟢 Готовий"
       : "🟡 Очікує";
   } else {

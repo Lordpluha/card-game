@@ -29,10 +29,10 @@ class GameService {
           avatar_url: userRow?.avatar_url || null,
         },
       },
-      health: { [userId]: 20 },
-      hands: { [userId]: [] },
-      battlefield: { [userId]: [] },
-      decks: { [userId]: [] },
+      health: { [userId]: 100 },
+      hands: { },
+      battlefield: { },
+      decks: { },
       currentTurn: null,
     };
 
@@ -59,15 +59,12 @@ class GameService {
     const users = [...game.user_ids, userId];
 
     const [[userRow]] = await pool.execute(
-      "SELECT username FROM users WHERE id = ?",
+      "SELECT * FROM users WHERE id = ?",
       [userId]
     );
     const state = game.game_state;
     state.players = state.players || {};
-    state.players[userId] = {
-      username: userRow?.username || "Гравець",
-      avatar_url: userRow?.avatar_url || null,
-    };
+    state.players[userId] = userRow
 
     await pool.execute(
       "UPDATE games SET user_ids = ?, game_state = ? WHERE id = ?",
