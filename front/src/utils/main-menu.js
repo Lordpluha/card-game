@@ -44,31 +44,31 @@ console.log("⚡ main-menu loaded");
 console.log("document.cookie:", document.cookie);
 
 // ===== Avatar modal toggle =====
-const avatarBtn = document.getElementById("avatar-btn");
-const avatarModal = document.getElementById("avatar-modal");
-const avatarImages = avatarModal.querySelectorAll("img");
+// const avatarBtn = document.getElementById("avatar-btn");
+// const avatarModal = document.getElementById("avatar-modal");
+// const avatarImages = avatarModal.querySelectorAll("img");
 
-avatarBtn.addEventListener("click", () => {
-  avatarModal.classList.toggle("hidden");
-});
+// avatarBtn.addEventListener("click", () => {
+//   avatarModal.classList.toggle("hidden");
+// });
 
-document.addEventListener("click", (e) => {
-  if (!avatarModal.contains(e.target) && !avatarBtn.contains(e.target)) {
-    avatarModal.classList.add("hidden");
-  }
-});
+// document.addEventListener("click", (e) => {
+//   if (!avatarModal.contains(e.target) && !avatarBtn.contains(e.target)) {
+//     avatarModal.classList.add("hidden");
+//   }
+// });
 
-avatarImages.forEach((img) => {
-  img.addEventListener("click", () => {
-    const newUrl = img.getAttribute("data-avatar-url");
-    const avatarImg = avatarBtn.querySelector("img");
-    avatarImg.src = newUrl;
+// avatarImages.forEach((img) => {
+//   img.addEventListener("click", () => {
+//     const newUrl = img.getAttribute("data-avatar-url");
+//     const avatarImg = avatarBtn.querySelector("img");
+//     avatarImg.src = newUrl;
 
-    const username =
-      document.getElementById("nickname")?.textContent || "default";
-    document.cookie = `avatar_${username}=${encodeURIComponent(
-      newUrl
-    )}; path=/; max-age=31536000`;
-    avatarModal.classList.add("hidden");
-  });
-});
+//     const username =
+//       document.getElementById("nickname")?.textContent || "default";
+//     document.cookie = `avatar_${username}=${encodeURIComponent(
+//       newUrl
+//     )}; path=/; max-age=31536000`;
+//     avatarModal.classList.add("hidden");
+//   });
+// });
