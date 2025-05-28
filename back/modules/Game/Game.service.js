@@ -148,17 +148,8 @@ class GameService {
     if (game.host_user_id !== userId) {
       throw { status: 403, message: "Only host can start" };
     }
-    // shuffle deck & deal N cards per player (stub logic)
-    const deck = [...cards];
-    deck.sort(() => Math.random() - 0.5);
-    const handSize = 6;
-    const hands = {};
-    game.user_ids.forEach((uid) => {
-      hands[uid] = deck.splice(0, handSize);
-    });
     const newState = {
       ...game.game_state,
-      deck,
       hands,
       battlefield: {},
       health: Object.fromEntries(game.user_ids.map((id) => [id, 20])),
