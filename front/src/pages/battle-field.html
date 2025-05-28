@@ -14,7 +14,14 @@
     <link rel="stylesheet" href="../style/battle.css" />
   </head>
   <body class="relative min-h-screen bg-[#1e0f2f] font-sans overflow-hidden">
-    <!-- Background -->
+    <!-- 🔥 Статус бою -->
+    <div
+      id="battle-status"
+      class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 text-white text-3xl font-bold hidden">
+      ⚔️ Бій розпочався!
+    </div>
+
+    <!-- 🌌 Фон -->
     <div class="table-background absolute inset-0 z-0">
       <div class="absolute inset-0 bg-gradient-radial"></div>
       <div class="absolute inset-0 opacity-30 table-texture"></div>
@@ -59,7 +66,7 @@
         "></div>
     </div>
 
-    <!-- Opponent Info -->
+    <!-- 👤 Противник -->
     <div class="absolute top-4 left-4 z-10">
       <div class="player-card">
         <div class="avatar-wrapper">
@@ -71,7 +78,7 @@
             class="player-avatar" />
         </div>
         <div class="player-info text-white">
-          <h3 id="p2-name" class="player-name">Enemy</h3>
+          <h3 id="p2-name" class="player-name"></h3>
           <div class="player-stats">
             <div class="player-stat">
               <i class="fas fa-heart text-red-500"></i>
@@ -82,7 +89,7 @@
       </div>
     </div>
 
-    <!-- Player Info -->
+    <!-- 👤 Гравець -->
     <div class="absolute bottom-4 left-4 z-10">
       <div class="player-card">
         <div class="avatar-wrapper">
@@ -94,7 +101,7 @@
             class="player-avatar" />
         </div>
         <div class="player-info text-white">
-          <h3 id="p1-name" class="player-name">You</h3>
+          <h3 id="p1-name" class="player-name"></h3>
           <div class="player-stats">
             <div class="player-stat">
               <i class="fas fa-heart text-red-500"></i>
@@ -105,22 +112,26 @@
       </div>
     </div>
 
-    <!-- Card Deck -->
+    <!-- 🃏 Зона карт -->
     <div
-      class="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 w-[1024px]">
-      <div id="battle-cards" class="battle-cards-grid"></div>
+      id="battle-field"
+      class="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 w-[1024px] hidden">
+      <div
+        id="battle-cards"
+        class="battle-cards-grid grid grid-cols-3 gap-4"></div>
     </div>
 
-    <!-- End Turn Button -->
+    <!-- 🕹 Кнопка завершення ходу -->
     <div class="absolute bottom-4 right-8 z-10">
       <button
-        id="end-turn"
+        id="end-turn-btn"
         class="bg-purple-700 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
         disabled>
         Хід завершено
       </button>
     </div>
 
-    <script src="../utils/battle/battle.js"></script>
+    <!-- ⚙️ Скрипт бою -->
+    <script type="module" src="../utils/battle.js"></script>
   </body>
 </html>
