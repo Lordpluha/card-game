@@ -1,9 +1,9 @@
 import { pool } from '../../db/connect.js';
+import { cards } from '../../utils/cards.js'
 
 class CardsService {
   async getAll() {
-    const [rows] = await pool.execute('SELECT * FROM cards');
-    return rows;
+    return cards;
   }
 
   async getById(id) {
