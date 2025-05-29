@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
   username        VARCHAR(100)    NOT NULL UNIQUE,
   email           VARCHAR(100)    NOT NULL UNIQUE,
   password_hash   VARCHAR(255)    NOT NULL,
-  avatar_url      VARCHAR(255)    DEFAULT NULL,
+  avatar_url      TEXT            DEFAULT NULL,
 
 	created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
   last_game_date  DATETIME        DEFAULT NULL,

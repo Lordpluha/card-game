@@ -1,4 +1,5 @@
 import { pool } from "../../db/connect.js";
+import PasswordUtils from "../../utils/password.js";
 
 class UserService {
   // получить профиль по ID
@@ -28,6 +29,31 @@ class UserService {
   async changeSettings(userId, settings) {
     const fields = [];
     const values = [];
+    
+    if (settings.newPassword && settings.currentPassword) {
+      // Получаем текущий хеш пароля пользователя
+      const [userRows] = await pool.execute(
+        "SELECT password_hash FROM users WHERE id = ?",
+        [userId]
+      );
+      
+      if (!userRows.length) {
+        throw { status: 404, message: "User not found" };
+      }
+      
+      // Проверяем текущий пароль
+      try {
+        await PasswordUtils.comparePasswords(settings.currentPassword, userRows[0].password_hash);
+      } catch (error) {
+        throw { status: 400, message: "Невірний поточний пароль" };
+      }
+      
+      // Хешируем новый пароль
+      const hash = await PasswordUtils.hashPassword(settings.newPassword);
+      fields.push("password_hash = ?");
+      values.push(hash);
+    }
+    
     if (settings.username) {
       fields.push("username = ?");
       values.push(settings.username);
@@ -40,11 +66,7 @@ class UserService {
       fields.push("avatar_url = ?");
       values.push(settings.avatar_url);
     }
-    if (settings.password) {
-      const hash = await PasswordUtils.hashPassword(settings.password);
-      fields.push("password_hash = ?");
-      values.push(hash);
-    }
+    
     if (!fields.length) throw { status: 400, message: "No settings provided" };
     values.push(userId);
     const sql = `UPDATE users SET ${fields.join(", ")} WHERE id = ?`;
