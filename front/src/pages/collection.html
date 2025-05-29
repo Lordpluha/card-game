@@ -148,12 +148,9 @@
       <div class="flex items-center space-x-5">
         <div class="resource-counter">
           <i class="fas fa-coins text-yellow-400"></i>
-          <span>1,245</span>
+          <span id="user-coins">0</span>
         </div>
-        <div class="resource-counter">
-          <i class="fas fa-gem text-blue-300"></i>
-          <span>78</span>
-        </div>
+
         <div class="resource-counter">
           <i class="fas fa-shapes text-purple-300"></i>
           <span>24</span>
@@ -197,54 +194,10 @@
     </header>
 
     <div class="container mx-auto px-4 py-8">
-      <header class="mb-8">
-        <h1 class="text-4xl font-bold text-teal-300 mb-2">Arcane Collection</h1>
-        <p class="text-indigo-200 mb-6">
-          Unlock the mysteries of the ancient world
-        </p>
-        <div class="flex items-center mt-4">
-          <div class="mr-8">
-            <p class="text-indigo-200">Collection Progress</p>
-            <div class="flex items-center">
-              <div class="progress-bar w-64 mr-2">
-                <div class="progress-fill" style="width: 45%"></div>
-              </div>
-              <span class="text-teal-300 font-medium">45%</span>
-            </div>
-          </div>
-          <div>
-            <p class="text-indigo-200">Total Cards</p>
-            <p class="text-teal-300 font-medium">127/300</p>
-          </div>
-          <div class="ml-auto">
-            <button
-              class="btn-mystic px-4 py-2 rounded-lg flex items-center"
-              onclick="openFilterModal()">
-              <i class="fas fa-filter mr-2"></i> Filter
-            </button>
-          </div>
-        </div>
-      </header>
+      <header class="mb-8"></header>
 
-      <div class="flex flex-col lg:flex-row gap-8">
-        <div class="w-full lg:w-2/5 section-box rounded-xl p-6">
-          <div class="flex items-center mb-6 pb-4 border-b border-indigo-900">
-            <div>
-              <div class="flex items-center mt-1">
-                <span
-                  class="bg-indigo-900 text-teal-300 text-xs px-2 py-0.5 rounded-full"
-                  >Level 15</span
-                >
-                <div class="w-24 h-1 bg-gray-700 rounded-full mx-2">
-                  <div
-                    class="h-full bg-teal-300 rounded-full"
-                    style="width: 65%"></div>
-                </div>
-                <span class="text-xs text-indigo-200">65%</span>
-              </div>
-            </div>
-          </div>
-
+      <div class="flex flex-col lg:flex-row gap-8 items-start relative">
+        <div class="w-full lg:w-2/5 section-box rounded-xl p-6 sticky top-24">
           <h2 class="text-2xl font-semibold text-white mb-6">Inventory</h2>
 
           <div class="mb-6">
@@ -257,19 +210,12 @@
                 </div>
                 <div>
                   <p class="text-sm text-indigo-200">Gold</p>
-                  <p class="font-medium text-white">1,245</p>
+                  <p class="font-medium text-white">
+                    <span id="user-coins-2">0</span>
+                  </p>
                 </div>
               </div>
-              <div class="inventory-item rounded-lg p-3 flex items-center">
-                <div
-                  class="w-10 h-10 bg-indigo-900 rounded-full flex items-center justify-center mr-3">
-                  <i class="fas fa-gem text-blue-300"></i>
-                </div>
-                <div>
-                  <p class="text-sm text-indigo-200">Gems</p>
-                  <p class="font-medium text-white">78</p>
-                </div>
-              </div>
+
               <div class="inventory-item rounded-lg p-3 flex items-center">
                 <div
                   class="w-10 h-10 bg-indigo-900 rounded-full flex items-center justify-center mr-3">
@@ -285,48 +231,19 @@
 
           <div class="mb-6">
             <h3 class="text-lg font-medium text-indigo-200 mb-3">
-              Shard Collection
-            </h3>
-            <div class="grid grid-cols-5 gap-2">
-              <div class="flex flex-col items-center">
-                <div class="shard shard-common w-8 h-8 rounded-full mb-1"></div>
-                <span class="text-xs">12</span>
-              </div>
-              <div class="flex flex-col items-center">
-                <div class="shard shard-rare w-8 h-8 rounded-full mb-1"></div>
-                <span class="text-xs">7</span>
-              </div>
-              <div class="flex flex-col items-center">
-                <div class="shard shard-epic w-8 h-8 rounded-full mb-1"></div>
-                <span class="text-xs">3</span>
-              </div>
-              <div class="flex flex-col items-center">
-                <div
-                  class="shard shard-legendary w-8 h-8 rounded-full mb-1"></div>
-                <span class="text-xs">2</span>
-              </div>
-              <div class="flex flex-col items-center">
-                <div class="shard shard-mythic w-8 h-8 rounded-full mb-1"></div>
-                <span class="text-xs">0</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="mb-6">
-            <h3 class="text-lg font-medium text-indigo-200 mb-3">
-              Packs <span class="text-sm text-gray-400">(5 available)</span>
+              Packs <span class="text-sm text-gray-400">(available)</span>
             </h3>
             <div class="grid grid-cols-2 gap-4">
               <div
                 class="pack pack-common rounded-lg p-3 flex flex-col items-center cursor-pointer"
-                onclick="openPack('common')">
+                onclick="openPack()">
                 <div
                   class="w-16 h-16 bg-indigo-900 rounded-full flex items-center justify-center mb-2">
                   <i class="fas fa-box-open text-gray-300 text-2xl"></i>
                 </div>
                 <div class="text-center">
                   <p class="font-medium text-white">Common Pack</p>
-                  <p class="text-xs text-gray-400">3 cards</p>
+                  <p class="text-xs text-gray-400">1 card</p>
                   <div class="flex items-center justify-center mt-1">
                     <span
                       class="bg-gray-700 text-gray-300 text-xs px-2 py-0.5 rounded-full"
@@ -336,7 +253,7 @@
                 </div>
               </div>
 
-              <div
+              <!-- <div
                 class="pack pack-rare rounded-lg p-3 flex flex-col items-center cursor-pointer"
                 onclick="openPack('rare')">
                 <div
@@ -391,8 +308,32 @@
                     >
                   </div>
                 </div>
-              </div>
+              </div> -->
             </div>
+          </div>
+
+          <!-- 🔄 Блок злиття -->
+          <div
+            class="merge-block mt-6 mb-6 p-4 bg-[#4C2569] border border-indigo-700 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold text-white mb-2">Злиття карт</h3>
+            <p class="text-sm text-gray-300 mb-3">
+              Оберіть дві картки зі своєї колекції, щоб об'єднати їх в одну за
+              <b>50 монет</b>.
+            </p>
+            <div
+              id="mergeSelectedCards"
+              class="space-x-4 mb-4 min-h-[96px] flex items-center justify-center"></div>
+            <button
+              id="mergeSelectToggle"
+              class="bg-indigo-700 text-white text-sm px-3 py-2 rounded hover:bg-indigo-600 mb-3">
+              Вибрати карти для злиття
+            </button>
+            <button
+              id="mergeBtn"
+              class="bg-yellow-500 text-black font-semibold px-4 py-2 rounded hover:bg-yellow-400 disabled:opacity-30 transition-all"
+              disabled>
+              Злити за 50 💰
+            </button>
           </div>
 
           <div class="mb-6">
@@ -437,50 +378,6 @@
               </div>
             </div>
           </div>
-
-          <div>
-            <h3 class="text-lg font-medium text-indigo-200 mb-3">
-              Recent Activity
-            </h3>
-            <div class="space-y-3">
-              <div
-                class="flex items-start p-2 rounded-lg hover:bg-indigo-900/30">
-                <div class="bg-indigo-900 p-2 rounded-full mr-3">
-                  <i class="fas fa-check text-teal-300"></i>
-                </div>
-                <div>
-                  <p class="text-sm font-medium text-white">
-                    Unlocked "Fire Dragon" card
-                  </p>
-                  <p class="text-xs text-indigo-200">2 hours ago</p>
-                </div>
-              </div>
-              <div
-                class="flex items-start p-2 rounded-lg hover:bg-indigo-900/30">
-                <div class="bg-indigo-900 p-2 rounded-full mr-3">
-                  <i class="fas fa-trophy text-yellow-400"></i>
-                </div>
-                <div>
-                  <p class="text-sm font-medium text-white">
-                    Defeated "Ice Lich" in battle
-                  </p>
-                  <p class="text-xs text-indigo-200">Yesterday</p>
-                </div>
-              </div>
-              <div
-                class="flex items-start p-2 rounded-lg hover:bg-indigo-900/30">
-                <div class="bg-indigo-900 p-2 rounded-full mr-3">
-                  <i class="fas fa-book text-blue-300"></i>
-                </div>
-                <div>
-                  <p class="text-sm font-medium text-white">
-                    Completed "Ancient Tome" collection
-                  </p>
-                  <p class="text-xs text-indigo-200">3 days ago</p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         <div class="w-full lg:w-3/5">
@@ -497,11 +394,6 @@
                   class="px-3 py-1 bg-gray-800 text-indigo-200 rounded-md text-sm"
                   onclick="switchTab('all')">
                   All
-                </button>
-                <button
-                  class="px-3 py-1 bg-gray-800 text-indigo-200 rounded-md text-sm"
-                  onclick="switchTab('decks')">
-                  Decks
                 </button>
               </div>
             </div>
@@ -576,111 +468,6 @@
                   <div
                     id="availableCards"
                     class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2 mb-4"></div>
-
-                  <!-- Saved decks section -->
-                  <div>
-                    <h3 class="text-xl font-semibold text-white mb-4">
-                      Your Decks
-                    </h3>
-                    <div
-                      id="savedDecks"
-                      class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div
-                        class="bg-gray-900/50 rounded-lg p-4 border border-indigo-900/50">
-                        <div class="flex justify-between items-center mb-2">
-                          <h4 class="text-lg font-medium text-teal-300">
-                            Battle Mages
-                          </h4>
-                          <div class="flex space-x-2">
-                            <button
-                              class="text-xs px-2 py-1 bg-indigo-900/50 text-indigo-200 rounded"
-                              onclick="loadDeck('deck1')">
-                              Edit
-                            </button>
-                            <button
-                              class="text-xs px-2 py-1 bg-indigo-900/50 text-indigo-200 rounded"
-                              onclick="deleteDeck('deck1')">
-                              Delete
-                            </button>
-                          </div>
-                        </div>
-                        <p class="text-sm text-gray-400 mb-2">8 cards</p>
-                        <div class="grid grid-cols-4 gap-1">
-                          <div class="card rarity-rare rounded overflow-hidden">
-                            <img
-                              src="https://via.placeholder.com/100x140/16213e/ffffff?text=Mage"
-                              class="w-full" />
-                          </div>
-                          <div class="card rarity-epic rounded overflow-hidden">
-                            <img
-                              src="https://via.placeholder.com/100x140/2a1a4a/ffffff?text=Paladin"
-                              class="w-full" />
-                          </div>
-                          <div
-                            class="card rarity-legendary rounded overflow-hidden">
-                            <img
-                              src="https://via.placeholder.com/100x140/4a2a1a/ffffff?text=Dragon"
-                              class="w-full" />
-                          </div>
-                          <div
-                            class="card rarity-legendary rounded overflow-hidden">
-                            <img
-                              src="https://via.placeholder.com/100x140/4a2a1a/ffffff?text=Phoenix"
-                              class="w-full" />
-                          </div>
-                          <!-- More cards would be shown here -->
-                        </div>
-                      </div>
-
-                      <div
-                        class="bg-gray-900/50 rounded-lg p-4 border border-indigo-900/50">
-                        <div class="flex justify-between items-center mb-2">
-                          <h4 class="text-lg font-medium text-teal-300">
-                            Fast Attack
-                          </h4>
-                          <div class="flex space-x-2">
-                            <button
-                              class="text-xs px-2 py-1 bg-indigo-900/50 text-indigo-200 rounded"
-                              onclick="loadDeck('deck2')">
-                              Edit
-                            </button>
-                            <button
-                              class="text-xs px-2 py-1 bg-indigo-900/50 text-indigo-200 rounded"
-                              onclick="deleteDeck('deck2')">
-                              Delete
-                            </button>
-                          </div>
-                        </div>
-                        <p class="text-sm text-gray-400 mb-2">6 cards</p>
-                        <div class="grid grid-cols-4 gap-1">
-                          <div
-                            class="card rarity-common rounded overflow-hidden">
-                            <img
-                              src="https://via.placeholder.com/100x140/1a1a2e/ffffff?text=Warrior"
-                              class="w-full" />
-                          </div>
-                          <div
-                            class="card rarity-uncommon rounded overflow-hidden">
-                            <img
-                              src="https://via.placeholder.com/100x140/1a2e4a/ffffff?text=Archer"
-                              class="w-full" />
-                          </div>
-                          <div
-                            class="card rarity-uncommon rounded overflow-hidden">
-                            <img
-                              src="https://via.placeholder.com/100x140/1a2e4a/ffffff?text=Archer"
-                              class="w-full" />
-                          </div>
-                          <div class="card rarity-rare rounded overflow-hidden">
-                            <img
-                              src="https://via.placeholder.com/100x140/16213e/ffffff?text=Heal"
-                              class="w-full" />
-                          </div>
-                          <!-- More cards would be shown here -->
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -742,203 +529,92 @@
             <h3 class="text-lg font-semibold mb-2">Stats</h3>
             <div class="space-y-2">
               <div>
-                <div class="flex justify-between text-sm mb-1">
-                  <span>Health</span>
-                  <span id="detailCardHealth">0</span>
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span>Cost</span>
+                    <span id="detailCardCost">0</span>
+                  </div>
                 </div>
-                <div class="stat-bar">
-                  <div
-                    class="stat-fill health-fill"
-                    id="detailCardHealthBar"></div>
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span>Attack</span>
+                    <span id="detailCardAttack">0</span>
+                  </div>
+                  <div class="stat-bar">
+                    <div
+                      class="stat-fill attack-fill"
+                      id="detailCardAttackBar"></div>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <div class="flex justify-between text-sm mb-1">
-                  <span>Attack</span>
-                  <span id="detailCardAttack">0</span>
-                </div>
-                <div class="stat-bar">
-                  <div
-                    class="stat-fill attack-fill"
-                    id="detailCardAttackBar"></div>
-                </div>
-              </div>
-              <div>
-                <div class="flex justify-between text-sm mb-1">
-                  <span>Defense</span>
-                  <span id="detailCardDefense">0</span>
-                </div>
-                <div class="stat-bar">
-                  <div
-                    class="stat-fill defense-fill"
-                    id="detailCardDefenseBar"></div>
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span>Defense</span>
+                    <span id="detailCardDefense">0</span>
+                  </div>
+                  <div class="stat-bar">
+                    <div
+                      class="stat-fill defense-fill"
+                      id="detailCardDefenseBar"></div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div id="craftButtonContainer" class="hidden">
-            <div class="mb-4">
-              <h3 class="text-lg font-semibold mb-2">Crafting Requirements</h3>
-              <div id="craftingRequirements"></div>
+            <div id="craftButtonContainer" class="mt-4 text-center">
+              <button
+                id="upgradeBtn"
+                class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-4 rounded">
+                Прокачати за 50 монет
+              </button>
             </div>
-            <button
-              onclick="craftCard()"
-              class="btn-mystic w-full py-2 rounded-lg">
-              Craft This Card (Cost: <span id="craftCost">0</span> shards)
-            </button>
           </div>
         </div>
-      </div>
 
-      <div
-        id="craftingModal"
-        class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
-        <div class="card-modal rounded-xl p-6 w-full max-w-md relative">
-          <button
-            onclick="closeCraftingModal()"
-            class="absolute top-4 right-4 text-gray-400 hover:text-white">
-            <i class="fas fa-times text-2xl"></i>
-          </button>
-
-          <h2 class="text-2xl font-bold text-center mb-4" id="craftingTitle">
-            Craft Legendary Card
-          </h2>
-
-          <div class="flex justify-center mb-6">
-            <div
-              class="shard shard-rare w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold">
-              10
-            </div>
-          </div>
-
-          <p class="text-gray-300 text-center mb-6">
-            Are you sure you want to craft this card? This will consume
-            <span id="shardCost">10</span> shards.
-          </p>
-
-          <div class="flex space-x-4">
+        <div
+          id="craftingModal"
+          class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
+          <div class="card-modal rounded-xl p-6 w-full max-w-md relative">
             <button
               onclick="closeCraftingModal()"
-              class="header-button-secondary w-full py-2 rounded-lg">
-              Cancel
+              class="absolute top-4 right-4 text-gray-400 hover:text-white">
+              <i class="fas fa-times text-2xl"></i>
             </button>
-            <button
-              onclick="confirmCrafting()"
-              class="btn-mystic w-full py-2 rounded-lg">
-              Craft
-            </button>
-          </div>
-        </div>
-      </div>
 
-      <!-- Модальное окно фильтра -->
-      <div
-        id="filterModal"
-        class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
-        <div class="card-modal rounded-xl p-6 w-full max-w-md relative">
-          <button
-            onclick="closeFilter()"
-            class="absolute top-4 right-4 text-gray-400 hover:text-white">
-            <i class="fas fa-times text-2xl"></i>
-          </button>
+            <h2 class="text-2xl font-bold text-center mb-4" id="craftingTitle">
+              Craft Legendary Card
+            </h2>
 
-          <h2 class="text-2xl font-bold text-center mb-6">Фильтр карт</h2>
-
-          <div class="space-y-6">
-            <!-- Фильтр по редкости -->
-            <div>
-              <h3 class="text-lg font-medium text-indigo-200 mb-3">Редкость</h3>
-              <div class="grid grid-cols-3 gap-2">
-                <div class="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="filter-common"
-                    class="filter-rarity mr-2"
-                    data-rarity="common"
-                    checked />
-                  <label for="filter-common" class="text-gray-300"
-                    >Обычная</label
-                  >
-                </div>
-                <div class="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="filter-uncommon"
-                    class="filter-rarity mr-2"
-                    data-rarity="uncommon"
-                    checked />
-                  <label for="filter-uncommon" class="text-green-300"
-                    >Необычная</label
-                  >
-                </div>
-                <div class="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="filter-rare"
-                    class="filter-rarity mr-2"
-                    data-rarity="rare"
-                    checked />
-                  <label for="filter-rare" class="text-blue-300">Редкая</label>
-                </div>
-                <div class="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="filter-epic"
-                    class="filter-rarity mr-2"
-                    data-rarity="epic"
-                    checked />
-                  <label for="filter-epic" class="text-purple-300"
-                    >Эпическая</label
-                  >
-                </div>
-                <div class="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="filter-legendary"
-                    class="filter-rarity mr-2"
-                    data-rarity="legendary"
-                    checked />
-                  <label for="filter-legendary" class="text-yellow-300"
-                    >Легендарная</label
-                  >
-                </div>
-                <div class="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="filter-mythic"
-                    class="filter-rarity mr-2"
-                    data-rarity="mythic"
-                    checked />
-                  <label for="filter-mythic" class="text-red-300"
-                    >Мифическая</label
-                  >
-                </div>
+            <div class="flex justify-center mb-6">
+              <div
+                class="shard shard-rare w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold">
+                10
               </div>
             </div>
 
-            <!-- Кнопки действий -->
-            <div class="flex justify-between">
+            <p class="text-gray-300 text-center mb-6">
+              Are you sure you want to craft this card? This will consume
+              <span id="shardCost">10</span> shards.
+            </p>
+
+            <div class="flex space-x-4">
               <button
-                onclick="resetFilters()"
-                class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg">
-                Сбросить
+                onclick="closeCraftingModal()"
+                class="header-button-secondary w-full py-2 rounded-lg">
+                Cancel
               </button>
               <button
-                onclick="applyFilters()"
-                class="btn-mystic px-4 py-2 rounded-lg">
-                Применить
+                onclick="confirmCrafting()"
+                class="btn-mystic w-full py-2 rounded-lg">
+                Craft
               </button>
             </div>
           </div>
         </div>
       </div>
     </div>
-
     <!-- JavaScript for Collection Management -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script type="module" src="../utils/packs.js"></script>
-    <script type="module" src="../utils/booster-open.js"></script>
     <script type="module" src="../utils/collection.js"></script>
     <script type="module" src="../utils/main-menu.js"></script>
   </body>

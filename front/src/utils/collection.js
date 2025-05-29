@@ -1,48 +1,20 @@
-import CardsService from '../api/Cards.service.js';
-
+import CardsService from "../api/Cards.service.js";
+window.CardsService = CardsService;
 /*************** 1. DATA ************************************************/
 // Master list of all cards (keep aspect 300×420 for base images)
-let allCards = [];
+window.allCards = [];
+window.unlockedCards = [];
 let userCards = [];
+import UserService from "../api/User.service.js";
 
 // Build dynamic lookup
 let cardMap = {};
 const getCard = (id) => cardMap[id] || null;
 const getCardImage = (id, fallback = "Card") =>
-  getCard(id)?.image_url ??
-  `https://via.placeholder.com/300x420/333333/ffffff?text=${fallback}`;
-
-/*************** 2. STATE **********************************************/
-let currentDeck = [];
-let savedDecks = {
-  deck1: {
-    name: "Battle Mages",
-    cards: [
-      { id: 3, name: "Mage" },
-      { id: 4, name: "Paladin" },
-      { id: 5, name: "Ancient Dragon" },
-      { id: 7, name: "Phoenix" },
-      { id: 3, name: "Mage" },
-      { id: 6, name: "Battle Healer" },
-      { id: 4, name: "Paladin" },
-      { id: 5, name: "Ancient Dragon" },
-    ],
-  },
-  deck2: {
-    name: "Fast Attack",
-    cards: [
-      { id: 1, name: "Warrior" },
-      { id: 2, name: "Archer" },
-      { id: 2, name: "Archer" },
-      { id: 6, name: "Battle Healer" },
-      { id: 1, name: "Warrior" },
-      { id: 2, name: "Archer" },
-    ],
-  },
-};
+  getCard(id)?.image_url || fallback;
 
 /*************** 3. UI HELPERS *****************************************/
-function getRarityTextColor(type) {
+window.getRarityTextColor = function (type) {
   switch (type) {
     case "COMMON":
       return "text-gray-400";
@@ -50,27 +22,28 @@ function getRarityTextColor(type) {
       return "text-blue-400";
     case "EPIC":
       return "text-purple-400";
-		case "MYTHICAL":
-			return "text-red-400";
-		case "LEGENDARY":
-			return "text-yellow-400";
+    case "MYTHICAL":
+      return "text-red-400";
+    case "LEGENDARY":
+      return "text-yellow-400";
     default:
       return "text-gray-400";
   }
-}
+};
 
 function getCardStats(id) {
   const c = getCard(id);
   return c
-    ? { health: c.health, attack: c.attack, defense: c.defense }
-    : { health: 50, attack: 50, defense: 50 };
+    ? { cost: c.cost, attack: c.attack, defense: c.defense }
+    : { cost: 50, cost: 50, defense: 50 };
 }
 
 /*************** 4. TABS ***********************************************/
-function switchTab(tabName) {
+window.switchTab = function (tabName) {
   document
     .querySelectorAll(".collection-tab")
     .forEach((tab) => tab.classList.add("hidden"));
+
   document.querySelectorAll("#collectionTabs button").forEach((btn) => {
     btn.classList.toggle(
       "bg-indigo-900",
@@ -81,255 +54,247 @@ function switchTab(tabName) {
       !btn.textContent.toLowerCase().includes(tabName.toLowerCase())
     );
   });
-  document.getElementById(`${tabName}Tab`).classList.remove("hidden");
-}
+
+  document.getElementById(`${tabName}Tab`)?.classList.remove("hidden");
+};
 
 /*************** 5. CARD DETAILS MODAL *********************************/
-function showCardDetails(
-  name,
-  type,
-  description,
-  health,
-  attack,
-  defense,
-  id,
-  isLocked = false
-) {
+function showCardDetails(card, options = {}) {
+  const {
+    name = "Unknown",
+    type = "COMMON",
+    description = "—",
+    cost = 0,
+    attack = 0,
+    defense = 0,
+    id = 0,
+    image_url = "",
+    isLocked = false,
+  } = card;
+
+  const readonly = options.readonly || false;
+
   const m = document.getElementById("cardDetailsModal");
   const img = document.getElementById("detailCardImage");
   const nm = document.getElementById("detailCardName");
   const rt = document.getElementById("detailCardRarity");
   const ds = document.getElementById("detailCardDescription");
-  const hp = document.getElementById("detailCardHealth");
   const at = document.getElementById("detailCardAttack");
   const df = document.getElementById("detailCardDefense");
-  const hb = document.getElementById("detailCardHealthBar");
   const ab = document.getElementById("detailCardAttackBar");
   const db = document.getElementById("detailCardDefenseBar");
   const cb = document.getElementById("craftButtonContainer");
+  const upgradeBtn = document.getElementById("upgradeBtn");
+  const costEl = document.getElementById("detailCardCost");
 
+  costEl.textContent = cost;
   nm.textContent = name;
   rt.textContent = type.charAt(0).toUpperCase() + type.slice(1);
   rt.className = `text-sm mb-2 ${getRarityTextColor(type)}`;
   ds.textContent = description;
-  hp.textContent = health;
-  at.textContent = attack;
-  df.textContent = defense;
+  at.textContent = `${attack} / 100`;
+  df.textContent = `${defense} / 100`;
 
-  const MH = 150,
-    MA = 120,
-    MD = 110;
-  hb.style.width = `${(health / MH) * 100}%`;
-  ab.style.width = `${(attack / MA) * 100}%`;
-  db.style.width = `${(defense / MD) * 100}%`;
+  ab.style.width = `${Math.min((attack / 100) * 100, 100)}%`;
+  db.style.width = `${Math.min((defense / 100) * 100, 100)}%`;
 
-  img.innerHTML = `<img src="${getCardImage(
-    id,
-    name
-  )}" class="w-full h-full object-cover ${isLocked ? "locked-image" : ""}">`;
-  cb.classList.toggle("hidden", !isLocked);
+  img.innerHTML = `<img src="${image_url}" class="w-full h-full object-cover ${
+    isLocked ? "locked-image" : ""
+  }">`;
+
+  // 👇 прокачка доступна тільки якщо не readonly
+  upgradeBtn.classList.toggle("hidden", readonly || isLocked);
+  upgradeBtn.disabled = readonly || (attack >= 100 && defense >= 100);
+  upgradeBtn.textContent =
+    attack >= 100 && defense >= 100 ? "Максимум 💯" : "Прокачать за 50 💰";
+
+  cb.classList.toggle("hidden", isLocked);
   m.classList.remove("hidden");
+
+  window.selectedCardForUpgrade = readonly ? null : card;
 }
+
 function closeCardDetails() {
   document.getElementById("cardDetailsModal").classList.add("hidden");
-}
-
-/*************** 6. DECK BUILDING **************************************/
-function addCardToDeck(el) {
-  if (currentDeck.length >= 8) {
-    alert("Deck is full (8 cards max)");
-    return;
-  }
-  const id = +el.dataset.cardId,
-    nm = el.dataset.cardName;
-  if (currentDeck.some((c) => c.id === id)) {
-    alert(`${nm} already in deck`);
-    return;
-  }
-  currentDeck.push({ id, name: nm });
-  updateDeckDisplay();
-}
-function removeCardFromDeck(i) {
-  currentDeck.splice(i, 1);
-  updateDeckDisplay();
-}
-
-function updateDeckDisplay() {
-  const dc = document.getElementById("currentDeckCards");
-  document.getElementById("currentDeckSize").textContent = currentDeck.length;
-  dc.innerHTML = "";
-  if (!currentDeck.length) {
-    dc.innerHTML = `<div class="flex items-center justify-center h-[100px] text-gray-500 col-span-full">Select cards to build your deck</div>`;
-    return;
-  }
-  currentDeck.forEach((c, i) => {
-    const d = document.createElement("div");
-    d.className =
-      "card rarity-common rounded-lg overflow-hidden cursor-pointer relative";
-    d.innerHTML = `<div class="relative pt-[140%]"><img src="${getCardImage(
-      c.id,
-      c.name
-    )}" class="absolute inset-0 w-full h-full card-image"><button class="absolute top-1 right-1 bg-red-500/80 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs" onclick="removeCardFromDeck(${i})">×</button></div><div class="p-1"><h3 class="text-xs font-medium text-center text-white">${
-      c.name
-    }</h3></div>`;
-    dc.appendChild(d);
-  });
-}
-
-/*************** 7. SAVE/CANCEL DECK **********************************/
-function saveCurrentDeck() {
-  const name = document.getElementById("deckNameInput").value.trim();
-  if (!name) {
-    alert("Enter a deck name");
-    return;
-  }
-  if (currentDeck.length < 3) {
-    alert("Deck needs at least 3 cards");
-    return;
-  }
-  let existing = Object.entries(savedDecks).find(
-    ([, d]) => d.name.toLowerCase() === name.toLowerCase()
-  );
-  if (existing) {
-    if (!confirm(`Deck '${name}' exists. Overwrite?`)) return;
-    savedDecks[existing[0]].cards = [...currentDeck];
-  } else {
-    savedDecks[`deck_${Date.now()}`] = { name, cards: [...currentDeck] };
-  }
-  currentDeck = [];
-  updateDeckDisplay();
-  document.getElementById("deckNameInput").value = "";
-  displaySavedDecks();
-}
-function cancelDeckEditing() {
-  currentDeck = [];
-  updateDeckDisplay();
-  document.getElementById("deckNameInput").value = "";
-  alert("Deck editing canceled");
 }
 
 /*************** 8. COLLECTION GRID ************************************/
 function updateCollectionDisplay(cards) {
   const ct = document.getElementById("unlockedTab");
+  const uniqueCards = Array.from(new Map(cards.map((c) => [c.id, c])).values());
   ct.innerHTML = "";
-  if (!cards.length) {
+
+  if (!uniqueCards.length) {
     ct.innerHTML = `<div class="flex items-center justify-center h-[100px] text-gray-500 col-span-full">No cards match filters</div>`;
     return;
   }
+
   const g = document.createElement("div");
   g.className = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4";
   ct.appendChild(g);
-  cards.forEach((c) => {
+
+  uniqueCards.forEach((c) => {
     const rc = `rarity-${c.type.toLowerCase()}`;
     const e = document.createElement("div");
     e.className = `card ${rc} rounded-lg overflow-hidden cursor-pointer`;
-    e.setAttribute(
-      "onclick",
-      `showCardDetails('${c.name}','${c.type}','A ${
-        c.type
-      } ${c.name.toLowerCase()} card.',${c.health},${c.attack},${c.defense},${
-        c.id
-      })`
-    );
-    e.innerHTML = `<div class="relative pt-[140%]"><img src="${getCardImage(
-      c.id,
-      c.name
-    )}" class="absolute inset-0 w-full h-full object-cover card-image"></div><div class="p-2 text-center"><h3 class="font-medium text-white">${
-      c.name
-    }</h3><p class="rarity-label ${getRarityTextColor(c.type)}">${
-      c.type.charAt(0).toUpperCase() + c.type.slice(1)
-    }</p></div>`;
-    g.appendChild(e);
-  });
-}
 
-/*************** 9. SAVED DECKS ****************************************/
-function displaySavedDecks() {
-  const ct = document.getElementById("savedDecks");
-  ct.innerHTML = "";
-  if (!Object.keys(savedDecks).length) {
-    ct.innerHTML = `<div class="bg-gray-900/50 rounded-lg p-4 col-span-full"><p class="text-gray-400 text-center">You don't have any saved decks yet</p></div>`;
-    return;
-  }
-  Object.entries(savedDecks).forEach(([id, d]) => {
-    const b = document.createElement("div");
-    b.className = "bg-gray-900/50 rounded-lg p-4 border border-indigo-900/50";
-    let h = `<div class="flex justify-between items-center mb-2"><h4 class="text-lg font-medium text-teal-300">${d.name}</h4><div class="flex space-x-2"><button class="text-xs px-2 py-1 bg-indigo-900/50 text-indigo-200 rounded" onclick="loadDeck('${id}')">Edit</button><button class="text-xs px-2 py-1 bg-indigo-900/50 text-indigo-200 rounded" onclick="deleteDeck('${id}')">Delete</button></div></div><p class="text-sm text-gray-400 mb-2">${d.cards.length} cards</p>`;
-    let p = `<div class="grid grid-cols-4 md:grid-cols-8 gap-1">`;
-    d.cards.forEach((c) => {
-      p += `<div class="card rarity-${
-        getCard(c.id).type.toLowerCase() || "common"
-      } rounded-lg overflow-hidden transform scale-90"><div class="relative pt-[140%]"><img src="${getCardImage(
-        c.id,
-        c.name
-      )}" class="absolute inset-0 w-full h-full object-cover"></div></div>`;
+    e.innerHTML = `
+    <div class="relative pt-[140%]">
+      <img src="${
+        c.image_url
+      }" class="absolute inset-0 w-full h-full object-cover card-image">
+      <div class="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1 rounded">x${
+        c.count || 1
+      }</div>
+    </div>
+    <div class="p-2 text-center">
+      <h3 class="font-medium text-white">${c.name}</h3>
+      <p class="rarity-label ${getRarityTextColor(c.type)}">
+        ${c.type.charAt(0).toUpperCase() + c.type.slice(1)}
+      </p>
+    </div>
+  `;
+
+    // 👇 Тут вставляємо логіку вибору або показу
+    if (document.getElementById("unlockedTab") && !e.closest("#allTab")) {
+      if (selectedForMerge.some((s) => s.id === c.id)) {
+        e.classList.add("ring-4", "ring-yellow-400");
+      }
+    } else {
+      e.addEventListener("click", () => showCardDetails(c));
+    }
+
+    g.appendChild(e); // 👈 додаємо в DOM після
+    e.addEventListener("click", () => {
+      if (isMergeMode) {
+        const idx = selectedForMerge.findIndex((s) => s.id === c.id);
+        if (idx !== -1) {
+          selectedForMerge.splice(idx, 1);
+        } else if (selectedForMerge.length < 2) {
+          selectedForMerge.push(c);
+        }
+        renderMergeSelection();
+        updateCollectionDisplay(unlockedCards); // оновити підсвітку
+      } else {
+        showCardDetails(c);
+      }
     });
-    p += "</div>";
-    b.innerHTML = h + p;
-    ct.appendChild(b);
+    if (isMergeMode && selectedForMerge.find((s) => s.id === c.id)) {
+      e.classList.add("ring-4", "ring-yellow-400");
+    }
   });
-}
-
-/*************** 10. LOAD/DELETE DECKS *********************************/
-function loadDeck(id) {
-  const d = savedDecks[id];
-  if (!d) return;
-  currentDeck = [...d.cards];
-  document.getElementById("deckNameInput").value = d.name;
-  updateDeckDisplay();
-  switchTab("decks");
-}
-function deleteDeck(id) {
-  if (confirm(`Delete deck '${savedDecks[id].name}'?`)) {
-    delete savedDecks[id];
-    displaySavedDecks();
-  }
 }
 
 /*************** 11. INITIAL LOAD *************************************/
+let selectedForMerge = [];
+let isMergeMode = false;
 document.addEventListener("DOMContentLoaded", async () => {
   const [all, my] = await Promise.all([
     CardsService.getAll(),
-    CardsService.getMyCards()
+    CardsService.getMyCards(),
   ]);
-  allCards = all;
-  userCards = my;
-  // rebuild lookup after fetch
-  cardMap = Object.fromEntries(allCards.map((c) => [c.id, c]));
 
-  switchTab("unlocked");
-  displaySavedDecks();
-  updateCollectionDisplay(userCards);
-  renderAllCardsTab();
-  renderAvailableCards();
+  const user = await UserService.getUser(); // 👈 Получаем пользователя
+  document.getElementById("user-coins").textContent = user.coins; // 💰 Обновляем UI
+  document.getElementById("user-coins-2").textContent = user.coins; // 💰 Обновляем UI
+
+  allCards = all;
+  unlockedCards = my.map((mc) => {
+    const full = all.find((c) => Number(c.id) === Number(mc.id));
+    return { ...full, ...mc }; // змерджили все — stats + count
+  });
+
+  // 🔄 Мапа для швидкого доступу
+  cardMap = Object.fromEntries(allCards.map((c) => [Number(c.id), c]));
+
+  // 🔐 Відзначаємо locked карти
+  const unlockedIds = new Set(unlockedCards.map((c) => String(c.id)));
+  allCards.forEach((c) => {
+    c.locked = true;
+  });
+  unlockedCards.forEach((uc) => {
+    const match = allCards.find((c) => String(c.id) === String(uc.id));
+    if (match) match.locked = false;
+  });
+
+  console.log("✅ allCards:", allCards);
+  console.log("✅ unlockedCards:", unlockedCards);
+
+  window.switchTab("unlocked");
+  updateCollectionDisplay(unlockedCards); // 👈 показати розблоковані
+  renderAllCardsTab(); // 👈 показати всі
+
+  function renderMergeSelection() {
+    const container = document.getElementById("mergeSelectedCards");
+    const btn = document.getElementById("mergeBtn");
+    container.innerHTML = "";
+
+    selectedForMerge.forEach((card) => {
+      const div = document.createElement("div");
+      div.className =
+        "border border-yellow-400 p-2 bg-gray-800 rounded max-w-[64px] w-100 h-100";
+      div.innerHTML = `
+      <img src="${card.image_url}" class="w-16 h-20 object-cover" />
+      <p class="text-xs text-center mt-1 text-white">${card.name}</p>
+    `;
+      container.appendChild(div);
+    });
+
+    btn.disabled = selectedForMerge.length !== 2;
+  }
+  window.renderMergeSelection = renderMergeSelection;
+
+  window.toggleMergeSelect = function (card) {
+    const idx = selectedForMerge.findIndex((c) => c.id === card.id);
+    if (idx !== -1) {
+      selectedForMerge.splice(idx, 1);
+    } else if (selectedForMerge.length < 2) {
+      selectedForMerge.push(card);
+    }
+    renderMergeSelection();
+    updateCollectionDisplay(unlockedCards); // ⚠️ оновити, щоб підсвітити
+  };
 });
 
-/*************** 12. FILTER MODAL ************************************/
-function openFilterModal() {
-  const m = document.getElementById("filterModal");
-  m.classList.remove("hidden");
-  m.style.display = "flex";
-}
-function closeFilter() {
-  const m = document.getElementById("filterModal");
-  m.classList.add("hidden");
-  m.style.display = "none";
-}
-function applyFilters() {
-  const sel = Array.from(
-    document.querySelectorAll(".filter-rarity:checked")
-  ).map((c) => c.dataset.type);
-  updateCollectionDisplay(userCards.filter((c) => sel.includes(c.type)));
-  closeFilter();
-}
-function resetFilters() {
-  document
-    .querySelectorAll(".filter-rarity")
-    .forEach((c) => (c.checked = true));
-  updateCollectionDisplay(userCards);
-}
+document.getElementById("mergeSelectToggle").addEventListener("click", () => {
+  isMergeMode = !isMergeMode;
+  selectedForMerge = [];
+  renderMergeSelection();
+  updateCollectionDisplay(unlockedCards);
 
-/**********************************************************************/
+  const toggleBtn = document.getElementById("mergeSelectToggle");
+  toggleBtn.textContent = isMergeMode
+    ? "❌ Вийти з режиму злиття"
+    : "Вибрати карти для злиття";
+});
+
+document.getElementById("mergeBtn").addEventListener("click", async () => {
+  const ids = selectedForMerge.map((c) => c.id);
+  try {
+    const data = await CardsService.merge(ids); // data ← это уже JSON
+
+    if (data.message) throw new Error(data.message || "Помилка злиття");
+
+    alert("✅ Карти успішно злиті!");
+
+    // 🧼 Очистити і оновити колекцію
+    selectedForMerge = [];
+    renderMergeSelection();
+    unlockedCards = [
+      ...unlockedCards.filter((c) => !ids.includes(c.id)),
+      data.card,
+    ];
+    updateCollectionDisplay(unlockedCards);
+    renderAllCardsTab();
+
+    // 💰 Оновити кількість монет
+    const user = await UserService.getUser();
+    document.getElementById("user-coins").textContent = user.coins;
+    document.getElementById("user-coins-2").textContent = user.coins;
+  } catch (err) {
+    alert(`❌ ${err.message}`);
+  }
+});
 
 /*************** 8-bis.  ALL CARDS TAB (Unlocked + Locked) ************/
 /*  • выводит ВСЕ карты из allCards
@@ -339,86 +304,94 @@ function renderAllCardsTab() {
   const wrap = document.getElementById("allTab");
   if (!wrap) return;
 
-  // контейнер-решётка (чистим предыдущий вывод)
   wrap.innerHTML = "";
   const grid = document.createElement("div");
   grid.className = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4";
   wrap.appendChild(grid);
 
-  allCards.forEach((c) => {
-    const rarityClass = `rarity-${c.type.toLowerCase()}`;
-    const locked = !!c.locked; // Boolean приведения
-    const lockHTML = locked
+  const openedNames = new Set(unlockedCards.map((c) => c.name));
+
+  allCards.forEach((card) => {
+    const isLocked = !openedNames.has(card.name);
+    const rarityClass = `rarity-${card.type.toLowerCase()}`;
+
+    const lockHTML = isLocked
       ? `<div class="absolute inset-0 bg-black/60 flex items-center justify-center">
            <i class="fas fa-lock text-2xl text-white/80"></i>
          </div>`
-      : ""; // у открытых — пусто
+      : "";
 
-    grid.insertAdjacentHTML(
-      "beforeend",
-      `
-      <div class="card ${rarityClass} rounded-lg overflow-hidden
-                  ${locked ? "cursor-default" : "cursor-pointer"}"
-           ${
-             locked
-               ? ""
-               : `
-             onclick="showCardDetails('${c.name}','${c.type}',
-                      'A ${c.type} ${c.name.toLowerCase()} card.',
-                      ${c.health},${c.attack},${c.defense},${c.id},false)"`
-           }>
-        <div class="relative pt-[140%]">
-          <img src="${getCardImage(c.id, c.name)}"
-               class="absolute inset-0 w-full h-full object-cover
-                      ${locked ? "locked-image" : ""}">
-          ${lockHTML}
-        </div>
-        <div class="p-2 text-center">
-          <h3 class="font-medium text-white">${c.name}</h3>
-          <p class="rarity-label ${getRarityTextColor(c.type)}">
-             ${c.type[0].toUpperCase() + c.type.slice(1)}
-          </p>
-        </div>
-      </div>`
-    );
+    const el = document.createElement("div");
+    el.className = `card ${rarityClass} rounded-lg overflow-hidden cursor-pointer`;
+    el.innerHTML = `
+      <div class="relative pt-[140%]">
+        <img src="${escapeForHtmlAttr(card.image_url)}"
+             class="absolute inset-0 w-full h-full object-cover ${
+               isLocked ? "locked-image" : ""
+             }">
+        ${lockHTML}
+      </div>
+      <div class="p-2 text-center">
+        <h3 class="font-medium text-white">${card.name}</h3>
+        <p class="rarity-label ${getRarityTextColor(card.type)}">
+          ${card.type[0].toUpperCase() + card.type.slice(1)}
+        </p>
+      </div>
+    `;
+
+    el.addEventListener("click", () => {
+      showCardDetails({ ...card, isLocked: true }, { readonly: true });
+    });
+
+    grid.appendChild(el);
   });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  switchTab("unlocked");
-  displaySavedDecks();
-  updateCollectionDisplay(allCards.filter((c) => !c.locked));
-  renderAllCardsTab(); // вкладка All  ← новая строка
+function escapeForHtmlAttr(str) {
+  return String(str).replace(/'/g, "\\'").replace(/"/g, '\\"');
+}
+
+document.getElementById("upgradeBtn").addEventListener("click", async () => {
+  const card = window.selectedCardForUpgrade;
+  if (!card) return;
+
+  if (card.attack >= 100 && card.defense >= 100) {
+    alert("Ця карта вже прокачана до максимуму!");
+    return;
+  }
+
+  const user = await UserService.getUser();
+
+  if (user.coins < 50) {
+    alert("Не вистачає монет 😢");
+    return;
+  }
+
+  try {
+    const upgraded = await CardsService.upgrade(card.id);
+
+    // 🔁 Обновляем монеты
+    const newUser = await UserService.getUser();
+    document.getElementById("user-coins").textContent = newUser.coins;
+    document.getElementById("user-coins-2").textContent = newUser.coins;
+
+    // 🔁 Обновляем карточку в allCards
+    const index = allCards.findIndex((c) => c.id === card.id);
+    if (index !== -1) allCards[index] = upgraded;
+
+    // 💾 Обновляем selected
+    window.selectedCardForUpgrade = upgraded;
+
+    // 🔁 Перерисовываем
+    showCardDetails(upgraded);
+    updateCollectionDisplay(unlockedCards);
+  } catch (err) {
+    alert("Помилка під час оновлення карти");
+  }
 });
 
-function renderAvailableCards() {
-  const grid = document.getElementById("availableCards");
-  if (!grid) return; // контейнер не найден
+window.closeCardDetails = closeCardDetails;
 
-  grid.innerHTML = ""; // очистили
-
-  // id-шники карт, которые уже в колоде
-  const deckIds = currentDeck.map((c) => c.id);
-
-  // пробегаем по всем картам → берём только открытые и не в колоде
-  allCards
-    .filter((c) => !c.locked && !deckIds.includes(c.id))
-    .forEach((card) => {
-      const el = document.createElement("div");
-      el.className = `card rarity-${card.type} rounded-lg overflow-hidden cursor-pointer`;
-      el.dataset.cardId = card.id;
-      el.dataset.cardName = card.name;
-      el.onclick = () => addCardToDeck(el); // вызов уже готовой функции
-
-      el.innerHTML = `
-        <div class="relative pt-[140%]">
-          <img src="${card.image}"
-               class="absolute inset-0 w-full h-full object-cover card-image">
-        </div>
-        <div class="p-1 text-center">
-          <h3 class="text-xs font-medium text-white">${card.name}</h3>
-        </div>`;
-
-      grid.appendChild(el);
-    });
-}
+window.showCardDetails = showCardDetails;
+window.updateCollectionDisplay = updateCollectionDisplay;
+window.renderAllCardsTab = renderAllCardsTab;

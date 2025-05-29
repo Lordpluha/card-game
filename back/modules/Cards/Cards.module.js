@@ -1,3 +1,3 @@
-import router from './Cards.controller.js';
+import router from "./Cards.controller.js";
 
-export default router
+export default router;
