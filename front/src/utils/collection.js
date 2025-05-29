@@ -1,116 +1,15 @@
-// надо будет в отдельный модуль вынести
-// ок
+import CardsService from '../api/Cards.service.js';
+
 /*************** 1. DATA ************************************************/
 // Master list of all cards (keep aspect 300×420 for base images)
-const allCards = [
-  {
-    id: 1,
-    name: "Warrior",
-    rarity: "common",
-    health: 50,
-    attack: 45,
-    defense: 60,
-    image:
-      "https://plus.unsplash.com/premium_photo-1698168385751-4873a712d2f0?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8V2FycmlvcnxlbnwwfDF8MHx8fDA%3D",
-  },
-  {
-    id: 2,
-    name: "Archer",
-    rarity: "uncommon",
-    health: 40,
-    attack: 65,
-    defense: 35,
-    image:
-      "https://img.freepik.com/premium-photo/professional-male-archer-action-precision-skill-full-tactical-gear-with-intense-focus_1110513-16217.jpg?ga=GA1.1.417894905.1739286241&semt=ais_hybrid&w=740",
-  },
-  {
-    id: 3,
-    name: "Wizard",
-    rarity: "rare",
-    health: 35,
-    attack: 80,
-    defense: 25,
-    image:
-      "https://img.freepik.com/free-photo/portrait-male-scribe-medieval-times_23-2150932226.jpg?ga=GA1.1.417894905.1739286241&semt=ais_hybrid&w=740",
-  },
-  {
-    id: 4,
-    name: "Paladin",
-    rarity: "epic",
-    health: 70,
-    attack: 55,
-    defense: 80,
-    image:
-      "https://img.freepik.com/free-photo/neoclassical-medieval-portrait-knight-illustration_23-2151891945.jpg?ga=GA1.1.417894905.1739286241&semt=ais_hybrid&w=740",
-  },
-  {
-    id: 5,
-    name: "Ancient Dragon",
-    rarity: "legendary",
-    health: 120,
-    attack: 90,
-    defense: 75,
-    image:
-      "https://img.freepik.com/free-photo/cool-scene-with-futuristic-dragon-beast_23-2151201689.jpg?ga=GA1.1.417894905.1739286241&semt=ais_hybrid&w=740",
-  },
-  {
-    id: 6,
-    name: "Battle Healer",
-    rarity: "rare",
-    health: 60,
-    attack: 40,
-    defense: 50,
-    image:
-      "https://i.pinimg.com/736x/1d/4c/2e/1d4c2e4d7ee9341a211e6a5c3836a8ae.jpg",
-  },
-  {
-    id: 7,
-    name: "Phoenix",
-    rarity: "legendary",
-    health: 90,
-    attack: 70,
-    defense: 60,
-    image:
-      "https://img.freepik.com/free-photo/fantasy-bird-illustration_23-2151496127.jpg?ga=GA1.1.417894905.1739286241&semt=ais_hybrid&w=740",
-  },
-  {
-    id: 8,
-    name: "Celestial Titan",
-    rarity: "mythic",
-    health: 150,
-    attack: 120,
-    defense: 110,
-    image:
-      "https://i.pinimg.com/736x/14/03/77/140377c21b3f03c9e7e0293030871b48.jpg",
-  },
-  {
-    id: 9,
-    name: "Shadow Assassin",
-    rarity: "epic",
-    health: 55,
-    attack: 95,
-    defense: 30,
-    locked: true, // ← карта закрыта
-    image:
-      "https://img.freepik.com/free-photo/dark-style-ninja-naruto_23-2151278544.jpg?ga=GA1.1.417894905.1739286241&semt=ais_hybrid&w=740",
-  },
-  {
-    id: 10,
-    name: "Forest Spirit",
-    rarity: "mythic",
-    health: 130,
-    attack: 70,
-    defense: 120,
-    locked: true, // ← карта закрыта
-    image:
-      "https://i.pinimg.com/736x/87/b5/96/87b596929e5804d5cbcd637c7a18ff71.jpg",
-  },
-];
-// Build quick lookup
-const cardMap = Object.fromEntries(allCards.map((c) => [c.id, c]));
+let allCards = [];
+let userCards = [];
+
+// Build dynamic lookup
+let cardMap = {};
 const getCard = (id) => cardMap[id] || null;
 const getCardImage = (id, fallback = "Card") =>
-  getCard(id)?.image ??
+  getCard(id)?.image_url ??
   `https://via.placeholder.com/300x420/333333/ffffff?text=${fallback}`;
 
 /*************** 2. STATE **********************************************/
@@ -143,20 +42,18 @@ let savedDecks = {
 };
 
 /*************** 3. UI HELPERS *****************************************/
-function getRarityTextColor(rarity) {
-  switch (rarity) {
-    case "common":
+function getRarityTextColor(type) {
+  switch (type) {
+    case "COMMON":
       return "text-gray-400";
-    case "uncommon":
-      return "text-green-400";
-    case "rare":
+    case "RARE":
       return "text-blue-400";
-    case "epic":
+    case "EPIC":
       return "text-purple-400";
-    case "legendary":
-      return "text-yellow-400";
-    case "mythic":
-      return "text-red-400";
+		case "MYTHICAL":
+			return "text-red-400";
+		case "LEGENDARY":
+			return "text-yellow-400";
     default:
       return "text-gray-400";
   }
@@ -190,7 +87,7 @@ function switchTab(tabName) {
 /*************** 5. CARD DETAILS MODAL *********************************/
 function showCardDetails(
   name,
-  rarity,
+  type,
   description,
   health,
   attack,
@@ -212,8 +109,8 @@ function showCardDetails(
   const cb = document.getElementById("craftButtonContainer");
 
   nm.textContent = name;
-  rt.textContent = rarity.charAt(0).toUpperCase() + rarity.slice(1);
-  rt.className = `text-sm mb-2 ${getRarityTextColor(rarity)}`;
+  rt.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+  rt.className = `text-sm mb-2 ${getRarityTextColor(type)}`;
   ds.textContent = description;
   hp.textContent = health;
   at.textContent = attack;
@@ -323,13 +220,13 @@ function updateCollectionDisplay(cards) {
   g.className = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4";
   ct.appendChild(g);
   cards.forEach((c) => {
-    const rc = `rarity-${c.rarity}`;
+    const rc = `rarity-${c.type.toLowerCase()}`;
     const e = document.createElement("div");
     e.className = `card ${rc} rounded-lg overflow-hidden cursor-pointer`;
     e.setAttribute(
       "onclick",
-      `showCardDetails('${c.name}','${c.rarity}','A ${
-        c.rarity
+      `showCardDetails('${c.name}','${c.type}','A ${
+        c.type
       } ${c.name.toLowerCase()} card.',${c.health},${c.attack},${c.defense},${
         c.id
       })`
@@ -339,8 +236,8 @@ function updateCollectionDisplay(cards) {
       c.name
     )}" class="absolute inset-0 w-full h-full object-cover card-image"></div><div class="p-2 text-center"><h3 class="font-medium text-white">${
       c.name
-    }</h3><p class="rarity-label ${getRarityTextColor(c.rarity)}">${
-      c.rarity.charAt(0).toUpperCase() + c.rarity.slice(1)
+    }</h3><p class="rarity-label ${getRarityTextColor(c.type)}">${
+      c.type.charAt(0).toUpperCase() + c.type.slice(1)
     }</p></div>`;
     g.appendChild(e);
   });
@@ -361,7 +258,7 @@ function displaySavedDecks() {
     let p = `<div class="grid grid-cols-4 md:grid-cols-8 gap-1">`;
     d.cards.forEach((c) => {
       p += `<div class="card rarity-${
-        getCard(c.id).rarity || "common"
+        getCard(c.id).type.toLowerCase() || "common"
       } rounded-lg overflow-hidden transform scale-90"><div class="relative pt-[140%]"><img src="${getCardImage(
         c.id,
         c.name
@@ -390,11 +287,21 @@ function deleteDeck(id) {
 }
 
 /*************** 11. INITIAL LOAD *************************************/
-document.addEventListener("DOMContentLoaded", () => {
-  switchTab("unlocked"); // как было
-  displaySavedDecks(); // как было
-  updateCollectionDisplay(allCards);
-  renderAvailableCards(); // ➜ начальный рендер доступных карт
+document.addEventListener("DOMContentLoaded", async () => {
+  const [all, my] = await Promise.all([
+    CardsService.getAll(),
+    CardsService.getMyCards()
+  ]);
+  allCards = all;
+  userCards = my;
+  // rebuild lookup after fetch
+  cardMap = Object.fromEntries(allCards.map((c) => [c.id, c]));
+
+  switchTab("unlocked");
+  displaySavedDecks();
+  updateCollectionDisplay(userCards);
+  renderAllCardsTab();
+  renderAvailableCards();
 });
 
 /*************** 12. FILTER MODAL ************************************/
@@ -411,15 +318,15 @@ function closeFilter() {
 function applyFilters() {
   const sel = Array.from(
     document.querySelectorAll(".filter-rarity:checked")
-  ).map((c) => c.dataset.rarity);
-  updateCollectionDisplay(allCards.filter((c) => sel.includes(c.rarity)));
+  ).map((c) => c.dataset.type);
+  updateCollectionDisplay(userCards.filter((c) => sel.includes(c.type)));
   closeFilter();
 }
 function resetFilters() {
   document
     .querySelectorAll(".filter-rarity")
     .forEach((c) => (c.checked = true));
-  updateCollectionDisplay(allCards.filter((c) => !c.locked));
+  updateCollectionDisplay(userCards);
 }
 
 /**********************************************************************/
@@ -439,7 +346,7 @@ function renderAllCardsTab() {
   wrap.appendChild(grid);
 
   allCards.forEach((c) => {
-    const rarityClass = `rarity-${c.rarity}`;
+    const rarityClass = `rarity-${c.type.toLowerCase()}`;
     const locked = !!c.locked; // Boolean приведения
     const lockHTML = locked
       ? `<div class="absolute inset-0 bg-black/60 flex items-center justify-center">
@@ -456,8 +363,8 @@ function renderAllCardsTab() {
              locked
                ? ""
                : `
-             onclick="showCardDetails('${c.name}','${c.rarity}',
-                      'A ${c.rarity} ${c.name.toLowerCase()} card.',
+             onclick="showCardDetails('${c.name}','${c.type}',
+                      'A ${c.type} ${c.name.toLowerCase()} card.',
                       ${c.health},${c.attack},${c.defense},${c.id},false)"`
            }>
         <div class="relative pt-[140%]">
@@ -468,8 +375,8 @@ function renderAllCardsTab() {
         </div>
         <div class="p-2 text-center">
           <h3 class="font-medium text-white">${c.name}</h3>
-          <p class="rarity-label ${getRarityTextColor(c.rarity)}">
-             ${c.rarity[0].toUpperCase() + c.rarity.slice(1)}
+          <p class="rarity-label ${getRarityTextColor(c.type)}">
+             ${c.type[0].toUpperCase() + c.type.slice(1)}
           </p>
         </div>
       </div>`
@@ -498,7 +405,7 @@ function renderAvailableCards() {
     .filter((c) => !c.locked && !deckIds.includes(c.id))
     .forEach((card) => {
       const el = document.createElement("div");
-      el.className = `card rarity-${card.rarity} rounded-lg overflow-hidden cursor-pointer`;
+      el.className = `card rarity-${card.type} rounded-lg overflow-hidden cursor-pointer`;
       el.dataset.cardId = card.id;
       el.dataset.cardName = card.name;
       el.onclick = () => addCardToDeck(el); // вызов уже готовой функции
