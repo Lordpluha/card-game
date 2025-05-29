@@ -22,6 +22,7 @@ export function resolveBattle(cardA, cardB) {
       damageToB,
     });
 
+		// Определение победителя
     if (damageToA > damageToB) {
       winner = cardB.owner;
       loser = cardA.owner;

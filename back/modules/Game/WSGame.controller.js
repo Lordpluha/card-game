@@ -227,9 +227,11 @@ export function initGameController(server) {
             console.log(
               `📥 WS: playerReady from ${userId}, game = ${msg.payload.gameId}`
             );
+            // передаём флаг timeout (true при истечении времени)
             const { game, outcome } = await GameService.playerReady(
               userId,
-              msg.payload.gameId
+              msg.payload.gameId,
+              { timeout: msg.payload.timeout === true }
             );
 
             broadcastWS(game.id, { event: "playerReady", player: userId });

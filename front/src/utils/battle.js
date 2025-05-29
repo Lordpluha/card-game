@@ -304,7 +304,7 @@ function handleBattleResult({ outcome }) {
     playerDeck = playerDeck.filter((c) => c.id !== playedCard.id);
   } else {
     console.log("🟥 We lost! Removing our card");
-    playerDeck = playerDeck.filter((c) => c.id !== playedCard.id);
+    playerDeck = playerDeck?.filter((c) => c?.id !== playedCard?.id);
   }
   playedCard = null;
 
@@ -324,6 +324,7 @@ function handleBattleResult({ outcome }) {
     const isEnemyDeckEmpty = enemyHand.length === 0;
     const bothDecksEmpty = isMyDeckEmpty && isEnemyDeckEmpty;
 
+		// Проверяем, закончилась ли игра
     if (isGameOver || myHp <= 0 || opponentHp <= 0 || bothDecksEmpty) {
       const playerWon =
         myHp > opponentHp ? true : myHp < opponentHp ? false : null;
