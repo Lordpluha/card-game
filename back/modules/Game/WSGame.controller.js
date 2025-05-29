@@ -1,3 +1,4 @@
+import { pool } from "../../db/connect.js";
 import WebSocket from "ws";
 import cookie from "cookie";
 import JWTUtils from "../../utils/jwt-token.js";
@@ -194,13 +195,48 @@ export function initGameController(server) {
             break;
           }
           case "playerReady": {
+            console.log(
+              `📥 WS: playerReady from ${userId}, game = ${msg.payload.gameId}`
+            );
             const { game, outcome } = await GameService.playerReady(
               userId,
               msg.payload.gameId
             );
+
             broadcastWS(game.id, { event: "playerReady", player: userId });
+
+            if (outcome) {
+              console.log("📤 WS: Sending battle_result:", outcome);
+              broadcastWS(game.id, { event: "battle_result", outcome });
+
+              console.log(
+                "📤 WS: Sending update_health:",
+                game.game_state.health
+              );
+              broadcastWS(game.id, {
+                event: "update_health",
+                health: game.game_state.health,
+              });
+            }
             break;
           }
+          case "playedCard": {
+            console.log(`[WS] Received playedCard from ${userId}`);
+            const { gameId, card } = msg.payload;
+            const game = await GameService.getGameById(gameId);
+
+            const state = { ...game.game_state };
+            state.playedCards = state.playedCards || {};
+            state.playedCards[userId] = card;
+
+            await pool.execute("UPDATE games SET game_state = ? WHERE id = ?", [
+              JSON.stringify(state),
+              gameId,
+            ]);
+            console.log("💾 playedCard saved:", card);
+            break;
+          }
+
           default:
             ws.send(
               JSON.stringify({ event: "error", message: "Unknown event" })

@@ -2,6 +2,7 @@ import { pool } from "../../db/connect.js";
 import { generateGameCode } from "../../utils/index.js";
 import cards from "../../utils/cards.js";
 import CardsService from "../Cards/Cards.service.js";
+import { simulateTurn } from "../../../front/src/utils/battle-logic.js";
 
 class GameService {
   async createGame(userId) {
@@ -151,10 +152,12 @@ class GameService {
     }
     const handsEntries = await Promise.all(
       Object.entries(game.game_state.decks).map(async ([user_id, cardIds]) => {
-        const cards = await Promise.all(cardIds.map(async (cardId) => {
-          const card = await CardsService.getById(cardId);
-          return { ...card };
-        }));
+        const cards = await Promise.all(
+          cardIds.map(async (cardId) => {
+            const card = await CardsService.getById(cardId);
+            return { ...card };
+          })
+        );
         return [user_id, cards];
       })
     );
@@ -163,7 +166,7 @@ class GameService {
       ...game.game_state,
       hands,
       battlefield: {},
-      health: Object.fromEntries(game.user_ids.map((id) => [id, 20])),
+      health: Object.fromEntries(game.user_ids.map((id) => [id, 100])),
       decks: game.game_state.decks,
       playedCards: {}, // <- add
       readies: {}, // <- add
@@ -225,36 +228,64 @@ class GameService {
 
   // игрок готов; когда оба готовы — даем хосту возможность запустить игру
   async playerReady(userId, gameId) {
+    console.log("⚔️ playerReady called by", userId, "in game", gameId);
+
     const game = await this.getGameById(gameId);
     const state = { ...game.game_state };
     state.readies = state.readies || {};
     state.readies[userId] = true;
+    console.log("📥 Updated readies:", state.readies);
 
     let outcome = null;
     const [pA, pB] = game.user_ids;
+
     if (state.readies[pA] && state.readies[pB]) {
-      const cA = state.playedCards[pA],
-        cB = state.playedCards[pB];
-      const diff = Math.abs(cA.attack - cB.attack);
-      let winner = null,
-        loser = null;
-      if (cA.attack > cB.attack) {
-        winner = pA;
-        loser = pB;
-      } else if (cB.attack > cA.attack) {
-        winner = pB;
-        loser = pA;
+      console.log("🎯 Both players are ready");
+
+      const cA = state.playedCards?.[pA];
+      const cB = state.playedCards?.[pB];
+
+      if (!cA || !cB) {
+        console.warn("❗ One of the playedCards is missing", { cA, cB });
+        await pool.execute("UPDATE games SET game_state = ? WHERE id = ?", [
+          JSON.stringify(state),
+          gameId,
+        ]);
+        return { game: await this.getGameById(gameId), outcome: null };
       }
-      if (winner) state.health[loser] -= diff;
-      outcome = { cardA: cA, cardB: cB, winner, damage: diff };
-      state.playedCards = {};
-      state.readies = {};
+
+      // 👇 ДОБАВЬ ВЛАДЕЛЬЦЕВ (owner)
+      cA.owner = pA;
+      cB.owner = pB;
+
+      console.log("🧠 simulateTurn with:", { cardA: cA, cardB: cB });
+
+      const result = simulateTurn({ state, cardA: cA, cardB: cB });
+      console.log("📊 simulateTurn result:", result);
+
+      Object.assign(state, result.newState);
+
+      outcome = {
+        ...result.outcome,
+        survivorCard: result.outcome.survivorCard,
+        health: state.health,
+      };
+
+      if (result.winnerId) {
+        console.log("🏆 Winner decided:", result.winnerId);
+        await pool.execute(
+          "UPDATE games SET status = ?, winner_id = ? WHERE id = ?",
+          ["ENDED", result.winnerId, gameId]
+        );
+      }
     }
 
     await pool.execute("UPDATE games SET game_state = ? WHERE id = ?", [
       JSON.stringify(state),
       gameId,
     ]);
+    console.log("📦 Game state updated");
+
     return { game: await this.getGameById(gameId), outcome };
   }
 
@@ -436,7 +467,7 @@ class GameService {
           : row.winner_id === row.player1
           ? `Перемога ${row.player1}`
           : `Перемога ${row.player2}`,
-			created_at: row.created_at
+      created_at: row.created_at,
     }));
   }
 }

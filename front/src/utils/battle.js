@@ -2,13 +2,14 @@
 
 import AuthService from "../api/Auth.service.js";
 import UserService from "../api/User.service.js";
-
+import { simulateTurn } from "./battle-logic.js";
 let socket;
 let playerId = null;
 let gameID = null;
 let playerDeck = [];
 let enemyDeck = [];
 let selectedCards = [];
+let playedCard = null;
 
 const battleField = document.getElementById("battle-field");
 const battleStatus = document.getElementById("battle-status");
@@ -28,39 +29,24 @@ async function initWebSocket() {
   socket = new WebSocket("ws://localhost:8080/gaming");
 
   socket.onopen = async () => {
-    console.log("🔌 Підключено до WebSocket");
-
     try {
-      const user = await UserService.getUser().catch(err => {
-				AuthService.refresh().then(() => window.location.reload());
-			});
-      if (!user || !user.id) {
-        console.error("❌ Гравець не знайдено");
-        return;
-      }
+      const user = await UserService.getUser();
+      if (!user || !user.id) return;
       playerId = user.id;
       userData = user;
-      console.log("👤 Player ID:", playerId);
     } catch (err) {
-      console.error("❌ Не вдалося отримати гравця:", err);
+      await AuthService.refresh();
+      window.location.reload();
       return;
     }
 
     const url = new URL(window.location.href);
     const params = url.searchParams;
     gameID = params.get("code") || params.get("gameId") || params.get("game");
-
-    if (!gameID) {
-      console.error("❌ Немає коду гри");
-      return;
-    }
-    console.log("🎮 Game ID:", gameID);
+    if (!gameID) return;
 
     socket.send(
-      JSON.stringify({
-        event: "joinGame",
-        payload: { gameId: gameID },
-      })
+      JSON.stringify({ event: "joinGame", payload: { gameId: gameID } })
     );
   };
 
@@ -68,12 +54,8 @@ async function initWebSocket() {
     let message;
     try {
       message = JSON.parse(event.data);
-      console.log("📨 Отримано повідомлення:", message);
     } catch (err) {
-      return console.error(
-        "❌ Не вдалося розпарсити повідомлення WebSocket:",
-        err
-      );
+      return;
     }
 
     switch (message.event) {
@@ -83,95 +65,65 @@ async function initWebSocket() {
       case "battle_result":
         handleBattleResult(message);
         break;
-      case "turnEnded":
-        console.log("🔚 Хід завершено іншого гравця");
-        break;
-      case "turnStarted":
-        console.log("▶️ Новий хід:", message.nextPlayer);
-        break;
-      case "playerJoined":
-        console.log("👥 Гравець приєднався до гри");
+      case "roundResolved": // <-- вдруг придёт с этим именем
+        handleBattleResult(message);
         break;
       case "decksSelected":
-        console.log("🃏 Обрано колоди, гра стартує...");
         socket.send(
-          JSON.stringify({
-            event: "startGame",
-            payload: { gameId: gameID },
-          })
+          JSON.stringify({ event: "startGame", payload: { gameId: gameID } })
         );
         break;
-      default:
-        console.warn("⚠️ Unknown event:", message.event);
+      case "update_health":
+        updateHealthUI(message.health);
+        break;
     }
   };
 
   socket.onerror = (error) => {
-    console.error("❌ WebSocket Error:", error);
+    console.error("WebSocket Error:", error);
   };
 }
 
-function handleBattleStart(data) {
-  battleStatus.classList.remove("hidden");
-  battleStatus.textContent = data.message || "⚔️ Бій розпочався!";
+function updateHealthUI(health) {
+  p1HpEl.textContent = health[playerId] || 0;
+  p2HpEl.textContent =
+    health[Object.keys(health).find((id) => id != playerId)] || 0;
+}
 
+function handleBattleStart(data) {
   const game = data.game;
   const gameState = game.game_state;
-
-  if (Array.isArray(gameState.decks)) {
-    console.warn("⚠️ Відсутні колоди у стані гри або вони у невірному форматі");
-    return;
-  }
-
   const decks = gameState.decks;
   const players = gameState.players || {};
   const hands = gameState.hands || {};
+  const health = gameState.health || {};
 
   const userIds = Object.keys(decks);
-  if (userIds.length !== 2) {
-    console.warn("⚠️ Очікується 2 гравці, отримано:", userIds.length);
-    return;
-  }
+  if (userIds.length < 2) return;
 
   const [id1, id2] = userIds;
   const deck1 = { user_id: +id1 };
   const deck2 = { user_id: +id2 };
-
   const isFirstDeckMine = deck1.user_id === playerId;
-
   const me = isFirstDeckMine ? deck1 : deck2;
   const enemy = isFirstDeckMine ? deck2 : deck1;
-
   const meUser = players[me.user_id] || {};
   const enemyUser = players[enemy.user_id] || {};
 
   p1NameEl.textContent = meUser.username || "You";
   p2NameEl.textContent = enemyUser.username || "Enemy";
-
   p1AvatarEl.src = meUser.avatar_url || "/assets/empty-avatar.png";
   p2AvatarEl.src = enemyUser.avatar_url || "/assets/empty-avatar.png";
-
-  p1NameEl.classList.add("pulse-name");
-  p2NameEl.classList.add("pulse-name");
-  setTimeout(() => {
-    p1NameEl.classList.remove("pulse-name");
-    p2NameEl.classList.remove("pulse-name");
-  }, 1500);
-
-  const health = gameState.health || {};
   p1HpEl.textContent = health[me.user_id] || 100;
   p2HpEl.textContent = health[enemy.user_id] || 100;
 
   playerDeck = hands[me.user_id] || [];
   enemyDeck = hands[enemy.user_id] || [];
 
-  setTimeout(() => {
-    battleStatus.classList.add("hidden");
-    renderPlayerDeck();
-    renderEnemyDeck();
-    setupDragAndDrop();
-    battleField.classList.remove("hidden");
-  }, 3000);
+  renderPlayerDeck();
+  renderEnemyDeck();
+  setupDragAndDrop();
+  battleField.classList.remove("hidden");
 }
 
 function renderPlayerDeck() {
@@ -184,7 +136,6 @@ function renderPlayerDeck() {
       (card.image?.startsWith("http")
         ? card.image
         : `http://localhost:8080/cards/${card.image}`);
-
     const cardElement = document.createElement("div");
     cardElement.className =
       "deck-card cursor-pointer hover:scale-105 transition";
@@ -201,7 +152,6 @@ function renderPlayerDeck() {
       </div>
     `;
     cardElement.dataset.cardId = card.id;
-
     cardElement.addEventListener("click", () =>
       toggleCardSelection(card, cardElement)
     );
@@ -210,68 +160,164 @@ function renderPlayerDeck() {
 }
 
 function renderEnemyDeck() {
+  const old = document.querySelector(".enemy-cards-grid");
+  if (old) old.remove();
   const enemyZone = document.createElement("div");
   enemyZone.className =
     "enemy-cards-grid absolute top-4 right-1/2 translate-x-1/2 flex gap-4 z-10";
-
   enemyDeck.forEach(() => {
     const cardBack = document.createElement("div");
     cardBack.className =
       "deck-card deck-card-back w-24 h-36 bg-purple-800 rounded-xl shadow-md";
-    cardBack.innerHTML = `
-      <div class="w-full h-full flex items-center justify-center text-white font-bold text-xl">
-        ?
-      </div>
-    `;
+    cardBack.innerHTML = `<div class="w-full h-full flex items-center justify-center text-white font-bold text-xl">?</div>`;
     enemyZone.appendChild(cardBack);
   });
-
   battleField.appendChild(enemyZone);
 }
 
 function toggleCardSelection(card, element) {
-  const index = selectedCards.findIndex((c) => c.name === card.name);
-
+  const index = selectedCards.findIndex((c) => c.id === card.id);
   if (index !== -1) {
     selectedCards.splice(index, 1);
     element.classList.remove("ring", "ring-violet-400");
-  } else if (selectedCards.length < 3) {
-    selectedCards.push(card);
+    playedCard = null;
+  } else {
+    selectedCards = [card];
+    document
+      .querySelectorAll(".deck-card")
+      .forEach((el) => el.classList.remove("ring", "ring-violet-400"));
     element.classList.add("ring", "ring-violet-400");
+    playedCard = card;
   }
-
-  console.log("🎯 Вибрані карти:", selectedCards);
+  endTurnBtn.disabled = !playedCard;
 }
 
 endTurnBtn.addEventListener("click", () => {
-  if (selectedCards.length === 0) {
+  if (!playedCard) {
     alert("Вибери хоча б одну карту!");
     return;
   }
 
+  console.log("📤 Sending playedCard:", playedCard);
   socket.send(
     JSON.stringify({
-      event: "endTurn",
-      payload: {
-        gameId: gameID,
-        cards: selectedCards.map((c) => c.name),
-      },
+      event: "playedCard",
+      payload: { gameId: gameID, card: playedCard },
     })
   );
 
-  console.log("✅ Хід завершено. Надіслано карти:", selectedCards);
+  setTimeout(() => {
+    console.log("📤 Sending playerReady after delay");
+    socket.send(
+      JSON.stringify({
+        event: "playerReady",
+        payload: { gameId: gameID },
+      })
+    );
+  }, 300); // 👈 задержка 300мс
+
   endTurnBtn.disabled = true;
 });
 
-function handleBattleResult(data) {
-  console.log("⚔️ Результати бою:", data);
-  endTurnBtn.disabled = false;
+function renderFightCards(outcome) {
+  const dropZone = document.getElementById("player-battle-zone");
+  dropZone.innerHTML = "";
+
+  const renderCard = (card, isWinner) => {
+    const imageUrl =
+      card.image_url ||
+      (card.image?.startsWith("http")
+        ? card.image
+        : `http://localhost:8080/cards/${card.image}`);
+
+    const div = document.createElement("div");
+    div.className =
+      "deck-card scale-100 transition ring-4 " +
+      (isWinner ? "ring-green-500" : "ring-red-500");
+    div.innerHTML = `
+      <div class="deck-image-wrapper">
+        <img src="${imageUrl}" alt="${card.name}" class="deck-image" />
+      </div>
+      <div class="deck-info">
+        <div class="deck-name">${card.name}</div>
+        <div class="deck-stats">
+          <span class="deck-stat"><i class="fas fa-fist-raised stat-attack"></i>${card.attack}</span>
+          <span class="deck-stat"><i class="fas fa-shield-alt stat-defense"></i>${card.defense}</span>
+        </div>
+      </div>
+    `;
+    dropZone.appendChild(div);
+  };
+
+  const { cardA, cardB, winner } = outcome;
+  const isMineFirst = cardA?.owner === playerId;
+  const mineCard = isMineFirst ? cardA : cardB;
+  const enemyCard = isMineFirst ? cardB : cardA;
+
+  renderCard(mineCard, winner === playerId);
+  renderCard(enemyCard, winner !== playerId);
+}
+function handleBattleResult({ outcome }) {
+  if (!outcome) return;
+  console.log("⚔️ handleBattleResult outcome:", outcome);
+
+  // 👇 добавляем owner, если нет
+  if (outcome.cardA)
+    outcome.cardA.owner = outcome.cardA.owner ?? outcome.cardA.user_id ?? null;
+  if (outcome.cardB)
+    outcome.cardB.owner = outcome.cardB.owner ?? outcome.cardB.user_id ?? null;
+  if (outcome.survivorCard)
+    outcome.survivorCard.owner =
+      outcome.survivorCard.owner ?? outcome.survivorCard.user_id ?? null;
+
+  renderFightCards(outcome);
+
+  const { winner, damage, isGameOver } = outcome;
+  const meLost = winner && winner !== playerId;
+  const hpEl = meLost ? p1HpEl : p2HpEl;
+  const newHp = parseInt(hpEl.textContent || "0") - damage;
+
+  p1HpEl.textContent = outcome.health[playerId];
+  p2HpEl.textContent =
+    outcome.health[Object.keys(outcome.health).find((id) => id != playerId)];
+
+  hpEl.classList.add("text-red-500", "animate-ping");
+  setTimeout(() => hpEl.classList.remove("text-red-500", "animate-ping"), 1000);
+
+  if (outcome.survivorCard?.owner === playerId) {
+    console.log("🟩 We survived! Removing our played card");
+    playerDeck = playerDeck.filter((c) => c.id !== playedCard.id);
+  } else {
+    console.log("🟥 We lost! Removing our card");
+    playerDeck = playerDeck.filter((c) => c.id !== playedCard.id);
+  }
+  playedCard = null;
+
+  setTimeout(() => {
+    document.getElementById("player-battle-zone").innerHTML = "";
+    renderPlayerDeck();
+    setupDragAndDrop();
+    endTurnBtn.disabled = false;
+    if (isGameOver) {
+      console.log("🏁 Game over!");
+      battleStatus.textContent =
+        winner === playerId ? "🎉 Ти переміг!" : "😵 Ти програв!";
+      battleStatus.classList.remove("hidden");
+      endTurnBtn.disabled = true;
+    } else if (outcome.isDraw) {
+      console.log("🤝 Draw round!");
+      battleStatus.textContent = "🤝 Нічия!";
+      battleStatus.classList.remove("hidden");
+      setTimeout(() => {
+        battleStatus.classList.add("hidden");
+      }, 1500);
+    }
+  }, 2000);
 }
 
 function setupDragAndDrop() {
   document.querySelectorAll(".deck-card").forEach((card) => {
     card.setAttribute("draggable", "true");
-
     card.addEventListener("dragstart", (e) => {
       e.dataTransfer.setData("text/plain", card.dataset.cardId);
     });
@@ -291,18 +337,17 @@ function setupDragAndDrop() {
   dropZone.addEventListener("drop", (e) => {
     e.preventDefault();
     dropZone.classList.remove("over");
-
     const cardId = e.dataTransfer.getData("text/plain");
-
-    if (dropZone.children.length >= 3) {
-      alert("Максимум 3 карти на полі!");
+    const card = document.querySelector(`.deck-card[data-card-id="${cardId}"]`);
+    if (dropZone.querySelectorAll(".deck-card").length >= 1) {
       return;
     }
-
-    const card = document.querySelector(`.deck-card[data-card-id="${cardId}"]`);
     if (card && !dropZone.contains(card)) {
       dropZone.appendChild(card);
-      card.classList.add("ring", "ring-purple-500");
+      toggleCardSelection(
+        playerDeck.find((c) => c.id == cardId),
+        card
+      );
     }
   });
 }
