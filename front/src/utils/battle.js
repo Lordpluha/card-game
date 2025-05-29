@@ -22,8 +22,19 @@ const p1HpEl = document.getElementById("p1-hp");
 const p2HpEl = document.getElementById("p2-hp");
 const p1AvatarEl = document.getElementById("p1-avatar");
 const p2AvatarEl = document.getElementById("p2-avatar");
+const gameOverModal = document.getElementById("game-over-modal");
+const gameOverText = document.getElementById("game-over-text");
+const gameOverBtn = document.getElementById("game-over-btn");
+const turnTimerEl = document.getElementById("turn-timer"); // Таймер на фронті
+
+let turnTimer = null;
+const TURN_TIME_LIMIT = 10000;
 
 let userData = {};
+
+gameOverBtn.addEventListener("click", () => {
+  window.location.href = "/pages/main-menu.html";
+});
 
 async function initWebSocket() {
   socket = new WebSocket("ws://localhost:8080/gaming");
@@ -257,11 +268,15 @@ function renderFightCards(outcome) {
   renderCard(mineCard, winner === playerId);
   renderCard(enemyCard, winner !== playerId);
 }
+
 function handleBattleResult({ outcome }) {
-  if (!outcome) return;
+  if (!outcome || !playerId) {
+    console.warn("⛔ Не отримано outcome або playerId ще не встановлено");
+    return;
+  }
   console.log("⚔️ handleBattleResult outcome:", outcome);
 
-  // 👇 добавляем owner, если нет
+  // Установить владельцев карт, если отсутствует
   if (outcome.cardA)
     outcome.cardA.owner = outcome.cardA.owner ?? outcome.cardA.user_id ?? null;
   if (outcome.cardB)
@@ -278,8 +293,8 @@ function handleBattleResult({ outcome }) {
   const newHp = parseInt(hpEl.textContent || "0") - damage;
 
   p1HpEl.textContent = outcome.health[playerId];
-  p2HpEl.textContent =
-    outcome.health[Object.keys(outcome.health).find((id) => id != playerId)];
+  const opponentId = Object.keys(outcome.health).find((id) => id != playerId);
+  p2HpEl.textContent = outcome.health[opponentId];
 
   hpEl.classList.add("text-red-500", "animate-ping");
   setTimeout(() => hpEl.classList.remove("text-red-500", "animate-ping"), 1000);
@@ -298,19 +313,29 @@ function handleBattleResult({ outcome }) {
     renderPlayerDeck();
     setupDragAndDrop();
     endTurnBtn.disabled = false;
-    if (isGameOver) {
-      console.log("🏁 Game over!");
-      battleStatus.textContent =
-        winner === playerId ? "🎉 Ти переміг!" : "😵 Ти програв!";
-      battleStatus.classList.remove("hidden");
-      endTurnBtn.disabled = true;
-    } else if (outcome.isDraw) {
+    startTurnTimer();
+
+    const myHp = outcome.health[playerId];
+    const opponentHp = outcome.health[opponentId];
+
+    // 🔁 определяем карты противника через outcome.hands
+    const enemyHand = outcome.hands?.[opponentId] || [];
+    const isMyDeckEmpty = playerDeck.length === 0;
+    const isEnemyDeckEmpty = enemyHand.length === 0;
+    const bothDecksEmpty = isMyDeckEmpty && isEnemyDeckEmpty;
+
+    if (isGameOver || myHp <= 0 || opponentHp <= 0 || bothDecksEmpty) {
+      const playerWon =
+        myHp > opponentHp ? true : myHp < opponentHp ? false : null;
+
+      setTimeout(() => showGameOver(playerWon), 300);
+    }
+
+    if (outcome.isDraw) {
       console.log("🤝 Draw round!");
       battleStatus.textContent = "🤝 Нічия!";
       battleStatus.classList.remove("hidden");
-      setTimeout(() => {
-        battleStatus.classList.add("hidden");
-      }, 1500);
+      setTimeout(() => battleStatus.classList.add("hidden"), 1500);
     }
   }, 2000);
 }
@@ -352,4 +377,70 @@ function setupDragAndDrop() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", initWebSocket);
+function showGameOver(playerWon) {
+  gameOverText.textContent =
+    playerWon === null
+      ? "🤝 Нічия! Але галактика чекає на реванш."
+      : playerWon
+      ? "🎉 Ваша перемога освітлює галактику!"
+      : "☄️ Ви програли. Всесвіт готує новий виклик!";
+
+  gameOverModal.classList.remove("hidden");
+  gameOverModal.classList.add(
+    "backdrop-blur-xl",
+    "bg-[#2e003a]/80",
+    "text-center",
+    "animate-fadeIn"
+  );
+  gameOverText.classList.add(
+    "text-3xl",
+    "font-bold",
+    "text-white",
+    "mb-4",
+    "drop-shadow-lg"
+  );
+  gameOverBtn.classList.add(
+    "bg-violet-700",
+    "hover:bg-violet-800",
+    "text-white",
+    "px-5",
+    "py-2",
+    "rounded-xl",
+    "transition",
+    "shadow-xl"
+  );
+}
+
+function startTurnTimer() {
+  clearTimeout(turnTimer);
+  let secondsLeft = TURN_TIME_LIMIT / 1000;
+
+  turnTimerEl.textContent = `⏳ ${secondsLeft} сек. на хід`;
+
+  const interval = setInterval(() => {
+    secondsLeft--;
+    turnTimerEl.textContent = `⏳ ${secondsLeft} сек. на хід`;
+    if (secondsLeft <= 0) {
+      clearInterval(interval);
+      turnTimerEl.textContent = "❗ Хід завершено";
+    }
+  }, 1000);
+
+  turnTimer = setTimeout(() => {
+    if (!playedCard) {
+      console.warn("⌛ Час вичерпано! Авто-кінець ходу.");
+      endTurnBtn.disabled = true;
+      socket.send(
+        JSON.stringify({
+          event: "playerReady",
+          payload: { gameId: gameID, timeout: true },
+        })
+      );
+    }
+  }, TURN_TIME_LIMIT);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  initWebSocket();
+  startTurnTimer();
+});

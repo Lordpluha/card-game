@@ -123,14 +123,43 @@ export function initGameController(server) {
             break;
           }
           case "endTurn": {
-            const { gameId } = msg.payload;
-            const game = await GameService.endTurn(userId, gameId);
-            broadcastWS(game.id, { event: "turnEnded", prevPlayer: userId });
-            broadcastWS(game.id, {
-              event: "turnStarted",
-              nextPlayer: game.game_state.currentTurn,
-            });
-            console.log(`[User:${userId} - Game:${game.id}] End turn`);
+            const { gameId, timeout } = msg.payload;
+            const game = await GameService.getGameById(gameId);
+            const state = { ...game.game_state };
+
+            state.playedCards = state.playedCards || {};
+
+            if (timeout && !state.playedCards[userId]) {
+              state.playedCards[userId] = {
+                attack: 0,
+                defense: 0,
+                owner: userId,
+                isDummy: true,
+              };
+              console.warn(`⌛ Timeout! User ${userId} played dummy card`);
+            }
+
+            await pool.execute("UPDATE games SET game_state = ? WHERE id = ?", [
+              JSON.stringify(state),
+              gameId,
+            ]);
+
+            // викликаємо playerReady після таймаута
+            const result = await GameService.playerReady(userId, gameId);
+
+            broadcastWS(gameId, { event: "playerReady", player: userId });
+
+            if (result.outcome) {
+              broadcastWS(gameId, {
+                event: "battle_result",
+                outcome: result.outcome,
+              });
+              broadcastWS(gameId, {
+                event: "update_health",
+                health: result.game.game_state.health,
+              });
+            }
+
             break;
           }
           case "getGame": {

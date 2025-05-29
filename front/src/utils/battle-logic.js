@@ -1,21 +1,40 @@
 // battle-logic.js — ядро бойової логіки гри (друга частина)
 
 export function resolveBattle(cardA, cardB) {
-  const diff = Math.abs(cardA.attack - cardB.attack);
   let winner = null;
   let loser = null;
+  let damage = 0;
 
-  if (cardA.attack !== undefined && cardB.attack !== undefined) {
-    if (cardA.attack > cardB.attack) {
-      winner = cardA.owner;
-      loser = cardB.owner;
-    } else if (cardB.attack > cardA.attack) {
+  if (
+    cardA.attack !== undefined &&
+    cardB.attack !== undefined &&
+    cardA.defense !== undefined &&
+    cardB.defense !== undefined
+  ) {
+    // кто выжил?
+    const damageToA = cardB.attack - cardA.defense;
+    const damageToB = cardA.attack - cardB.defense;
+
+    console.log("🛡️ Attack vs Defense:", {
+      cardA: { attack: cardA.attack, defense: cardA.defense },
+      cardB: { attack: cardB.attack, defense: cardB.defense },
+      damageToA,
+      damageToB,
+    });
+
+    if (damageToA > damageToB) {
       winner = cardB.owner;
       loser = cardA.owner;
+      damage = Math.max(0, damageToA);
+    } else if (damageToB > damageToA) {
+      winner = cardA.owner;
+      loser = cardB.owner;
+      damage = Math.max(0, damageToB);
     } else {
-      // ничья по атаке
+      // ничья
       winner = null;
       loser = null;
+      damage = 0;
     }
   }
 
@@ -24,7 +43,7 @@ export function resolveBattle(cardA, cardB) {
     cardB,
     winner,
     loser,
-    damage: winner ? diff : 0,
+    damage,
     isDraw: !winner,
     survivorCard:
       winner === cardA.owner ? cardA : winner === cardB.owner ? cardB : null,

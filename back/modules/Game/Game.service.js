@@ -30,7 +30,7 @@ class GameService {
           avatar_url: userRow?.avatar_url || null,
         },
       },
-      health: { [userId]: 100 },
+      health: { [userId]: 50 },
       hands: {},
       battlefield: {},
       decks: {},
@@ -166,7 +166,7 @@ class GameService {
       ...game.game_state,
       hands,
       battlefield: {},
-      health: Object.fromEntries(game.user_ids.map((id) => [id, 100])),
+      health: Object.fromEntries(game.user_ids.map((id) => [id, 50])),
       decks: game.game_state.decks,
       playedCards: {}, // <- add
       readies: {}, // <- add
@@ -227,11 +227,20 @@ class GameService {
   }
 
   // игрок готов; когда оба готовы — даем хосту возможность запустить игру
-  async playerReady(userId, gameId) {
+  async playerReady(userId, gameId, data = {}) {
     console.log("⚔️ playerReady called by", userId, "in game", gameId);
-
     const game = await this.getGameById(gameId);
+    const timedOut = data?.timeout === true;
     const state = { ...game.game_state };
+    if (timedOut && !state.playedCards[userId]) {
+      console.log("⌛ Таймер вышел — добавляем фантомную карту");
+      state.playedCards[userId] = {
+        attack: 0,
+        defense: 0,
+        owner: userId,
+        isDummy: true,
+      };
+    }
     state.readies = state.readies || {};
     state.readies[userId] = true;
     console.log("📥 Updated readies:", state.readies);
