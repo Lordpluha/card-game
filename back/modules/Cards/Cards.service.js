@@ -6,17 +6,17 @@ class CardsService {
     return cards;
   }
 
-  async getById(id) {
-    const [rows] = await pool.execute("SELECT * FROM cards WHERE id = ?", [id]);
-    if (!rows.length) throw { status: 404, message: "Card not found" };
+  async getById(cardId) {
+    const [rows] = await pool.execute('SELECT * FROM cards WHERE id = ?', [cardId]);
+    if (!rows.length) throw { status: 404, message: 'Card not found' };
     return rows[0];
   }
 
-  async create(data) {
-    const { name, image_url, attack, defense, cost, description } = data;
+  async create(cardEntity) {
+    const { name, image_url, attack, defense, cost, type, categories, description } = cardEntity;
     const [result] = await pool.execute(
-      "INSERT INTO cards (name, image_url, attack, defense, cost, description) VALUES (?, ?, ?, ?, ?, ?)",
-      [name, image_url, attack, defense, cost, description || null]
+      'INSERT INTO cards (name, image_url, attack, defense, cost, type, categories, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [name, image_url, attack, defense, cost, type, categories, description]
     );
     return this.getById(result.insertId);
   }

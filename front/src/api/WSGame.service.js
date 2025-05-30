@@ -43,7 +43,6 @@ class WSGameService {
   }
   onCardPlayed(cb) { this.on("cardPlayed", ({ game, cardId, targetId }) => cb({ game, cardId, targetId })); }
 
-  endTurn(gameId) { this.send("endTurn", { gameId }); }
   onTurnEnded(cb) { this.on("turnEnded", ({ prevPlayer }) => cb(prevPlayer)); }
   onTurnStarted(cb) { this.on("turnStarted", ({ nextPlayer }) => cb(nextPlayer)); }
 
@@ -70,10 +69,6 @@ class WSGameService {
     this.send("mergeCards", { gameId, cardIds });
   }
   onCardsMerged(cb) { this.on("cardsMerged", ({ game, cardIds }) => cb({ game, cardIds })); }
-
-  // ready / resolve
-  playerReady(gameId) { this.send("playerReady", { gameId }); }
-  onRoundResolved(cb) { this.on("roundResolved", ({ outcome, health }) => cb({ outcome, health })); }
 }
 
 export default new WSGameService();

@@ -3,18 +3,18 @@ import PasswordUtils from "../../utils/password.js";
 
 class UserService {
   // получить профиль по ID
-  async getUserById(userId) {
-    const [rows] = await pool.execute(
+  async getById(userId) {
+    const [row] = await pool.execute(
       "SELECT id, username, email, avatar_url, created_at, last_game_date, card_ids, coins FROM users WHERE id = ?",
       [userId]
     );
-    if (!rows.length) throw { status: 404, message: "User not found" };
-    const user = rows[0];
+		const user = row[0];
+    if (!user) throw { status: 404, message: "User not found" };
     return user;
   }
 
   // получить профиль по username
-  async getUserByUsername(username) {
+  async getByUsername(username) {
     const [rows] = await pool.execute(
       "SELECT id, username, email, avatar_url, created_at, last_game_date, card_ids, coins FROM users WHERE username = ?",
       [username]
@@ -26,34 +26,34 @@ class UserService {
   }
 
   // изменение настроек профиля
-  async changeSettings(userId, settings) {
+  async patchSettings(userId, settings) {
     const fields = [];
     const values = [];
-    
+
     if (settings.newPassword && settings.currentPassword) {
       // Получаем текущий хеш пароля пользователя
       const [userRows] = await pool.execute(
         "SELECT password_hash FROM users WHERE id = ?",
         [userId]
       );
-      
+
       if (!userRows.length) {
         throw { status: 404, message: "User not found" };
       }
-      
+
       // Проверяем текущий пароль
       try {
         await PasswordUtils.comparePasswords(settings.currentPassword, userRows[0].password_hash);
       } catch (error) {
         throw { status: 400, message: "Невірний поточний пароль" };
       }
-      
+
       // Хешируем новый пароль
       const hash = await PasswordUtils.hashPassword(settings.newPassword);
       fields.push("password_hash = ?");
       values.push(hash);
     }
-    
+
     if (settings.username) {
       fields.push("username = ?");
       values.push(settings.username);
@@ -66,23 +66,26 @@ class UserService {
       fields.push("avatar_url = ?");
       values.push(settings.avatar_url);
     }
-    
+
     if (!fields.length) throw { status: 400, message: "No settings provided" };
     values.push(userId);
     const sql = `UPDATE users SET ${fields.join(", ")} WHERE id = ?`;
     await pool.execute(sql, values);
-    return this.getUserById(userId);
+    return this.getById(userId);
   }
-  async getTopPlayers() {
-    const [rows] = await pool.execute(`
-    SELECT id, username, rating FROM users
-    ORDER BY rating DESC
-  `);
 
-    return rows.map((user) => ({
+  async getTopPlayers() {
+    const [topUsers] = await pool.execute(`
+			SELECT id, username, rating FROM users
+			ORDER BY rating DESC
+		`);
+
+    return topUsers.map((user) => ({
       id: user.id,
       username: user.username,
-      card_ids: user.card_ids,
+			avatar_url: user.avatar_url,
+			created_at: user.created_at,
+			last_game_date: user.last_game_date,
 			rating: user.rating,
     }));
   }

@@ -7,12 +7,14 @@ import { ACCESS_TOKEN_NAME } from "../../config.js";
 import { WebSocketServer } from "ws";
 import { HOST, PORT } from "../../config.js";
 
+var gameTimers = {};
+
 export function initGameController(server) {
   const wss = new WebSocketServer({ server, path: `/gaming` });
   console.log(`Websocket Game Server started: ws://${HOST}:${PORT}/gaming`);
 
   // helper для рассылки WS
-  const broadcastWS = (gameId, payload) => {
+  const broadcastGameWS = (gameId, payload) => {
     const msg = JSON.stringify(payload);
     wss.clients.forEach((client) => {
       if (
@@ -23,6 +25,55 @@ export function initGameController(server) {
       }
     });
   };
+
+  const ROUND_DURATION = 60;
+  // gameId => { startTime: timestamp, intervalId }
+
+  function startTimer(gameId) {
+    // очистим старый
+    if (gameTimers[gameId]?.intervalId) {
+      clearInterval(gameTimers[gameId].intervalId);
+    }
+    const startTime = Date.now();
+    // сразу отправляем полный круг
+    broadcastTimer(gameId, ROUND_DURATION);
+    const intervalId = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      const timeLeft = Math.max(0, ROUND_DURATION - elapsed);
+      broadcastTimer(gameId, timeLeft);
+      if (timeLeft <= 0) {
+        clearInterval(intervalId);
+        delete gameTimers[gameId];
+        broadcastTimerEnd(gameId);
+      }
+    }, 1000);
+
+    gameTimers[gameId] = { startTime, intervalId };
+  }
+
+  function broadcastTimer(gameId, timeLeft) {
+    const msg = JSON.stringify({ event: "updateTimer", payload: { timeLeft } });
+    wss.clients.forEach((client) => {
+      if (
+        client.readyState === WebSocket.OPEN &&
+        client.gameId === String(gameId)
+      ) {
+        client.send(msg);
+      }
+    });
+  }
+
+  function broadcastTimerEnd(gameId) {
+    const msg = JSON.stringify({ event: "endTimer" });
+    wss.clients.forEach((client) => {
+      if (
+        client.readyState === WebSocket.OPEN &&
+        client.gameId === String(gameId)
+      ) {
+        client.send(msg);
+      }
+    });
+  }
 
   wss.on("connection", (ws, req) => {
     const cookies = cookie.parse(req.headers.cookie || "");
@@ -38,11 +89,8 @@ export function initGameController(server) {
       return ws.close(1008);
     }
 
-    console.log(`🔌 WebSocket client connected: user ${ws.userId}`);
-
     ws.on("message", async (raw) => {
-      let msg,
-        userId = ws.userId;
+      let msg, userId = ws.userId;
       try {
         msg = JSON.parse(raw);
       } catch (e) {
@@ -53,32 +101,32 @@ export function initGameController(server) {
 
       try {
         switch (msg.event) {
+          // Lobby
           case "createGame": {
-            const game = await GameService.createGame(userId);
-            // associate this socket with new gameId
+            const game = await GameService.create(userId);
             ws.gameId = String(game.id);
-            // reply immediately
-            ws.send(JSON.stringify({ event: "gameCreated", game }));
-            // broadcast to any others (now includes this socket)
-            broadcastWS(game.id, { event: "gameCreated", game });
-            console.log(`[${userId}] Game created with Id = `, game.id);
+            broadcastGameWS(game.id, { event: "gameCreated", game });
             break;
           }
           case "joinGame": {
             const game = await GameService.joinGame(userId, msg.payload.gameId);
-            // tag socket so future broadcasts reach it
             ws.gameId = String(game.id);
-            broadcastWS(game.id, { event: "playerJoined", game });
-            console.log(`[${userId}] Joined to game with Id = `, game.id);
+            broadcastGameWS(game.id, { event: "playerJoined", game });
             if (
-              Object.keys(game.game_state.decks).length ===
-                game.user_ids.length &&
+              Object.keys(game.game_state.decks).length === game.user_ids.length &&
               game.user_ids.length === 2
             ) {
-              broadcastWS(game.id, {
-                event: "decksSelected",
-                game: game,
-              });
+              if (game.status === "CREATED") {
+                broadcastGameWS(game.id, {
+                  event: "decksSelected",
+                  game: game,
+                });
+              } else {
+                broadcastGameWS(game.id, {
+                  event: "gameStarted",
+                  game: game,
+                });
+              }
             }
             break;
           }
@@ -87,100 +135,11 @@ export function initGameController(server) {
               userId,
               msg.payload.gameId
             );
-            broadcastWS(game.id, { event: "gameStarted", game });
-            console.log(`[${userId}] Start game with Id = `, game.id);
-            break;
-          }
-          case "playCard": {
-            const { gameId, cardId, targetId } = msg.payload;
-            const game = await GameService.playCard(
-              userId,
-              gameId,
-              cardId,
-              targetId
-            );
-            broadcastWS(game.id, {
-              event: "cardPlayed",
-              game,
-              cardId,
-              targetId,
-            });
-            console.log(
-              `[User:${userId} - Game:${game.id}] Play card with Id = `,
-              cardId
-            );
-            if (game.status === "ENDED") {
-              broadcastWS(game.id, {
-                event: "gameEnded",
-                winner: game.winner_id,
-              });
-            } else {
-              broadcastWS(game.id, {
-                event: "turnStarted",
-                nextPlayer: game.game_state.currentTurn,
-              });
-            }
-            break;
-          }
-          case "endTurn": {
-            const { gameId, timeout } = msg.payload;
-            const game = await GameService.getGameById(gameId);
-            const state = { ...game.game_state };
-
-            state.playedCards = state.playedCards || {};
-
-            if (timeout && !state.playedCards[userId]) {
-              state.playedCards[userId] = {
-                attack: 0,
-                defense: 0,
-                owner: userId,
-                isDummy: true,
-              };
-              console.warn(`⌛ Timeout! User ${userId} played dummy card`);
-            }
-
-            await pool.execute("UPDATE games SET game_state = ? WHERE id = ?", [
-              JSON.stringify(state),
-              gameId,
-            ]);
-
-            // викликаємо playerReady після таймаута
-            const result = await GameService.playerReady(userId, gameId);
-
-            broadcastWS(gameId, { event: "playerReady", player: userId });
-
-            if (result.outcome) {
-              broadcastWS(gameId, {
-                event: "battle_result",
-                outcome: result.outcome,
-              });
-              broadcastWS(gameId, {
-                event: "update_health",
-                health: result.game.game_state.health,
-              });
-            }
-
-            break;
-          }
-          case "getGame": {
-            const game = await GameService.getGameById(msg.payload.gameId);
-            ws.send(JSON.stringify({ event: "gameData", game }));
-            break;
-          }
-          case "surrender": {
-            const game = await GameService.surrenderGame(
-              userId,
-              msg.payload.gameId
-            );
-            broadcastWS(game.id, {
-              event: "playerSurrendered",
-              player: userId,
-            });
-            broadcastWS(game.id, {
-              event: "gameEnded",
-              winner: game.winner_id,
-            });
-            console.log(`[User:${userId} - Game:${game.id}] Surrendered`);
+            ws.gameId = String(game.id);
+            broadcastGameWS(game.id, { event: "gameStarted", game });
+            // новый раунд после старта игры
+            broadcastGameWS(game.id, { event: "startRound", game });
+            startTimer(game.id);
             break;
           }
           case "getGameByCode": {
@@ -194,7 +153,7 @@ export function initGameController(server) {
               msg.payload.gameId,
               msg.payload.cardIds
             );
-            broadcastWS(game.id, {
+            broadcastGameWS(game.id, {
               event: "deckSelected",
               player: userId,
               deck: msg.payload.cardIds,
@@ -206,68 +165,85 @@ export function initGameController(server) {
                 game.user_ids.length &&
               game.user_ids.length === 2
             ) {
-              broadcastWS(game.id, {
+              broadcastGameWS(game.id, {
                 event: "decksSelected",
                 game: game,
               });
             }
             break;
           }
+          case "getGame": {
+            const game = await GameService.getGameById(msg.payload.gameId);
+            broadcastGameWS(game.id, {
+              event: "gameData",
+              game
+            })
+            break;
+          }
+
+          // Battlefield
+          case "playCard": {
+            const game = await GameService.playCard(
+              userId,
+              msg.payload.gameId,
+              msg.payload.cardId
+            );
+
+            // Отправляем событие о сыгранной карте противника для отрисовки на фронте
+            broadcastGameWS(game.id, {
+              event: "cardPlayed",
+              game,
+            })
+
+            // Если оба игрока выбрали карты - завершаем раунд и отдаем обновленное состояние игры
+            if (Object.keys(game.game_state.selected).length === 2) {
+              const r = await GameService.endRound(msg.payload.gameId)
+              broadcastGameWS(r.id, { event: "endRound", game: r });
+
+							startTimer(r.id);
+							// hp + cards
+              const noWinner = Object.entries(r.game_state.health).every(
+								([userId, hp]) => +hp > 0 && r.game_state.decks[userId].length > 0
+							);
+							console.log("noWinner", noWinner, JSON.stringify(r.game_state.health, null, 2), JSON.stringify(r.game_state.decks, null, 2));
+              if (noWinner) {
+                setTimeout(() => {
+                  broadcastGameWS(r.id, { event: "startRound", game: r });
+
+                  startTimer(r.id);
+                }, 2000);
+              }	else {
+								const finishedGame = await GameService.finishGame(r.id);
+								broadcastGameWS(finishedGame.id, {
+									event: "gameEnded",
+									game: finishedGame,
+								});
+							}
+            }
+
+            break;
+          }
+          case "surrender": {
+            const game = await GameService.surrenderUser(
+              userId,
+              msg.payload.gameId
+            );
+            broadcastGameWS(game.id, {
+              event: "playerSurrendered",
+              player: userId,
+            });
+            broadcastGameWS(game.id, {
+              event: "gameEnded",
+              winner: game.winner_id,
+            });
+            break;
+          }
           case "mergeCards": {
             const { gameId, cardIds } = msg.payload;
             const game = await GameService.mergeCards(userId, gameId, cardIds);
-            broadcastWS(game.id, { event: "cardsMerged", game, cardIds });
-            console.log(
-              `[User:${userId} - Game:${game.id}] Merged cards`,
-              cardIds
-            );
+            broadcastGameWS(game.id, { event: "mergedCards", game });
             break;
           }
-          case "playerReady": {
-            console.log(
-              `📥 WS: playerReady from ${userId}, game = ${msg.payload.gameId}`
-            );
-            // передаём флаг timeout (true при истечении времени)
-            const { game, outcome } = await GameService.playerReady(
-              userId,
-              msg.payload.gameId,
-              { timeout: msg.payload.timeout === true }
-            );
-
-            broadcastWS(game.id, { event: "playerReady", player: userId });
-
-            if (outcome) {
-              console.log("📤 WS: Sending battle_result:", outcome);
-              broadcastWS(game.id, { event: "battle_result", outcome });
-
-              console.log(
-                "📤 WS: Sending update_health:",
-                game.game_state.health
-              );
-              broadcastWS(game.id, {
-                event: "update_health",
-                health: game.game_state.health,
-              });
-            }
-            break;
-          }
-          case "playedCard": {
-            console.log(`[WS] Received playedCard from ${userId}`);
-            const { gameId, card } = msg.payload;
-            const game = await GameService.getGameById(gameId);
-
-            const state = { ...game.game_state };
-            state.playedCards = state.playedCards || {};
-            state.playedCards[userId] = card;
-
-            await pool.execute("UPDATE games SET game_state = ? WHERE id = ?", [
-              JSON.stringify(state),
-              gameId,
-            ]);
-            console.log("💾 playedCard saved:", card);
-            break;
-          }
-
           default:
             ws.send(
               JSON.stringify({ event: "error", message: "Unknown event" })

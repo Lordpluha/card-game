@@ -16,7 +16,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   // 🎯 Ждём подключения второго игрока
   connectToGameWS(game.id, (msg) => {
     if (msg.event === "playerJoined") {
-      window.location.href = `/pages/prelobby.html?gameId=${game.id}`;
+      window.location.href = `/pages/lobby.html?gameId=${game.id}`;
     }
   });
 });

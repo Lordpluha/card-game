@@ -14,6 +14,6 @@ button.addEventListener("click", async () => {
 			return alert("Комната не найдена");
 		});
 
-  // ✅ Всё прошло — идём в prelobby
-  window.location.href = `/pages/prelobby.html?gameId=${game.id}`;
+  // ✅ Всё прошло — идём в game lobby
+  window.location.href = `/pages/lobby.html?gameId=${game.id}`;
 });

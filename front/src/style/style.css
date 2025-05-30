@@ -34,7 +34,7 @@ main {
   min-height: 100vh;
 }
 
-.prelobby-body {
+.lobby-body {
   background: var(--primary-bg);
   background-image: radial-gradient(
       circle at 20% 35%,
