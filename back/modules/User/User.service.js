@@ -8,27 +8,27 @@ class UserService {
       "SELECT id, username, email, avatar_url, created_at, last_game_date, card_ids, rating, fragments, coins FROM users WHERE id = ?",
       [userId]
     );
-		const user = row[0];
+    const user = row[0];
     if (!user) throw { status: 404, message: "User not found" };
     return user;
   }
 
-	async updateRating(userId, rating) {
-		const [result] = await pool.execute(
-			"UPDATE users SET rating = ? WHERE id = ?",
-			[+rating, userId]
-		);
-		console.log(result[0])
-		return await this.getById(userId);
-	}
+  async updateRating(userId, rating) {
+    const [result] = await pool.execute(
+      "UPDATE users SET rating = ? WHERE id = ?",
+      [+rating, userId]
+    );
+    console.log(result[0]);
+    return await this.getById(userId);
+  }
 
-	async winnerReward(userId, coins, fragments) {
-		const [result] = await pool.execute(
-			"UPDATE users SET coins = coins + ?, fragments = fragments + ? WHERE id = ?",
-			[coins, fragments, userId]
-		);
-		return await this.getById(userId);
-	}
+  async winnerReward(userId, coins, fragments) {
+    const [result] = await pool.execute(
+      "UPDATE users SET coins = coins + ?, fragments = fragments + ? WHERE id = ?",
+      [coins, fragments, userId]
+    );
+    return await this.getById(userId);
+  }
 
   // получить профиль по username
   async getByUsername(username) {
@@ -60,7 +60,10 @@ class UserService {
 
       // Проверяем текущий пароль
       try {
-        await PasswordUtils.comparePasswords(settings.currentPassword, userRows[0].password_hash);
+        await PasswordUtils.comparePasswords(
+          settings.currentPassword,
+          userRows[0].password_hash
+        );
       } catch (error) {
         throw { status: 400, message: "Невірний поточний пароль" };
       }
@@ -100,10 +103,10 @@ class UserService {
     return topUsers.map((user) => ({
       id: user.id,
       username: user.username,
-			avatar_url: user.avatar_url,
-			created_at: user.created_at,
-			last_game_date: user.last_game_date,
-			rating: user.rating,
+      avatar_url: user.avatar_url,
+      created_at: user.created_at,
+      last_game_date: user.last_game_date,
+      rating: user.rating,
     }));
   }
 }

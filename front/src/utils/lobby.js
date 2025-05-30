@@ -10,25 +10,25 @@ function initWebSocket() {
   window.socket = new WebSocket("ws://localhost:8080/gaming");
 
   window.socket.onopen = () => {
-		// Если есть gameId в URL, то присоединяемся к игре, в другом случае создаем новую
-		const urlParams = new URLSearchParams(window.location.search);
+    // Если есть gameId в URL, то присоединяемся к игре, в другом случае создаем новую
+    const urlParams = new URLSearchParams(window.location.search);
     const gameId = urlParams.get("gameId");
 
     if (gameId) {
-			try {
-				window.socket.send(
-					JSON.stringify({ event: "joinGame", payload: { gameId } })
-				);
-				window.game.id = gameId;
-			} catch (e) {
-				console.error("❌ Error joining game:", e);
-			}
+      try {
+        window.socket.send(
+          JSON.stringify({ event: "joinGame", payload: { gameId } })
+        );
+        window.game.id = gameId;
+      } catch (e) {
+        console.error("❌ Error joining game:", e);
+      }
     } else {
-			try {
-				window.socket.send(JSON.stringify({ event: "createGame" }));
-			} catch (e) {
-				console.error("❌ Error creating game:", e);
-			}
+      try {
+        window.socket.send(JSON.stringify({ event: "createGame" }));
+      } catch (e) {
+        console.error("❌ Error creating game:", e);
+      }
     }
   };
 
@@ -47,21 +47,25 @@ function initWebSocket() {
       case "playerJoined":
         updateUI(data.game);
         break;
-			case "deckSelected":
-				// mark the player who selected as ready
-				if (data.player === myId) {
-					document.getElementById("p1-status").className = "player-status status-ready";
-					document.getElementById("p1-status").innerHTML = '<i class="fas fa-check-circle"></i><span>ГОТОВИЙ</span>';
-				} else {
-					document.getElementById("p2-status").className = "player-status status-ready";
-					document.getElementById("p2-status").innerHTML = '<i class="fas fa-check-circle"></i><span>ГОТОВИЙ</span>';
-				}
-				break;
-				case "gameStarted":
-					console.log("🚀 Game has started!");
-					window.location.href = `/pages/battle-field.html?gameId=${game.id}`;
-					break;
-				case "decksSelected": {
+      case "deckSelected":
+        // mark the player who selected as ready
+        if (data.player === myId) {
+          document.getElementById("p1-status").className =
+            "player-status status-ready";
+          document.getElementById("p1-status").innerHTML =
+            '<i class="fas fa-check-circle"></i><span>ГОТОВИЙ</span>';
+        } else {
+          document.getElementById("p2-status").className =
+            "player-status status-ready";
+          document.getElementById("p2-status").innerHTML =
+            '<i class="fas fa-check-circle"></i><span>ГОТОВИЙ</span>';
+        }
+        break;
+      case "gameStarted":
+        console.log("🚀 Game has started!");
+        window.location.href = `/pages/battle-field.html?gameId=${game.id}`;
+        break;
+      case "decksSelected": {
         // save updated game state
         window.game = data.game;
         const sb = document.getElementById("startBtn");
@@ -80,7 +84,8 @@ function initWebSocket() {
     }
   };
 
-  window.socket.onerror = (err) => console.error("❌ WS connection error:", err);
+  window.socket.onerror = (err) =>
+    console.error("❌ WS connection error:", err);
   window.socket.onclose = () => console.warn("🔌 WS connection closed");
 }
 
@@ -92,11 +97,11 @@ async function init() {
 
 // Load user cards for deck selection
 const renderDeckCards = async () => {
-	const cards = await CardsService.getMyCards();
-	const grid = document.getElementById('decksGrid');
-	grid.innerHTML = cards
-		.map(
-			(c) => `
+  const cards = await CardsService.getMyCards();
+  const grid = document.getElementById("decksGrid");
+  grid.innerHTML = cards
+    .map(
+      (c) => `
 		<label class="deck-card" id="deck-card-${c.id}">
 			<input type="checkbox" name="cards" value="${c.id}" />
 			<div class="deck-check"><i class="fas fa-check"></i></div>
@@ -111,9 +116,9 @@ const renderDeckCards = async () => {
 				</div>
 			</div>
 		</label>`
-		)
-		.join('');
-}
+    )
+    .join("");
+};
 
 // store current user id for status updates
 let myId;
@@ -144,30 +149,34 @@ async function updateUI(game) {
   document.getElementById("p1-name").textContent = meInfo.username || "Ви";
   document.getElementById("p1-avatar").src =
     meInfo.avatar_url || "/assets/empty-avatar.png";
-  document.getElementById("p1-status").textContent = game.game_state?.decks?.[me]
-    ? "🟢 Готовий"
-    : "🟡 Очікує";
+  document.getElementById("p1-status").textContent = game.game_state?.decks?.[
+    me
+  ]
+    ? "🟢 Ready"
+    : "🟡 Waiting";
 
-	document.getElementById("game-code").textContent = game.game_code;
+  document.getElementById("game-code").textContent = game.game_code;
 
   // Противник справа
   if (oppInfo.username) {
     document.getElementById("p2-name").textContent = oppInfo.username;
     document.getElementById("p2-avatar").src =
       oppInfo.avatar_url || "/assets/empty-avatar.png";
-    document.getElementById("p2-status").textContent = game.game_state?.decks?.[opponent]
-      ? "🟢 Готовий"
-      : "🟡 Очікує";
+    document.getElementById("p2-status").textContent = game.game_state?.decks?.[
+      opponent
+    ]
+      ? "🟢 Ready"
+      : "🟡 Waiting";
   } else {
-    document.getElementById("p2-name").textContent = "Очікуємо...";
+    document.getElementById("p2-name").textContent = "Waiting...";
     document.getElementById("p2-avatar").src = "/assets/empty-avatar.png";
-    document.getElementById("p2-status").textContent = "🟡 Очікує";
+    document.getElementById("p2-status").textContent = "🟡 Waiting";
   }
 
   // highlight ready button if this user has already selected a deck
   const readyBtn = document.getElementById("readyBtn");
   if (game.game_state.decks[me]) {
-    readyBtn.innerHTML = '<i class="fas fa-check-circle"></i> Готово!';
+    readyBtn.innerHTML = '<i class="fas fa-check-circle"></i> Done!';
     readyBtn.style.background = "#10b981";
     readyBtn.disabled = true;
   }
@@ -203,8 +212,8 @@ function setupUIInteractions() {
   const startBtn = document.createElement("button");
   startBtn.id = "startBtn";
   startBtn.className = "ready-button hidden";
-  startBtn.disabled = true;              // ← new: always disabled initially
-  startBtn.innerHTML = '<i class="fas fa-play"></i> Почати гру';
+  startBtn.disabled = true; // ← new: always disabled initially
+  startBtn.innerHTML = '<i class="fas fa-play"></i> Start game';
   startBtn.style.marginTop = "1rem";
   readyBtn.parentNode.appendChild(startBtn);
 
@@ -256,11 +265,14 @@ function setupUIInteractions() {
 
     // 1) tell server our deck choice
     window.socket.send(
-      JSON.stringify({ event: "selectDeck", payload: { gameId: window.game.id, cardIds: selectedIds } })
+      JSON.stringify({
+        event: "selectDeck",
+        payload: { gameId: window.game.id, cardIds: selectedIds },
+      })
     );
 
     isUserReady = true;
-    readyBtn.innerHTML = '<i class="fas fa-check-circle"></i> Готово!';
+    readyBtn.innerHTML = '<i class="fas fa-check-circle"></i> Ready!';
     readyBtn.style.background = "#10b981";
     readyBtn.disabled = true;
 
@@ -268,7 +280,7 @@ function setupUIInteractions() {
       playerStatusEl.classList.remove("status-waiting");
       playerStatusEl.classList.add("status-ready");
       playerStatusEl.innerHTML =
-        '<i class="fas fa-check-circle"></i><span>ГОТОВИЙ</span>';
+        '<i class="fas fa-check-circle"></i><span>READY</span>';
     }
 
     const waitingMsg = document.createElement("div");
@@ -277,14 +289,17 @@ function setupUIInteractions() {
     waitingMsg.style.color = "var(--text-secondary)";
     waitingMsg.style.fontFamily = "'Rajdhani', sans-serif";
     waitingMsg.style.fontSize = "1rem";
-    waitingMsg.innerHTML = "Всі гравці готові! Гра скоро розпочнеться...";
+    waitingMsg.innerHTML = "All players are ready! The game will start soon...";
     readyBtn.parentNode.appendChild(waitingMsg);
   });
 
   startBtn.addEventListener("click", () => {
     // host starts the game
     window.socket.send(
-      JSON.stringify({ event: "startGame", payload: { gameId: window.game.id } })
+      JSON.stringify({
+        event: "startGame",
+        payload: { gameId: window.game.id },
+      })
     );
   });
 

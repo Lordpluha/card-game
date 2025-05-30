@@ -12,140 +12,144 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
       rel="stylesheet" />
     <link rel="stylesheet" href="../style/style.css" />
-</head>
-<body class="main-menu-body">
+  </head>
+  <body class="main-menu-body">
     <div class="wrap main-menu-body">
-        <!-- Background animated shapes -->
-        <div aria-hidden="true" class="bg-shape bg-shape1"></div>
-        <div aria-hidden="true" class="bg-shape bg-shape2"></div>
-        <div aria-hidden="true" class="bg-shape bg-shape3"></div>
-        
-        <!-- Particle canvas -->
-        <canvas id="particle-canvas" aria-hidden="true"></canvas>
-        
-        <header
-          class="flex flex-col md:flex-row items-center justify-between bg-[rgba(26,26,26,0.85)] px-6 py-4 shadow-lg sticky top-0 z-50 backdrop-blur-md">
-          <div class="relative select-none flex items-center gap-3 text-[var(--color-text-light)] font-semibold">
-            <!-- Никнейм -->
-            <a
-              href="./main-menu.html"
-              class="btn-neon px-3 py-1.5 rounded-lg flex items-center gap-2 hover:text-[var(--color-text-light)] transition text-sm">
-              <i class="fas fa-home"></i> Головна
-            </a>
-          </div>
+      <!-- Background animated shapes -->
+      <div aria-hidden="true" class="bg-shape bg-shape1"></div>
+      <div aria-hidden="true" class="bg-shape bg-shape2"></div>
+      <div aria-hidden="true" class="bg-shape bg-shape3"></div>
 
-          <nav
-            aria-label="Головна навігація"
-            class="hidden md:flex space-x-8 font-semibold text-[var(--color-accent)]">
-            <a
-              class="btn-neon px-3 py-1.5 rounded-lg flex items-center gap-2 hover:text-[var(--color-text-light)] transition text-sm"
-              href="#shop">
-              <i class="fas fa-store"></i> Магазин</a
-            >
+      <!-- Particle canvas -->
+      <canvas id="particle-canvas" aria-hidden="true"></canvas>
 
-            <button
-              id="settingsBtn"
-              class="btn-neon px-3 py-1.5 rounded-lg flex items-center gap-2 hover:text-[var(--color-text-light)] transition text-sm">
-              <i class="fas fa-cog"></i> Налаштування
-            </button>
+      <header
+        class="flex flex-col md:flex-row items-center justify-between bg-[rgba(26,26,26,0.85)] px-6 py-4 shadow-lg sticky top-0 z-50 backdrop-blur-md">
+        <div
+          class="relative select-none flex items-center gap-3 text-[var(--color-text-light)] font-semibold">
+          <!-- Никнейм -->
+          <a
+            href="./main-menu.html"
+            class="btn-neon px-3 py-1.5 rounded-lg flex items-center gap-2 hover:text-[var(--color-text-light)] transition text-sm">
+            <i class="fas fa-home"></i> Main Menu
+          </a>
+        </div>
 
+        <nav
+          aria-label="Головна навігація"
+          class="hidden md:flex space-x-8 font-semibold text-[var(--color-accent)]">
+          <a
+            class="btn-neon px-3 py-1.5 rounded-lg flex items-center gap-2 hover:text-[var(--color-text-light)] transition text-sm"
+            href="#shop">
+            <i class="fas fa-store"></i> Shop</a
+          >
 
-            <button
-              class="btn-neon px-3 py-1.5 rounded-lg flex items-center gap-2 hover:text-[var(--color-text-light)] transition text-sm"
-              id="logoutBtn">
-              <i class="fas fa-sign-in-alt"></i> <span>Logout</span>
-            </button>
-          </nav>
-        </header>
-        
-        <main class="profile-container flex-grow container mx-auto px-6 py-10 relative z-10">
-            <h1>Мій профіль</h1>
-            
-            <div class="profile-card">
-                <!-- Блок з аватаркою -->
-                <div class="avatar-section">
-                    <div class="avatar-wrapper">
-                        <img id="user-avatar" src="" alt="Аватар користувача" class="profile-avatar">
-                        <div class="avatar-upload">
-                            <label for="avatar-upload" class="btn-upload">
-                                <i class="fas fa-camera mr-2"></i>Змінити аватар
-                            </label>
-                            <input type="file" id="avatar-upload" accept="image/*,image/gif" class="hidden">
-                            <div id="avatar-error" class="text-red-500 text-sm mt-2 hidden"></div>
-                        </div>
-                    </div>
-                </div>
+          <button
+            class="btn-neon px-3 py-1.5 rounded-lg flex items-center gap-2 hover:text-[var(--color-text-light)] transition text-sm"
+            id="logoutBtn">
+            <i class="fas fa-sign-in-alt"></i> <span>Logout</span>
+          </button>
+        </nav>
+      </header>
 
-                <!-- Інформація про користувача -->
-                <div class="profile-info">
-                    <div class="form-group">
-                        <label for="username">Ім'я користувача:</label>
-                        <input type="text" id="username" class="form-control">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="email">Електронна пошта:</label>
-                        <input type="email" id="email" class="form-control" disabled>
-                    </div>
-                    
-                    <div class="form-group">
-                        <button id="change-password-btn" class="btn btn-secondary">Змінити пароль</button>
-                    </div>
-                    
-                    <div id="password-fields" style="display: none;">
-                        <div class="form-group">
-                            <label for="current-password">Поточний пароль:</label>
-                            <input type="password" id="current-password" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="new-password">Новий пароль:</label>
-                            <input type="password" id="new-password" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="confirm-password">Підтвердіть новий пароль:</label>
-                            <input type="password" id="confirm-password" class="form-control">
-                        </div>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button id="save-changes" class="btn btn-primary">Зберегти зміни</button>
-                        <button id="cancel-changes" class="btn btn-outline">Скасувати</button>
-                    </div>
-                </div>
+      <main
+        class="profile-container flex-grow container mx-auto px-6 py-10 relative z-10">
+        <h1>My profile</h1>
+
+        <div class="profile-card">
+          <!-- Блок з аватаркою -->
+          <div class="avatar-section">
+            <div class="avatar-wrapper">
+              <img
+                id="user-avatar"
+                src=""
+                alt="Аватар користувача"
+                class="profile-avatar" />
+              <div class="avatar-upload">
+                <label for="avatar-upload" class="btn-upload">
+                  <i class="fas fa-camera mr-2"></i>Change avatar
+                </label>
+                <input
+                  type="file"
+                  id="avatar-upload"
+                  accept="image/*,image/gif"
+                  class="hidden" />
+                <div
+                  id="avatar-error"
+                  class="text-red-500 text-sm mt-2 hidden"></div>
+              </div>
             </div>
-        </main>
-        
-        <footer class="bg-[rgba(26,26,26,0.85)] text-[var(--color-text-light)] py-6 px-6 mt-12 backdrop-blur-md">
-          <div class="container mx-auto text-center">
-            <span class="text-sm">© 2024 Card Game. Всі права захищені.</span>
           </div>
-        </footer>
-        
-        <!-- Settings Modal -->
-        <div id="settingsModal" class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black bg-opacity-50 w-full h-full flex items-center justify-center z-50">
-          <div class="bg-white rounded-lg p-6 w-72">
-            <h2 class="text-xl font-bold mb-4">Налаштування</h2>
-            <label class="flex items-center gap-2 mb-4">
-              <input type="checkbox" id="bgAnimationToggle" class="accent-purple-500" checked />
-              Анімований фон (частинки)
-            </label>
-            <div class="flex justify-end gap-2">
-              <button id="closeSettings" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">
-                Закрити
+
+          <!-- Інформація про користувача -->
+          <div class="profile-info">
+            <div class="form-group">
+              <label for="username">User name:</label>
+              <input type="text" id="username" class="form-control" />
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email:</label>
+              <input type="email" id="email" class="form-control" disabled />
+            </div>
+
+            <div class="form-group">
+              <button id="change-password-btn" class="btn btn-secondary">
+                Change password
+              </button>
+            </div>
+
+            <div id="password-fields" style="display: none">
+              <div class="form-group">
+                <label for="current-password">Current password:</label>
+                <input
+                  type="password"
+                  id="current-password"
+                  class="form-control" />
+              </div>
+              <div class="form-group">
+                <label for="new-password">New password:</label>
+                <input type="password" id="new-password" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label for="confirm-password">Confirm new password:</label>
+                <input
+                  type="password"
+                  id="confirm-password"
+                  class="form-control" />
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button id="save-changes" class="btn btn-primary">
+                Save changes
+              </button>
+              <button id="cancel-changes" class="btn btn-outline">
+                Cancel
               </button>
             </div>
           </div>
         </div>
-        
-        <!-- Friends Button -->
-        <button id="friendsBtn" class="fixed bottom-6 right-6 bg-[var(--color-accent)] text-white p-3 rounded-full shadow-lg hover:bg-[var(--color-accent-dark)] transition-colors z-40">
-          <i class="fas fa-users text-xl"></i>
-        </button>
+      </main>
+
+      <footer
+        class="bg-[rgba(26,26,26,0.85)] text-[var(--color-text-light)] py-6 px-6 mt-12 backdrop-blur-md">
+        <div class="container mx-auto text-center">
+          <p>© 2024 Wasteland Warlords. All rights reserved.</p>
+        </div>
+      </footer>
+
+      <!-- Friends Button -->
+      <button
+        id="friendsBtn"
+        class="fixed bottom-6 right-6 bg-[var(--color-accent)] text-white p-3 rounded-full shadow-lg hover:bg-[var(--color-accent-dark)] transition-colors z-40">
+        <i class="fas fa-users text-xl"></i>
+      </button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script type="module" src="../utils/profile.js"></script>
     <script type="module" src="../utils/main-menu.js"></script>
     <script src="../utils/profile-animate.js"></script>
-</body>
+  </body>
 </html>

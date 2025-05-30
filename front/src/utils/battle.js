@@ -34,12 +34,11 @@ async function initWebSocket() {
 
   socket.onopen = async () => {
     try {
-      const user = await UserService.getUser()
-				.catch(() => {
-					AuthService.refresh().then(() => {
-						window.location.reload();
-					});
-			});
+      const user = await UserService.getUser().catch(() => {
+        AuthService.refresh().then(() => {
+          window.location.reload();
+        });
+      });
       if (!user || !user.id) return;
       playerId = user.id;
       userData = user;
@@ -61,49 +60,58 @@ async function initWebSocket() {
 
   socket.onmessage = (event) => {
     let msg;
-    try { msg = JSON.parse(event.data); } catch { return; }
+    try {
+      msg = JSON.parse(event.data);
+    } catch {
+      return;
+    }
     switch (msg.event) {
-			case "gameStarted":
+      case "gameStarted":
       case "gameData":
         handleBattleStart(msg);
         break;
-			case "startRound":
-				endTurnBtn.disabled = false;
-				break;
-			case "cardPlayed":
-				enemyDeck = msg.game.game_state.decks[msg.game.user_ids.find(id => id !== playerId)]
-				renderEnemyDeck()
-				playerDeck = msg.game.game_state.decks[playerId]
+      case "startRound":
+        endTurnBtn.disabled = false;
+        break;
+      case "cardPlayed":
+        enemyDeck =
+          msg.game.game_state.decks[
+            msg.game.user_ids.find((id) => id !== playerId)
+          ];
+        renderEnemyDeck();
+        playerDeck = msg.game.game_state.decks[playerId];
 
-				if (Object.keys(msg.game.game_state.selected).length === 2) {
-					handleBattleResult(msg.game);
-				}
-				break;
-			case "mergedCards":
-				playerDeck = msg.game.game_state.decks[playerId]
-				renderPlayerDeck();
-				setupDragAndDrop()
-				break;
+        if (Object.keys(msg.game.game_state.selected).length === 2) {
+          handleBattleResult(msg.game);
+        }
+        break;
+      case "mergedCards":
+        playerDeck = msg.game.game_state.decks[playerId];
+        renderPlayerDeck();
+        setupDragAndDrop();
+        break;
       case "endRound":
-				setTimeout(() => {
-					updateHealthUI(msg.game.game_state.health);
-				}, [2000])
+        setTimeout(() => {
+          updateHealthUI(msg.game.game_state.health);
+        }, [2000]);
         break;
       case "gameEnded":
-        showGameOver(msg.game.winner_id === null ? null : msg.game.winner_id === playerId);
+        showGameOver(
+          msg.game.winner_id === null ? null : msg.game.winner_id === playerId
+        );
         break;
 
-			case "updateTimer":
-				// Обновление таймера
-				if (msg.payload && msg.payload.timeLeft) {
-					turnTimerEl.textContent = `⏳ ${msg.payload.timeLeft} сек. на хід`;
-				}
-				break;
-			case "endTimer":
-				// Таймер завершен
-				turnTimerEl.textContent = "❗ Хід завершено";
-				endTurnBtn.disabled = true;
-				break;
+      case "updateTimer":
+        // Обновление таймера
+        if (msg.payload && msg.payload.timeLeft) {
+          turnTimerEl.textContent = `⏳ ${msg.payload.timeLeft} сек. на хід`;
+        }
+        break;
+      case "endTimer":
+        // Таймер завершен
+        turnTimerEl.textContent = "❗ Хід завершено";
+        endTurnBtn.disabled = true;
+        break;
     }
   };
 
@@ -264,8 +272,9 @@ function renderFightCards(gameState) {
   };
 
   const { selected, health } = gameState;
-	const myCard = selected[playerId]
-	const enemyCard = selected[Object.keys(health).find(id => +id !== +playerId)];
+  const myCard = selected[playerId];
+  const enemyCard =
+    selected[Object.keys(health).find((id) => +id !== +playerId)];
 
   renderCard(myCard, myCard.attack >= enemyCard.attack);
   renderCard(enemyCard, enemyCard.attack >= myCard.attack);
@@ -325,7 +334,7 @@ function setupDragAndDrop() {
             event: "mergeCards",
             payload: {
               gameId: gameID,
-							cardIds: [draggedId, targetId],
+              cardIds: [draggedId, targetId],
             },
           })
         );
@@ -366,10 +375,10 @@ function setupDragAndDrop() {
 function showGameOver(playerWon) {
   gameOverText.textContent =
     playerWon === null
-      ? "🤝 Нічия! Але галактика чекає на реванш."
+      ? "🤝 Draw! But the game awaits a rematch."
       : playerWon
-      ? "🎉 Ваша перемога освітлює галактику!"
-      : "☄️ Ви програли. Всесвіт готує новий виклик!";
+      ? "🎉 Your victory!"
+      : "☄️ You lost!";
 
   gameOverModal.classList.remove("hidden");
   gameOverModal.classList.add(

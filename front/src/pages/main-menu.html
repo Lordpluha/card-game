@@ -35,14 +35,14 @@
           class="relative select-none flex items-center gap-3 text-[var(--color-text-light)] font-semibold">
           <!-- Аватарка -->
           <button
-						id="avatar-btn"
-						class="w-10 h-10 rounded-full border-2 border-[var(--color-accent)] shadow-md ring-2 ring-[var(--color-accent-light)] focus:outline-none focus:ring-4 focus:ring-[var(--color-accent)]">
-						<img
-							id="avatar-img"
-							src="/assets/empty-avatar.png"
-							data-avatar-url="https://api.dicebear.com/6.x/bottts/svg?seed=Hydra"
-							class="rounded-full object-cover w-full h-full" />
-					</button>
+            id="avatar-btn"
+            class="w-10 h-10 rounded-full border-2 border-[var(--color-accent)] shadow-md ring-2 ring-[var(--color-accent-light)] focus:outline-none focus:ring-4 focus:ring-[var(--color-accent)]">
+            <img
+              id="avatar-img"
+              src="/assets/empty-avatar.png"
+              data-avatar-url="https://api.dicebear.com/6.x/bottts/svg?seed=Hydra"
+              class="rounded-full object-cover w-full h-full" />
+          </button>
 
           <!-- Никнейм -->
           <a
@@ -51,86 +51,27 @@
             class="px-3 py-1 border-2 border-[var(--color-accent)] rounded-md text-sm hover:bg-[var(--color-accent)] hover:bg-opacity-20 transition-colors cursor-pointer">
             <!-- TungTungTungTungSahur -->
           </a>
-
-          <!-- Модалка с авами -->
-          <div
-            id="avatar-modal"
-            class="absolute left-0 top-14 w-56 bg-[rgba(26,26,26,0.95)] rounded-lg shadow-lg text-[var(--color-text-light)] text-sm font-semibold ring-1 ring-[var(--color-accent)] ring-opacity-50 p-4 hidden z-50 backdrop-blur-md">
-            <p class="mb-3 text-center text-base">Оберіть аватар:</p>
-            <div class="grid grid-cols-4 gap-2 mb-4">
-              <img
-                src="https://api.dicebear.com/6.x/bottts/svg?seed=Hydra"
-                data-avatar-url="https://api.dicebear.com/6.x/bottts/svg?seed=Hydra"
-                class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
-              <img
-                src="https://api.dicebear.com/6.x/bottts/svg?seed=Zorg"
-                data-avatar-url="https://api.dicebear.com/6.x/bottts/svg?seed=Zorg"
-                class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
-              <img
-                src="https://api.dicebear.com/6.x/bottts/svg?seed=Grax"
-                data-avatar-url="https://api.dicebear.com/6.x/bottts/svg?seed=Grax"
-                class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
-              <img
-                src="https://api.dicebear.com/6.x/bottts/svg?seed=Turbo"
-                data-avatar-url="https://api.dicebear.com/6.x/bottts/svg?seed=Turbo"
-                class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
-
-              <img
-                src="https://api.dicebear.com/6.x/big-ears/svg?seed=Blorb"
-                data-avatar-url="https://api.dicebear.com/6.x/big-ears/svg?seed=Blorb"
-                class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
-              <img
-                src="https://api.dicebear.com/6.x/big-ears/svg?seed=Globbo"
-                data-avatar-url="https://api.dicebear.com/6.x/big-ears/svg?seed=Globbo"
-                class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
-              <img
-                src="https://api.dicebear.com/6.x/big-ears/svg?seed=Flurp"
-                data-avatar-url="https://api.dicebear.com/6.x/big-ears/svg?seed=Flurp"
-                class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
-              <img
-                src="https://api.dicebear.com/6.x/big-ears/svg?seed=Krunk"
-                data-avatar-url="https://api.dicebear.com/6.x/big-ears/svg?seed=Krunk"
-                class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
-
-              <img
-                src="https://api.dicebear.com/6.x/bottts/svg?seed=Zap"
-                data-avatar-url="https://api.dicebear.com/6.x/bottts/svg?seed=Zap"
-                class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
-              <img
-                src="https://api.dicebear.com/6.x/bottts/svg?seed=Chomp"
-                data-avatar-url="https://api.dicebear.com/6.x/bottts/svg?seed=Chomp"
-                class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
-              <img
-                src="https://api.dicebear.com/6.x/big-ears/svg?seed=Fuzz"
-                data-avatar-url="https://api.dicebear.com/6.x/big-ears/svg?seed=Fuzz"
-                class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
-              <img
-                src="https://api.dicebear.com/6.x/big-ears/svg?seed=Snorf"
-                data-avatar-url="https://api.dicebear.com/6.x/big-ears/svg?seed=Snorf"
-                class="rounded-full cursor-pointer border-2 border-transparent hover:border-[var(--color-accent-light)] transition" />
-            </div>
-          </div>
         </div>
 
         <nav
           aria-label="Головна навігація"
           class="hidden md:flex space-x-8 font-semibold text-[var(--color-accent)]">
           <a
-          class="btn-neon px-3 py-1.5 rounded-lg flex items-center gap-2 hover:text-[var(--color-text-light)] transition text-sm"
-          href="./collection.html">
-          <i class="fas fa-th-large"></i> Колекція</a
-        >
+            class="btn-neon px-3 py-1.5 rounded-lg flex items-center gap-2 hover:text-[var(--color-text-light)] transition text-sm"
+            href="./collection.html">
+            <i class="fas fa-th-large"></i> Collection</a
+          >
 
           <a
             class="btn-neon px-3 py-1.5 rounded-lg flex items-center gap-2 hover:text-[var(--color-text-light)] transition text-sm"
             href="#shop">
-            <i class="fas fa-store"></i> Магазин</a
+            <i class="fas fa-store"></i> Shop</a
           >
 
-<button
+          <button
             id="settingsBtn"
             class="btn-neon px-3 py-1.5 rounded-lg flex items-center gap-2 hover:text-[var(--color-text-light)] transition text-sm">
-            <i class="fas fa-cog"></i> Налаштування
+            <i class="fas fa-cog"></i> Settings
           </button>
 
           <button
@@ -144,19 +85,19 @@
           id="settingsModal"
           class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div class="bg-white rounded-lg p-6 text-black w-72">
-            <h2 class="text-xl font-bold mb-4">Налаштування</h2>
+            <h2 class="text-xl font-bold mb-4">Settings</h2>
             <label class="flex items-center gap-2 mb-4">
               <input
                 type="checkbox"
                 id="toggleParticles"
                 class="accent-purple-500" />
-              Анімований фон (частинки)
+              Animated background (particles)
             </label>
             <div class="flex justify-end gap-2">
               <button
                 id="settingsCloseBtn"
                 class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">
-                Закрити
+                Close
               </button>
             </div>
           </div>
@@ -165,13 +106,13 @@
         <div class="flex items-center space-x-3 mb-3 md:mb-0 select-none">
           <img
             alt="Логотип карткової гри з символом піки чорного кольору на білому фоні"
-            class="w-12 h-12"
+            class="w-12 h-12 object-contain"
             height="48"
-            src="https://storage.googleapis.com/a1aa/image/97d87c37-88ef-44c7-e275-49ec93d426d4.jpg"
+            src="../assets/img/logo.png"
             width="48" />
           <h1
             class="text-[var(--color-text-light)] text-3xl font-bold tracking-wide">
-            CardGame
+            Wasteland Warlords
           </h1>
         </div>
 
@@ -222,7 +163,7 @@
             title="Створити нову гру">
             <i class="fas fa-plus-circle fa-2x text-[var(--color-accent)]"></i>
             <span class="text-[var(--color-text-light)] font-semibold"
-              >Створити гру</span
+              >Create game</span
             >
           </a>
           <a
@@ -231,42 +172,40 @@
             title="Приєднатись до існуючої гри">
             <i class="fas fa-sign-in-alt fa-2x text-[var(--color-accent)]"></i>
             <span class="text-[var(--color-text-light)] font-semibold"
-              >Приєднатись до гри</span
+              >Connect to room</span
             >
           </a>
         </section>
 
         <section class="w-full max-w-5xl mx-auto mt-10">
-        <h3 class="text-3xl font-bold mb-6 text-[var(--color-accent-light)]">
-          Історія матчів
-        </h3>
-        <div class="overflow-x-auto rounded-xl shadow-lg">
-          <table
-            class="min-w-full bg-[rgba(30,15,47,0.85)] rounded-xl text-[var(--color-text-muted)]">
-            <thead>
-              <tr class="border-b border-[var(--color-accent-dark)]">
-                <th class="py-3 px-6 text-left font-semibold">Гравець 1</th>
-                <th class="py-3 px-6 text-left font-semibold">Гравець 2</th>
-                <th class="py-3 px-6 text-left font-semibold">Статус</th>
-                <th class="py-3 px-6 text-left font-semibold">Дата</th>
-              </tr>
-            </thead>
-            <tbody id="history-body">
-
-            </tbody>
-          </table>
-        </div>
-      </section>
+          <h3 class="text-3xl font-bold mb-6 text-[var(--color-accent-light)]">
+            Battles history
+          </h3>
+          <div class="overflow-x-auto rounded-xl shadow-lg">
+            <table
+              class="min-w-full bg-[rgba(30,15,47,0.85)] rounded-xl text-[var(--color-text-muted)]">
+              <thead>
+                <tr class="border-b border-[var(--color-accent-dark)]">
+                  <th class="py-3 px-6 text-left font-semibold">Player 1</th>
+                  <th class="py-3 px-6 text-left font-semibold">Player 2</th>
+                  <th class="py-3 px-6 text-left font-semibold">Status</th>
+                  <th class="py-3 px-6 text-left font-semibold">Data</th>
+                </tr>
+              </thead>
+              <tbody id="history-body"></tbody>
+            </table>
+          </div>
+        </section>
 
         <section class="w-full max-w-5xl mx-auto mt-16 px-4">
-        <h3
-          class="text-3xl font-bold mb-6 text-[var(--color-accent-light)] drop-shadow-lg">
-          Топ гравців
-        </h3>
-        <div
-          id="top-players"
-          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6"></div>
-      </section>
+          <h3
+            class="text-3xl font-bold mb-6 text-[var(--color-accent-light)] drop-shadow-lg">
+            Top Rating
+          </h3>
+          <div
+            id="top-players"
+            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6"></div>
+        </section>
 
         <!-- <section class="w-full max-w-5xl mt-16">
         <h3
@@ -283,7 +222,7 @@
 
       <footer
         class="bg-[rgba(26,26,26,0.85)] text-[var(--color-text-muted)] text-center py-6 mt-16 select-none backdrop-blur-md">
-        <p>© 2024 CardMaster. Всі права захищені.</p>
+        <p>© 2024 Wasteland Warlords. All rights reserved.</p>
       </footer>
     </div>
     <div aria-hidden="true" id="floating-cards">

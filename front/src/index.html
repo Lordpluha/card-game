@@ -16,29 +16,23 @@
     <link rel="stylesheet" href="./style/style.css" />
     <title>Document</title>
   </head>
-  <body>
+  <body class="bg-[#1e0f2f]">
     <div class="preloader">
       <div class="logo">
-        <img src="./assets/img/avengers-logo 1.png" alt="Avengers Logo" />
+        <img src="./assets/img/logo.png" alt="Avengers Logo" />
       </div>
       <div class="bar bar1"></div>
       <div class="bar bar2"></div>
       <div class="bar bar3"></div>
     </div>
-
-    <div class="wrap">
+    <canvas id="particle-canvas"></canvas>
+    <div class="wrap cyberpunk-bg">
       <img
-        src="./assets/img/spider-man-1.png"
-        alt="Spider-Man Left"
-        class="absolute left-0 bottom-0 w-1/4 max-w-xs pulse"
-        data-aos="fade-up"
-        data-aos-delay="2700" />
-      <img
-        src="./assets/img/spider-man-2.png"
+        src="../assets/img/gg.png"
         alt="Spider-Man Right"
         class="absolute right-0 top-0 w-1/4 max-w-xs swing-right"
         data-aos="fade-left"
-        data-aos-delay="2500" />
+        data-aos-delay="600" />
       <div class="container">
         <div
           class="main__content flex items-center justify-center min-h-screen"
@@ -130,5 +124,6 @@
     AOS.init();
   </script>
   <script src="./utils/preloader.js"></script>
+  <script src="./utils/particles.js"></script>
   <script type="module" src="./utils/reg.js"></script>
 </html>

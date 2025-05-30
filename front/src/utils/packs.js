@@ -49,7 +49,10 @@ window.openPack = async function () {
   }
 };
 
-window.closePack = function () {
+window.closePack = function (e) {
   const modal = document.getElementById("packModal");
   modal.classList.add("hidden");
+  setTimeout(() => {
+    location.reload(); // 🔄 обновляем страницу
+  }, 1000);
 };

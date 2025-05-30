@@ -214,7 +214,6 @@ class CardsService {
 
     const size = sizes[type] || 1;
 
-    // Получаем все базовые карты (в т.ч. "locked") из utils/cards.js
     const all = cards;
     const newCards = [];
 
@@ -222,7 +221,6 @@ class CardsService {
       const base = all[Math.floor(Math.random() * all.length)];
       const card = { ...base };
 
-      // Вставляем дубликат карты в БД
       const [result] = await pool.execute(
         "INSERT INTO cards (name, image_url, attack, defense, cost, description, type, categories) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
         [
@@ -244,14 +242,27 @@ class CardsService {
       newCards.push(newCard);
     }
 
-    // Обновляем card_ids пользователя
-    const [[user]] = await pool.query(
-      "SELECT card_ids FROM users WHERE id = ?",
+    // 💰 Списываем монеты
+    const [[user]] = await pool.execute(
+      "SELECT coins FROM users WHERE id = ?",
       [userId]
     );
-    const existing = Array.isArray(user.card_ids)
-      ? user.card_ids
-      : JSON.parse(user.card_ids || "[]");
+    const packCost = 50;
+    if (user.coins < packCost) {
+      throw { status: 400, message: "Not enough coins to open the pack" };
+    }
+    await pool.execute("UPDATE users SET coins = coins - ? WHERE id = ?", [
+      packCost,
+      userId,
+    ]);
+
+    // Обновляем card_ids
+    const [[u]] = await pool.query("SELECT card_ids FROM users WHERE id = ?", [
+      userId,
+    ]);
+    const existing = Array.isArray(u.card_ids)
+      ? u.card_ids
+      : JSON.parse(u.card_ids || "[]");
 
     const updated = [...existing, ...newCards.map((c) => c.id)];
     await pool.execute("UPDATE users SET card_ids = ? WHERE id = ?", [

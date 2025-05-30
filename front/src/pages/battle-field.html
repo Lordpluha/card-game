@@ -14,11 +14,11 @@
     <link rel="stylesheet" href="../style/battle.css" />
   </head>
   <body class="relative min-h-screen bg-[#1e0f2f] font-sans overflow-hidden">
-    <!-- 🔥 Статус бою -->
+    <!-- Battle status  -->
     <div
       id="battle-status"
       class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 text-white text-3xl font-bold hidden">
-      ⚔️ Бій розпочався!
+      ⚔️ Battle start!
     </div>
 
     <!-- 🌌 Фон -->
@@ -66,7 +66,7 @@
         "></div>
     </div>
 
-    <!-- 👤 Противник -->
+    <!-- 👤 enemy -->
     <div class="absolute top-4 left-4 z-10">
       <div class="player-card">
         <div class="avatar-wrapper">
@@ -89,7 +89,7 @@
       </div>
     </div>
 
-    <!-- 👤 Гравець -->
+    <!-- 👤 player -->
     <div class="absolute bottom-4 left-4 z-10">
       <div class="player-card">
         <div class="avatar-wrapper">
@@ -112,26 +112,26 @@
       </div>
     </div>
 
-    <!-- 🃏 Зона карт -->
+    <!-- card zone -->
     <div
       id="battle-field"
       class="absolute inset-0 z-10 w-full flex flex-col justify-end hidden">
       <div
         id="battle-cards"
         class="battle-cards-grid grid grid-cols-6 gap-4 w-[1024px] mx-auto"></div>
-      <!-- 🧱 Моя бойова зона -->
+      <!-- 🧱 my card zone -->
       <div
         id="player-battle-zone"
         class="drop-zone absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[1024px] min-h-[150px] border-2 border-dashed border-purple-500 rounded-lg flex gap-4 justify-center items-center p-4 z-10 text-white"></div>
     </div>
 
-    <!-- 🕹 Кнопка завершення ходу -->
+    <!-- 🕹 finish -->
     <div class="absolute bottom-4 right-8 z-10">
       <button
         id="end-turn-btn"
         class="bg-purple-700 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
         disabled>
-        Хід завершено
+        Turn completed!
       </button>
     </div>
     <div
@@ -139,11 +139,11 @@
       class="fixed inset-0 bg-[#1a0033cc] flex items-center justify-center hidden z-50">
       <div
         class="bg-[#2a0055] text-white p-6 rounded-2xl text-center shadow-2xl border border-violet-400">
-        <h2 id="game-over-text" class="text-2xl mb-4">Гра завершена</h2>
+        <h2 id="game-over-text" class="text-2xl mb-4">Game is ended!</h2>
         <button
           id="game-over-btn"
           class="bg-violet-500 hover:bg-violet-600 text-white px-4 py-2 rounded-xl transition">
-          До меню
+          To menu
         </button>
       </div>
     </div>
@@ -152,7 +152,6 @@
       id="turn-timer"
       class="text-center text-sm text-purple-400 font-bold absolute top-4 right-4 z-10"></div>
 
-    <!-- ⚙️ Скрипт бою -->
     <script type="module" src="../utils/battle.js"></script>
   </body>
 </html>
