@@ -194,7 +194,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     CardsService.getMyCards(),
   ]);
 
-  const user = await UserService.getUser(); // 👈 Получаем пользователя
+  const user = await UserService.getUser().catch(() => {
+			AuthService.refresh().then(() => {
+				window.location.reload();
+			});
+		}); // 👈 Получаем пользователя
   document.getElementById("user-coins").textContent = user.coins; // 💰 Обновляем UI
   document.getElementById("user-coins-2").textContent = user.coins; // 💰 Обновляем UI
 
@@ -288,7 +292,11 @@ document.getElementById("mergeBtn").addEventListener("click", async () => {
     renderAllCardsTab();
 
     // 💰 Оновити кількість монет
-    const user = await UserService.getUser();
+    const user = await UserService.getUser().catch(() => {
+			AuthService.refresh().then(() => {
+				window.location.reload();
+			});
+		});
     document.getElementById("user-coins").textContent = user.coins;
     document.getElementById("user-coins-2").textContent = user.coins;
   } catch (err) {
@@ -360,7 +368,11 @@ document.getElementById("upgradeBtn").addEventListener("click", async () => {
     return;
   }
 
-  const user = await UserService.getUser();
+  const user = await UserService.getUser().catch(() => {
+			AuthService.refresh().then(() => {
+				window.location.reload();
+			});
+		});
 
   if (user.coins < 50) {
     alert("Не вистачає монет 😢");
@@ -371,7 +383,11 @@ document.getElementById("upgradeBtn").addEventListener("click", async () => {
     const upgraded = await CardsService.upgrade(card.id);
 
     // 🔁 Обновляем монеты
-    const newUser = await UserService.getUser();
+    const newUser = await UserService.getUser().catch(() => {
+			AuthService.refresh().then(() => {
+				window.location.reload();
+			});
+		});
     document.getElementById("user-coins").textContent = newUser.coins;
     document.getElementById("user-coins-2").textContent = newUser.coins;
 

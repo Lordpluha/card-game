@@ -34,7 +34,12 @@ async function initWebSocket() {
 
   socket.onopen = async () => {
     try {
-      const user = await UserService.getUser();
+      const user = await UserService.getUser()
+				.catch(() => {
+					AuthService.refresh().then(() => {
+						window.location.reload();
+					});
+			});
       if (!user || !user.id) return;
       playerId = user.id;
       userData = user;

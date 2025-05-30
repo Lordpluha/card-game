@@ -25,10 +25,14 @@ UserService.getUser()
     }
   })
   .catch((err) => {
-    console.log("❌ Помилка завантаження даних користувача:", err.message);
-    if (window.location.pathname !== '/pages/login.html') {
-      window.location.href = "/pages/login.html";
-    }
+		AuthService.refresh().then(() => {
+			window.location.reload();
+		}).catch(() => {
+			console.log("❌ Помилка завантаження даних користувача:", err.message);
+			if (window.location.pathname !== '/pages/login.html') {
+				window.location.href = "/pages/login.html";
+			}
+		})
   });
 
 // ===== Logout =====
@@ -58,7 +62,7 @@ if (avatarBtn) {
     e.preventDefault();
     window.location.href = "/pages/profile.html";
   });
-  
+
   // Add cursor pointer style to indicate it's clickable
   avatarBtn.style.cursor = 'pointer';
 }

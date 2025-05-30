@@ -119,7 +119,15 @@ const renderDeckCards = async () => {
 let myId;
 UserService.getUser()
   .then((u) => (myId = u.id))
-  .catch(() => (myId = null));
+  .catch(() => {
+		AuthService.refresh()
+			.then(() => {
+				window.location.reload();
+			})
+			.catch(() => {
+				myId = null
+			})
+	});
 
 async function updateUI(game) {
   const players = game.game_state?.players || {};
