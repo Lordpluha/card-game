@@ -5,13 +5,30 @@ class UserService {
   // получить профиль по ID
   async getById(userId) {
     const [row] = await pool.execute(
-      "SELECT id, username, email, avatar_url, created_at, last_game_date, card_ids, coins FROM users WHERE id = ?",
+      "SELECT id, username, email, avatar_url, created_at, last_game_date, card_ids, rating, fragments, coins FROM users WHERE id = ?",
       [userId]
     );
 		const user = row[0];
     if (!user) throw { status: 404, message: "User not found" };
     return user;
   }
+
+	async updateRating(userId, rating) {
+		const [result] = await pool.execute(
+			"UPDATE users SET rating = ? WHERE id = ?",
+			[+rating, userId]
+		);
+		console.log(result[0])
+		return await this.getById(userId);
+	}
+
+	async winnerReward(userId, coins, fragments) {
+		const [result] = await pool.execute(
+			"UPDATE users SET coins = coins + ?, fragments = fragments + ? WHERE id = ?",
+			[coins, fragments, userId]
+		);
+		return await this.getById(userId);
+	}
 
   // получить профиль по username
   async getByUsername(username) {

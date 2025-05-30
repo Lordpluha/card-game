@@ -113,15 +113,10 @@ router.post("/cards/:id/upgrade", requireAccessToken, async (req, res) => {
 
 router.post("/cards/open-pack", requireAccessToken, async (req, res) => {
   try {
-    console.log("📩 Body:", req.body);
-    console.log("👤 User ID:", req.userId);
-
     const { type = "common" } = req.body || {};
-    console.log("🎴 Requested pack type:", type);
 
     const newCards = await CardsService.openPack(req.userId, type);
 
-    console.log("✅ Cards returned:", newCards);
     res.json(newCards);
   } catch (err) {
     console.error("❌ Error opening pack:", err);

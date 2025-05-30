@@ -325,12 +325,14 @@ class GameService {
 		}
 
 		// Если есть победитель, то обновляем рейтинг игроков
-		if (winnerId !== null) {
-			const [[winner]] = await pool.execute("SELECT * FROM users WHERE id = ?", [winner_id]);
-			const [[looser]] = await pool.execute("SELECT * FROM users WHERE id = ?", [looser_id]);
+		if (winner_id !== null) {
+			const winner = await UserService.getById(winner_id);
+			const looser = await UserService.getById(looser_id);
+			console.log("Winner:", winner, "Looser:", looser);
+			console.log("Winner rating:", winner.rating, "Looser rating:", looser.rating);
 
-			await UserService.updateRating(winner_id, winner.rating + 10);
-			await UserService.updateRating(looser_id, Math.max(0, looser.rating - 15));
+			const winnerWithRating = await UserService.updateRating(winner_id, +(winner.rating) + 10);
+			const looserWithRating = await UserService.updateRating(looser_id, Math.max(0, +(looser.rating) - 15));
 		}
 
 		// Завершаем игру
@@ -338,6 +340,10 @@ class GameService {
       "UPDATE games SET status = ?, winner_id = ? WHERE id = ?",
       ["ENDED", winner_id, gameId]
     );
+
+		console.log("Game finished:", gameId, "Winner:", winner_id);
+
+		const newWinner = await UserService.winnerReward(winner_id, 15, 2);
 
 		return this.getGameById(gameId);
   }
