@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg" />
+    <link rel="stylesheet" href="../vendor/tailwind/tailwind3.css" />
+    <link rel="stylesheet" href="../vendor/fonts/fonts.css" />
+    <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+    <link rel="stylesheet" href="../vendor/aos/aos.css" />
+    <script src="../vendor/gsap/gsap.min.js"></script>
+    <script src="../vendor/aos/aos.js"></script>
+    <meta charset="UTF-8" />
+    <title>Lobby · Card Game</title>
+<link rel="stylesheet" href="../style/style.css" />
+  </head>
+
+  <body class="lobby-body">
+    <div class="game-container">
+      <header class="game-header">
+        <div class="corner-countdown">
+          <button class="ready-button" id="readyBtn" disabled>
+            <i class="fas fa-gamepad"></i>
+            <span>Ready for battle</span>
+          </button>
+        </div>
+        <div class="game-code-box mb-6">
+          <span class="game-code-label">Code for friend:</span>
+          <span id="game-code" class="game-code-value"></span>
+        </div>
+      </header>
+
+      <!-- Секція гравців -->
+      <section class="players-section">
+        <div class="player-card">
+          <div id="p1-status" class="player-status status-ready">
+            <i class="fas fa-check-circle"></i>
+            <span>ОЧІКУЄ</span>
+          </div>
+
+          <div class="avatar-wrapper">
+            <div class="avatar-border"></div>
+            <img id="p1-avatar" src="" alt="Avatar 1" class="player-avatar" />
+          </div>
+
+          <div class="player-info">
+            <h3 id="p1-name" class="player-name">Гравець 1</h3>
+            <div class="player-stats">
+              <div class="player-stat">
+                <i class="fas fa-star"></i>
+                <span>0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vs-indicator">VS</div>
+
+        <div class="player-card">
+          <div id="p2-status" class="player-status status-waiting">
+            <i class="fas fa-clock"></i>
+            <span>ОЧІКУЄ</span>
+          </div>
+
+          <div class="avatar-wrapper">
+            <div class="avatar-border"></div>
+            <img id="p2-avatar" src="" alt="Avatar 2" class="player-avatar" />
+          </div>
+
+          <div class="player-info">
+            <h3 id="p2-name" class="player-name">Гравець 2</h3>
+            <div class="player-stats p2-player-stats">
+              <div class="p2-stat player-stat">
+                <i class="fas fa-star p2-star"></i>
+                <span class="p2-stat-count">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Секція колод з новим дизайном -->
+      <section class="decks-section">
+        <div class="decks-grid" id="decksGrid">
+          <!-- loaded dynamically -->
+        </div>
+      </section>
+
+      <!-- Секція дій і таймера -->
+      <!-- <section class="action-section">
+        <div class="countdown-container">
+          <h3 class="countdown-title">Гра почнеться через</h3>
+          <div class="countdown-timer" id="countdown">10</div>
+          <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+          </div>
+          <button class="ready-button" id="readyBtn" disabled>
+            <i class="fas fa-gamepad"></i>
+            <span>Готовий до бою</span>
+          </button>
+        </div>
+      </section> -->
+    </div>
+  </body>
+  <script></script>
+  <script type="module" src="../utils/lobby.js"></script>
+  <script type="module" src="../utils/lobby-animate.js"></script>
+  <script type="module" src="../demo/banner.js"></script>
+</html>

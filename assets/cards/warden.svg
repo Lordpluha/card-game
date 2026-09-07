@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="420" viewBox="0 0 300 420">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0%" stop-color="#4b5563"/><stop offset="100%" stop-color="#1f2937"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.45" r="0.55">
+      <stop offset="0%" stop-color="#9ca3af" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#9ca3af" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="300" height="420" fill="url(#bg)"/>
+  <circle cx="150" cy="200" r="150" fill="url(#glow)"/>
+  <g opacity="0.12" stroke="#9ca3af" stroke-width="2" fill="none">
+    <line x1="0" y1="0" x2="300" y2="-90"/><line x1="0" y1="48" x2="300" y2="-42"/><line x1="0" y1="96" x2="300" y2="6"/><line x1="0" y1="144" x2="300" y2="54"/><line x1="0" y1="192" x2="300" y2="102"/><line x1="0" y1="240" x2="300" y2="150"/><line x1="0" y1="288" x2="300" y2="198"/><line x1="0" y1="336" x2="300" y2="246"/><line x1="0" y1="384" x2="300" y2="294"/>
+  </g>
+  <g fill="#9ca3af" stroke="#9ca3af" stroke-linejoin="round"><path d="M150 108l72 26v78c0 52-34 84-72 100-38-16-72-48-72-100v-78z"/><path d="M150 152v104" stroke="#0f172a" stroke-width="12" fill="none"/><path d="M108 200h84" stroke="#0f172a" stroke-width="12" fill="none"/></g>
+  <rect x="6" y="6" width="288" height="408" rx="14" fill="none" stroke="#9ca3af" stroke-width="4" opacity="0.85"/>
+  <rect x="0" y="336" width="300" height="84" fill="#0b0713" opacity="0.82"/>
+  <text x="150" y="372" font-family="Rajdhani,Segoe UI,system-ui,sans-serif" font-size="27" font-weight="700"
+        fill="#f4f4f5" text-anchor="middle">Warden</text>
+  <text x="150" y="398" font-family="Rajdhani,Segoe UI,system-ui,sans-serif" font-size="16" letter-spacing="3"
+        fill="#9ca3af" text-anchor="middle">COMMON</text>
+</svg>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="420" viewBox="0 0 300 420">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0%" stop-color="#7e22ce"/><stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.45" r="0.55">
+      <stop offset="0%" stop-color="#c084fc" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#c084fc" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="300" height="420" fill="url(#bg)"/>
+  <circle cx="150" cy="200" r="150" fill="url(#glow)"/>
+  <g opacity="0.12" stroke="#c084fc" stroke-width="2" fill="none">
+    <line x1="0" y1="0" x2="300" y2="-90"/><line x1="0" y1="48" x2="300" y2="-42"/><line x1="0" y1="96" x2="300" y2="6"/><line x1="0" y1="144" x2="300" y2="54"/><line x1="0" y1="192" x2="300" y2="102"/><line x1="0" y1="240" x2="300" y2="150"/><line x1="0" y1="288" x2="300" y2="198"/><line x1="0" y1="336" x2="300" y2="246"/><line x1="0" y1="384" x2="300" y2="294"/>
+  </g>
+  <g fill="#c084fc" stroke="#c084fc" stroke-linejoin="round"><path d="M150 140 60 210l38 10-24 56 76-64z"/><path d="M150 140l90 70-38 10 24 56-76-64z"/><circle cx="150" cy="126" r="20"/></g>
+  <rect x="6" y="6" width="288" height="408" rx="14" fill="none" stroke="#c084fc" stroke-width="4" opacity="0.85"/>
+  <rect x="0" y="336" width="300" height="84" fill="#0b0713" opacity="0.82"/>
+  <text x="150" y="372" font-family="Rajdhani,Segoe UI,system-ui,sans-serif" font-size="27" font-weight="700"
+        fill="#f4f4f5" text-anchor="middle">Valkyrie</text>
+  <text x="150" y="398" font-family="Rajdhani,Segoe UI,system-ui,sans-serif" font-size="16" letter-spacing="3"
+        fill="#c084fc" text-anchor="middle">EPIC</text>
+</svg>

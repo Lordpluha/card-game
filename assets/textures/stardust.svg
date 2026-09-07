@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <!-- Local replacement for the transparenttextures.com "stardust" tile. -->
+  <g fill="#ffffff" fill-opacity="0.055">
+    <circle cx="8" cy="14" r="1"/><circle cx="33" cy="5" r="0.8"/><circle cx="57" cy="21" r="1.2"/>
+    <circle cx="79" cy="9" r="0.9"/><circle cx="103" cy="18" r="1"/><circle cx="17" cy="42" r="0.8"/>
+    <circle cx="45" cy="37" r="1.1"/><circle cx="68" cy="49" r="0.8"/><circle cx="94" cy="41" r="1"/>
+    <circle cx="112" cy="55" r="0.9"/><circle cx="5" cy="66" r="1"/><circle cx="28" cy="74" r="0.9"/>
+    <circle cx="52" cy="63" r="0.8"/><circle cx="75" cy="78" r="1.1"/><circle cx="99" cy="70" r="0.8"/>
+    <circle cx="14" cy="93" r="0.9"/><circle cx="38" cy="105" r="1"/><circle cx="61" cy="95" r="0.8"/>
+    <circle cx="85" cy="110" r="1"/><circle cx="108" cy="98" r="0.9"/>
+  </g>
+</svg>

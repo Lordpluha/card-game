@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg" />
+    <link rel="stylesheet" href="../vendor/tailwind/tailwind3.css" />
+    <link rel="stylesheet" href="../vendor/fonts/fonts.css" />
+    <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+    <link rel="stylesheet" href="../vendor/aos/aos.css" />
+    <script src="../vendor/gsap/gsap.min.js"></script>
+    <script src="../vendor/aos/aos.js"></script>
+    <meta charset="UTF-8" />
+    <title>Battle · Card Game</title>
+<link rel="stylesheet" href="../style/style.css" />
+    <link rel="stylesheet" href="../style/battle.css" />
+  </head>
+  <body class="relative min-h-screen bg-[#1e0f2f] font-sans overflow-hidden">
+    <!-- Battle status  -->
+    <div
+      id="battle-status"
+      class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 text-white text-3xl font-bold hidden">
+      ⚔️ Battle start!
+    </div>
+
+    <!-- 🌌 Фон -->
+    <div class="table-background absolute inset-0 z-0">
+      <div class="absolute inset-0 bg-gradient-radial"></div>
+      <div class="absolute inset-0 opacity-30 table-texture"></div>
+      <div class="game-grid">
+        <div class="game-grid-line-vertical" style="left: 25%"></div>
+        <div class="game-grid-line-vertical" style="left: 50%"></div>
+        <div class="game-grid-line-vertical" style="left: 75%"></div>
+        <div class="game-grid-line-horizontal" style="top: 25%"></div>
+        <div class="game-grid-line-horizontal" style="top: 50%"></div>
+        <div class="game-grid-line-horizontal" style="top: 75%"></div>
+      </div>
+      <div class="decorative-circle" style="width: 600px; height: 600px"></div>
+      <div class="decorative-circle" style="width: 400px; height: 400px"></div>
+      <div class="decorative-circle" style="width: 200px; height: 200px"></div>
+      <div
+        class="game-piece game-piece-purple"
+        style="
+          top: 15%;
+          left: 10%;
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          transform: rotate(12deg);
+        "></div>
+      <div
+        class="game-piece game-piece-amber"
+        style="
+          top: 75%;
+          right: 15%;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+        "></div>
+      <div
+        class="game-piece game-piece-blue"
+        style="
+          top: 65%;
+          left: 20%;
+          width: 16px;
+          height: 40px;
+          transform: rotate(45deg);
+        "></div>
+    </div>
+
+    <!-- 👤 enemy -->
+    <div class="absolute top-4 left-4 z-10">
+      <div class="player-card">
+        <div class="avatar-wrapper">
+          <div class="avatar-border"></div>
+          <img
+            id="p2-avatar"
+            src="../assets/empty-avatar.png"
+            alt="Opponent Avatar"
+            class="player-avatar" />
+        </div>
+        <div class="player-info text-white">
+          <h3 id="p2-name" class="player-name"></h3>
+          <div class="player-stats">
+            <div class="player-stat">
+              <i class="fas fa-heart text-red-500"></i>
+              <span id="p2-hp">100</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 👤 player -->
+    <!-- Upstream this panel sat at `bottom-4 left-4 z-10`, underneath
+         #battle-field (`absolute inset-0 z-10`, later in the document) and
+         behind the full-width card rail, so the player could never see their
+         own name or HP. Moved opposite the opponent panel and lifted above the
+         board; the card rail keeps the whole bottom edge to itself. -->
+    <div class="absolute top-4 right-4 z-20">
+      <div class="player-card">
+        <div class="avatar-wrapper">
+          <div class="avatar-border"></div>
+          <img
+            id="p1-avatar"
+            src="../assets/empty-avatar.png"
+            alt="Player Avatar"
+            class="player-avatar" />
+        </div>
+        <div class="player-info text-white">
+          <h3 id="p1-name" class="player-name"></h3>
+          <div class="player-stats">
+            <div class="player-stat">
+              <i class="fas fa-heart text-red-500"></i>
+              <span id="p1-hp">100</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- card zone -->
+    <div
+      id="battle-field"
+      class="absolute inset-0 z-10 w-full flex flex-col justify-end hidden">
+      <div
+        id="battle-cards"
+        class="battle-cards-grid grid grid-cols-6 gap-4 w-[1024px] mx-auto"></div>
+      <!-- 🧱 my card zone -->
+      <div
+        id="player-battle-zone"
+        class="drop-zone absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[1024px] min-h-[150px] border-2 border-dashed border-purple-500 rounded-lg flex gap-4 justify-center items-center p-4 z-10 text-white"></div>
+    </div>
+
+    <!-- 🕹 finish -->
+    <div class="absolute bottom-4 right-8 z-10">
+      <button
+        id="end-turn-btn"
+        class="bg-purple-700 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled>
+        Turn completed!
+      </button>
+    </div>
+    <div
+      id="game-over-modal"
+      class="fixed inset-0 bg-[#1a0033cc] flex items-center justify-center hidden z-50">
+      <div
+        class="bg-[#2a0055] text-white p-6 rounded-2xl text-center shadow-2xl border border-violet-400">
+        <h2 id="game-over-text" class="text-2xl mb-4">Game is ended!</h2>
+        <button
+          id="game-over-btn"
+          class="bg-violet-500 hover:bg-violet-600 text-white px-4 py-2 rounded-xl transition">
+          To menu
+        </button>
+      </div>
+    </div>
+
+    <div
+      id="turn-timer"
+      class="text-center text-sm text-purple-400 font-bold absolute bottom-20 right-8 z-20"></div>
+
+    <script type="module" src="../utils/battle.js"></script>
+  </body>
+  <script type="module" src="../demo/banner.js"></script>
+</html>

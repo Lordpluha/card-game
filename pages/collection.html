@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg" />
+    <link rel="stylesheet" href="../vendor/tailwind/tailwind3.css" />
+    <link rel="stylesheet" href="../vendor/fonts/fonts.css" />
+    <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+    <link rel="stylesheet" href="../vendor/aos/aos.css" />
+    <script src="../vendor/gsap/gsap.min.js"></script>
+    <script src="../vendor/aos/aos.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Collection · Card Game</title>
+<link rel="stylesheet" href="../style/style.css" />
+  </head>
+  <body class="collection-body">
+    <div class="stars"></div>
+
+    <header
+      class="flex flex-col md:flex-row items-center justify-between bg-[rgba(26,26,26,0.85)] px-6 py-4 shadow-lg sticky top-0 z-50 backdrop-blur-md game-header">
+      <div
+        class="relative select-none flex items-center gap-3 text-[var(--color-text-light)] font-semibold">
+        <button
+          id="avatar-btn"
+          class="w-10 h-10 rounded-full border-2 border-[var(--color-accent)] shadow-md ring-2 ring-[var(--color-accent-light)] focus:outline-none focus:ring-4 focus:ring-[var(--color-accent)]">
+          <img
+            id="avatar-img"
+            src="../assets/avatars/demo.svg"
+            data-avatar-url="../assets/avatars/demo.svg"
+            class="rounded-full object-cover w-full h-full" />
+        </button>
+
+        <div
+          id="nickname"
+          class="px-3 py-1 border-2 border-[var(--color-accent)] rounded-md text-sm"></div>
+      </div>
+
+      <nav
+        aria-label="Головна навігація"
+        class="hidden md:flex space-x-8 font-semibold text-[var(--color-accent)]">
+        <a
+          class="btn-neon px-3 py-1.5 rounded-lg flex items-center gap-2 hover:text-[var(--color-text-light)] transition text-sm"
+          href="./main-menu.html">
+          <i class="fas fa-home"></i> Main-menu</a
+        >
+
+        <a
+          class="btn-neon px-3 py-1.5 rounded-lg flex items-center gap-2 hover:text-[var(--color-text-light)] transition text-sm"
+          href="#shop">
+          <i class="fas fa-store"></i> Shop</a
+        >
+      </nav>
+      <!-- Settings modal -->
+      <div
+        id="settingsModal"
+        class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 text-black w-72">
+          <h2 class="text-xl font-bold mb-4">Setting</h2>
+          <label class="flex items-center gap-2 mb-4">
+            <input
+              type="checkbox"
+              id="toggleParticles"
+              class="accent-purple-500" />
+            Animated background (particles)
+          </label>
+          <div class="flex justify-end gap-2">
+            <button
+              id="settingsCloseBtn"
+              class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-5">
+        <div class="resource-counter">
+          <i class="fas fa-coins text-yellow-400"></i>
+          <span id="user-coins">0</span>
+        </div>
+
+        <div class="resource-counter">
+          <i class="fas fa-shapes text-purple-300"></i>
+          <span>24</span>
+        </div>
+
+        <div class="relative ml-2">
+          <button
+            class="header-button-secondary w-10 h-10 rounded-full flex items-center justify-center">
+            <i class="fas fa-bell"></i>
+          </button>
+          <span class="notification-badge">5</span>
+        </div>
+
+        <div class="md:hidden ml-2">
+          <button
+            class="header-button-secondary w-10 h-10 rounded-full flex items-center justify-center">
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3 mb-3 md:mb-0 select-none">
+        <img
+          alt="Логотип карткової гри з символом піки чорного кольору на білому фоні"
+          class="w-12 h-12 object-contain"
+          height="48"
+          src="../assets/img/logo.png"
+          width="48" />
+        <h1
+          class="text-[var(--color-text-light)] text-3xl font-bold tracking-wide">
+          Wasteland Warlords
+        </h1>
+      </div>
+
+      <button
+        aria-label="Відкрити меню"
+        class="md:hidden text-[var(--color-accent)] hover:text-[var(--color-text-light)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] ml-4"
+        id="menu-btn">
+        <i class="fas fa-bars fa-lg"></i>
+      </button>
+    </header>
+
+    <div class="container mx-auto px-4 py-8">
+      <header class="mb-8"></header>
+
+      <div class="flex flex-col lg:flex-row gap-8 items-start relative">
+        <div class="w-full lg:w-2/5 section-box rounded-xl p-6 sticky top-24">
+          <h2 class="text-2xl font-semibold text-white mb-6">Inventory</h2>
+
+          <div class="mb-6">
+            <h3 class="text-lg font-medium text-indigo-200 mb-3">Resources</h3>
+            <div class="grid grid-cols-3 gap-4">
+              <div class="inventory-item rounded-lg p-3 flex items-center">
+                <div
+                  class="w-10 h-10 bg-indigo-900 rounded-full flex items-center justify-center mr-3">
+                  <i class="fas fa-coins text-yellow-400"></i>
+                </div>
+                <div>
+                  <p class="text-sm text-indigo-200">Gold</p>
+                  <p class="font-medium text-white">
+                    <span id="user-coins-2">0</span>
+                  </p>
+                </div>
+              </div>
+
+              <div class="inventory-item rounded-lg p-3 flex items-center">
+                <div
+                  class="w-10 h-10 bg-indigo-900 rounded-full flex items-center justify-center mr-3">
+                  <i class="fas fa-shapes text-purple-300"></i>
+                </div>
+                <div>
+                  <p class="text-sm text-indigo-200">Shards</p>
+                  <p class="font-medium text-white">24</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <h3 class="text-lg font-medium text-indigo-200 mb-3">
+              Packs <span class="text-sm text-gray-400">(available)</span>
+            </h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div
+                class="pack pack-common rounded-lg p-3 flex flex-col items-center cursor-pointer"
+                onclick="openPack()">
+                <div
+                  class="w-16 h-16 bg-indigo-900 rounded-full flex items-center justify-center mb-2">
+                  <i class="fas fa-box-open text-gray-300 text-2xl"></i>
+                </div>
+                <div class="text-center">
+                  <p class="font-medium text-white">Common Pack</p>
+                  <p class="text-xs text-gray-400">1 card</p>
+                  <div class="flex items-center justify-center mt-1">
+                    <span
+                      class="bg-gray-700 text-gray-300 text-xs px-2 py-0.5 rounded-full"
+                      >x2</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <!-- <div
+                class="pack pack-rare rounded-lg p-3 flex flex-col items-center cursor-pointer"
+                onclick="openPack('rare')">
+                <div
+                  class="w-16 h-16 bg-blue-900 rounded-full flex items-center justify-center mb-2">
+                  <i class="fas fa-box-open text-blue-300 text-2xl"></i>
+                </div>
+                <div class="text-center">
+                  <p class="font-medium text-white">Rare Pack</p>
+                  <p class="text-xs text-gray-400">5 cards</p>
+                  <div class="flex items-center justify-center mt-1">
+                    <span
+                      class="bg-gray-700 text-gray-300 text-xs px-2 py-0.5 rounded-full"
+                      >x1</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="pack pack-epic rounded-lg p-3 flex flex-col items-center cursor-pointer"
+                onclick="openPack('epic')">
+                <div
+                  class="w-16 h-16 bg-purple-900 rounded-full flex items-center justify-center mb-2">
+                  <i class="fas fa-box-open text-purple-300 text-2xl"></i>
+                </div>
+                <div class="text-center">
+                  <p class="font-medium text-white">Epic Pack</p>
+                  <p class="text-xs text-gray-400">5 cards</p>
+                  <div class="flex items-center justify-center mt-1">
+                    <span
+                      class="bg-gray-700 text-gray-300 text-xs px-2 py-0.5 rounded-full"
+                      >x1</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="pack pack-legendary rounded-lg p-3 flex flex-col items-center cursor-pointer"
+                onclick="openPack('legendary')">
+                <div
+                  class="w-16 h-16 bg-yellow-900 rounded-full flex items-center justify-center mb-2">
+                  <i class="fas fa-box-open text-yellow-300 text-2xl"></i>
+                </div>
+                <div class="text-center">
+                  <p class="font-medium text-white">Legendary Pack</p>
+                  <p class="text-xs text-gray-400">7 cards</p>
+                  <div class="flex items-center justify-center mt-1">
+                    <span
+                      class="bg-gray-700 text-gray-300 text-xs px-2 py-0.5 rounded-full"
+                      >x1</span
+                    >
+                  </div>
+                </div>
+              </div> -->
+            </div>
+          </div>
+
+          <div
+            class="merge-block mt-6 mb-6 p-4 bg-[#4C2569] border border-indigo-700 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold text-white mb-2">Merge cards</h3>
+            <p class="text-sm text-gray-300 mb-3">
+              Choose two cards from your collection to combine them into one.
+              <b>50 coins</b>.
+            </p>
+            <div
+              id="mergeSelectedCards"
+              class="space-x-4 mb-4 min-h-[96px] flex items-center justify-center"></div>
+            <button
+              id="mergeSelectToggle"
+              class="bg-indigo-700 text-white text-sm px-3 py-2 rounded hover:bg-indigo-600 mb-3">
+              Select cards to merge
+            </button>
+            <button
+              id="mergeBtn"
+              class="bg-yellow-500 text-black font-semibold px-4 py-2 rounded hover:bg-yellow-400 disabled:opacity-30 transition-all"
+              disabled>
+              Merge for 50 💰
+            </button>
+          </div>
+
+          <div class="mb-6">
+            <h3 class="text-lg font-medium text-indigo-200 mb-3">Crafting</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div
+                class="crafting-item rounded-lg p-3 flex flex-col items-center cursor-pointer"
+                onclick="showCraftingModal('legendary')">
+                <div
+                  class="w-16 h-16 bg-yellow-900/30 rounded-full flex items-center justify-center mb-2">
+                  <i class="fas fa-hammer text-yellow-300 text-2xl"></i>
+                </div>
+                <div class="text-center">
+                  <p class="font-medium text-white">Legendary Card</p>
+                  <div class="flex items-center justify-center space-x-1 mt-1">
+                    <span class="shard shard-rare w-4 h-4 rounded-full"></span>
+                    <span class="shard shard-epic w-4 h-4 rounded-full"></span>
+                    <span class="shard shard-epic w-4 h-4 rounded-full"></span>
+                  </div>
+                  <p class="text-xs text-gray-400 mt-1">10 shards required</p>
+                </div>
+              </div>
+
+              <div
+                class="crafting-item rounded-lg p-3 flex flex-col items-center cursor-pointer"
+                onclick="showCraftingModal('mythic')">
+                <div
+                  class="w-16 h-16 bg-red-900/30 rounded-full flex items-center justify-center mb-2">
+                  <i class="fas fa-star text-red-300 text-2xl"></i>
+                </div>
+                <div class="text-center">
+                  <p class="font-medium text-white">Mythic Card</p>
+                  <div class="flex items-center justify-center space-x-1 mt-1">
+                    <span class="shard shard-epic w-4 h-4 rounded-full"></span>
+                    <span
+                      class="shard shard-legendary w-4 h-4 rounded-full"></span>
+                    <span
+                      class="shard shard-legendary w-4 h-4 rounded-full"></span>
+                  </div>
+                  <p class="text-xs text-gray-400 mt-1">25 shards required</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="w-full lg:w-3/5">
+          <div class="section-box rounded-xl p-6">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-2xl font-semibold text-white">Collection</h2>
+              <div class="flex space-x-2" id="collectionTabs">
+                <button
+                  class="px-3 py-1 bg-indigo-900 text-teal-300 rounded-md text-sm"
+                  onclick="switchTab('unlocked')">
+                  Unlocked
+                </button>
+                <button
+                  class="px-3 py-1 bg-gray-800 text-indigo-200 rounded-md text-sm"
+                  onclick="switchTab('all')">
+                  All
+                </button>
+              </div>
+            </div>
+
+            <!-- Unlocked Cards Tab -->
+            <div id="unlockedTab" class="collection-tab">
+              <div
+                class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
+            </div>
+
+            <!-- All Cards Tab -->
+            <div id="allTab" class="collection-tab hidden">
+              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                <!-- Unlocked Cards -->
+
+                <!-- Locked Cards -->
+              </div>
+            </div>
+
+            <!-- Decks Tab -->
+            <div id="decksTab" class="collection-tab hidden">
+              <div class="flex flex-col space-y-6">
+                <!-- Deck builder section -->
+                <div class="bg-gray-900/50 rounded-lg p-4">
+                  <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold text-white">
+                      Deck Builder
+                    </h3>
+                    <div class="flex space-x-2">
+                      <button
+                        class="px-3 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-md text-sm"
+                        onclick="cancelDeckEditing()">
+                        Cancel
+                      </button>
+                      <button
+                        class="px-3 py-1 bg-indigo-900 hover:bg-indigo-800 text-teal-300 rounded-md text-sm"
+                        onclick="saveCurrentDeck()">
+                        Save Deck
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="flex justify-between items-center mb-4">
+                    <div class="flex items-center">
+                      <input
+                        type="text"
+                        id="deckNameInput"
+                        placeholder="Deck Name"
+                        class="bg-gray-800 text-white px-3 py-1 rounded-md mr-2 focus:outline-none focus:ring-1 focus:ring-teal-300" />
+                      <span class="text-sm text-indigo-200"
+                        >Cards: <span id="currentDeckSize">0</span>/8</span
+                      >
+                    </div>
+                  </div>
+
+                  <!-- Current deck cards -->
+                  <div
+                    id="currentDeckCards"
+                    class="grid grid-cols-4 sm:grid-cols-8 gap-2 min-h-[100px] bg-gray-800/50 rounded-lg p-2 mb-4">
+                    <div
+                      class="flex items-center justify-center h-[100px] text-gray-500 col-span-full">
+                      Select cards from your collection below to build your deck
+                    </div>
+                  </div>
+
+                  <!-- Available cards for the deck -->
+                  <h4 class="text-md font-semibold text-indigo-200 mb-2">
+                    Available Cards
+                  </h4>
+
+                  <!-- 👇 добавили id -->
+                  <div
+                    id="availableCards"
+                    class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2 mb-4"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        id="packModal"
+        class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
+        <div class="bg-gray-900 rounded-xl p-6 w-full max-w-2xl relative">
+          <button
+            onclick="closePack()"
+            class="absolute top-4 right-4 text-gray-400 hover:text-white">
+            <i class="fas fa-times text-2xl"></i>
+          </button>
+
+          <h2 class="text-2xl font-bold text-center mb-6" id="packTitle">
+            Opening Common Pack
+          </h2>
+
+          <div class="grid grid-cols-3 gap-4" id="packCards"></div>
+
+          <div class="mt-6 flex justify-center">
+            <button
+              onclick="closePack()"
+              class="btn-mystic px-6 py-2 rounded-lg">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        id="cardDetailsModal"
+        class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
+        <div class="card-modal rounded-xl p-6 w-full max-w-md relative">
+          <button
+            onclick="closeCardDetails()"
+            class="absolute top-4 right-4 text-gray-400 hover:text-white">
+            <i class="fas fa-times text-2xl"></i>
+          </button>
+
+          <div class="flex flex-col items-center mb-4">
+            <div class="relative w-48 h-64 mb-4" id="detailCardImage"></div>
+            <h2 class="text-2xl font-bold text-center" id="detailCardName">
+              Card Name
+            </h2>
+            <p class="text-sm mb-2" id="detailCardRarity">Rarity</p>
+          </div>
+
+          <div class="mb-4">
+            <p class="text-gray-300 text-sm" id="detailCardDescription">
+              Card description goes here...
+            </p>
+          </div>
+
+          <div class="mb-4">
+            <h3 class="text-lg font-semibold mb-2">Stats</h3>
+            <div class="space-y-2">
+              <div>
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span>Cost</span>
+                    <span id="detailCardCost">0</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span>Attack</span>
+                    <span id="detailCardAttack">0</span>
+                  </div>
+                  <div class="stat-bar">
+                    <div
+                      class="stat-fill attack-fill"
+                      id="detailCardAttackBar"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span>Defense</span>
+                    <span id="detailCardDefense">0</span>
+                  </div>
+                  <div class="stat-bar">
+                    <div
+                      class="stat-fill defense-fill"
+                      id="detailCardDefenseBar"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="craftButtonContainer" class="mt-4 text-center">
+              <button
+                id="upgradeBtn"
+                class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-4 rounded">
+                Upgrade for 50 coins
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div
+          id="craftingModal"
+          class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
+          <div class="card-modal rounded-xl p-6 w-full max-w-md relative">
+            <button
+              onclick="closeCraftingModal()"
+              class="absolute top-4 right-4 text-gray-400 hover:text-white">
+              <i class="fas fa-times text-2xl"></i>
+            </button>
+
+            <h2 class="text-2xl font-bold text-center mb-4" id="craftingTitle">
+              Craft Legendary Card
+            </h2>
+
+            <div class="flex justify-center mb-6">
+              <div
+                class="shard shard-rare w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold">
+                10
+              </div>
+            </div>
+
+            <p class="text-gray-300 text-center mb-6">
+              Are you sure you want to craft this card? This will consume
+              <span id="shardCost">10</span> shards.
+            </p>
+
+            <div class="flex space-x-4">
+              <button
+                onclick="closeCraftingModal()"
+                class="header-button-secondary w-full py-2 rounded-lg">
+                Cancel
+              </button>
+              <button
+                onclick="confirmCrafting()"
+                class="btn-mystic w-full py-2 rounded-lg">
+                Craft
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- JavaScript for Collection Management -->
+<script type="module" src="../utils/packs.js"></script>
+    <script type="module" src="../utils/collection.js"></script>
+    <script type="module" src="../utils/main-menu.js"></script>
+  </body>
+  <script type="module" src="../demo/banner.js"></script>
+</html>

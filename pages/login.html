@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg" />
+    <link rel="stylesheet" href="../vendor/tailwind/tailwind4.css" />
+    <link rel="stylesheet" href="../vendor/fonts/fonts.css" />
+    <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+    <link rel="stylesheet" href="../vendor/aos/aos.css" />
+    <script src="../vendor/gsap/gsap.min.js"></script>
+    <script src="../vendor/aos/aos.js"></script>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" href="../style/style.css" />
+    <title>Sign in · Card Game</title>
+  </head>
+  <body>
+    <div class="wrap cyberpunk-bg">
+      <img
+        src="../assets/img/gg.png"
+        alt="Spider-Man Right"
+        class="absolute right-0 top-0 w-1/4 max-w-xs swing-right"
+        data-aos="fade-left"
+        data-aos-delay="600" />
+      <div class="container">
+        <div
+          class="main__content flex items-center justify-center min-h-screen"
+          data-aos="zoom-out"
+          data-aos-delay="100">
+          <form id="loginForm" class="text-center">
+            <h2 class="text-3xl font-bold text-white mb-6">Login</h2>
+            <div class="mb-4">
+              <input
+                type="text"
+                id="username"
+                placeholder="Username"
+                class="w-full p-2 bg-transparent text-white focus:outline-none border-2 border-cyan-300 rounded focus:border-cyan-500 transition-colors duration-300" />
+            </div>
+            <div class="mb-6 relative">
+              <input
+                type="password"
+                id="password"
+                placeholder="Password"
+                class="w-full p-2 bg-transparent text-white focus:outline-none border-2 border-green-300 rounded focus:border-green-500 pr-10 transition-colors duration-300" />
+              <img
+                src="../assets/img/icons8-show-password-96 1.svg"
+                alt="Show Password"
+                data-toggle-password="password"
+                class="absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 cursor-pointer" />
+            </div>
+
+            <div
+              id="errorMessage"
+              class="text-red-500 text-sm mb-4 hidden"></div>
+            <button
+              type="submit"
+              class="bg-purple-500 text-white px-6 py-2 rounded hover:bg-purple-600 cursor-pointer duration-300">
+              Login
+            </button>
+            <p class="text-white text-sm mt-4">
+              Don’t have an account?
+              <a href="../index.html" class="text-cyan-400 hover:underline ml-1"
+                >Register here</a
+              >
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div
+      id="modal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+      <div class="bg-blueviolet p-6 rounded-lg text-white text-center">
+        <h3 class="text-xl mb-4">Login Successful!</h3>
+        <p class="mb-4">Welcome to the game!</p>
+        <button
+          id="closeModal"
+          class="bg-purple-500 px-4 py-2 rounded hover:bg-purple-600">
+          Close
+        </button>
+      </div>
+    </div>
+  </body>
+<script>
+    AOS.init();
+  </script>
+  <script type="module" src="../utils/log.js"></script>
+  <script type="module" src="../utils/particles.js"></script>
+  <script type="module" src="../demo/banner.js"></script>
+</html>
